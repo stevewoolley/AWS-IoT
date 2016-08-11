@@ -23,7 +23,7 @@ def ip_address(interface):
     item = {interface: 'Na'}
     try:
         s = subprocess.check_output(["ip", "addr", "show", interface])
-        item[interface] = s.decode(ENCODING).split('\n')[2].strip().split(' ')[1].split('/')[0]
+        item[interface] = s.split('\n')[2].strip().split(' ')[1].split('/')[0]
     except Exception as ex:
         print ex
     finally:
@@ -34,7 +34,7 @@ def connection_count():
     """Returns the number of network connections"""
     try:
         s = subprocess.check_output(["netstat", "-tun"])
-        return dict(connection_count=len([x for x in s.decode(ENCODING).split() if x == 'ESTABLISHED']))
+        return dict(connection_count=len([x for x in s.split() if x == 'ESTABLISHED']))
     except Exception as ex:
         print ex
         return dict(connection_count='Na')

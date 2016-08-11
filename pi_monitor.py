@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import argparse
 import logging
 import system_info
@@ -41,7 +43,7 @@ result = Publisher(
     args.rootCA,
     args.key,
     args.cert
-).publish(args.topic, data)
+).publish(args.topic, str(data))
 
 result2 = True
 if args.topic2 is not None:
@@ -50,7 +52,7 @@ if args.topic2 is not None:
         args.rootCA,
         args.key,
         args.cert
-    ).publish(args.topic2, data)
+    ).publish(args.topic2, str(data))
 
 if not result and not result2:
     exit(-1)
