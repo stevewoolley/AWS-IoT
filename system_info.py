@@ -18,7 +18,7 @@ def machine():
     return platform.machine()
 
 
-def get_ip_address(interface):
+def ip_address(interface):
     """Returns the IP address for the given interface e.g. eth0"""
     item = {interface: 'Na'}
     try:
@@ -116,7 +116,7 @@ def cpu_core_frequency():
 
 
 def cpu_core_volt():
-    core_volt = subprocess.check_output("vcgencmd measure_volts| cut -d= -f2", shell=True).replace('\n', '')
+    core_volt = subprocess.check_output("vcgencmd measure_volts | cut -d= -f2", shell=True).replace('\n', '')
     return dict(cpu_core_volt=core_volt)
 
 
@@ -155,4 +155,3 @@ def running_process_list():
         print ex
     finally:
         return items[1:]
-
