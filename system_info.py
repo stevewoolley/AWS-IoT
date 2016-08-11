@@ -2,9 +2,6 @@ import platform
 import subprocess
 import locale
 
-# initialize
-ENCODING = locale.getdefaultlocale()[1]
-
 
 def node():
     return platform.node()
@@ -63,7 +60,7 @@ def cpu_generic_details():
 
 
 def boot_info():
-    item = {'start_time': 'Na', 'running_since': 'Na'}
+    item = {'start_time': 'Na', 'running_duration': 'Na'}
     try:
         item['running_duration'] = subprocess.check_output(['uptime -p'], shell=True).replace('\n', '')
         item['start_time'] = subprocess.check_output(['uptime -s'], shell=True).replace('\n', '')
@@ -74,7 +71,7 @@ def boot_info():
 
 
 def memory_usage_info():
-    item = {'total': 0, 'used': 0, 'available': 0}
+    item = {'total': 'Na', 'used': 'Na', 'available': 'Na'}
     try:
         item['total'] = subprocess.check_output(["free -m -t | awk 'NR==2' | awk '{print $2'}"], shell=True).replace(
             '\n', '')
@@ -111,13 +108,24 @@ def cpu_processor_count():
 
 
 def cpu_core_frequency():
-    core_frequency = subprocess.check_output("vcgencmd get_config arm_freq | cut -d= -f2", shell=True).replace('\n', '')
-    return dict(cpu_core_frequency=core_frequency)
+    try:
+        core_frequency = subprocess.check_output("vcgencmd get_config arm_freq | cut -d= -f2", shell=True).replace('\n',
+                                                                                                                   '')
+    except Exception as ex:
+        print ex
+        core_frequency = 'Na'
+    finally:
+        return dict(cpu_core_frequency=core_frequency)
 
 
 def cpu_core_volt():
-    core_volt = subprocess.check_output("vcgencmd measure_volts | cut -d= -f2", shell=True).replace('\n', '')
-    return dict(cpu_core_volt=core_volt)
+    try:
+        core_volt = subprocess.check_output("vcgencmd measure_volts | cut -d= -f2", shell=True).replace('\n', '')
+    except Exception as ex:
+        print ex
+        core_volt = 'Na'
+    finally:
+        return dict(cpu_core_volt=core_volt)
 
 
 def cpu_temperature():
