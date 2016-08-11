@@ -13,6 +13,7 @@ parser.add_argument("-k", "--key", help="Private key file path")
 parser.add_argument("-w", "--websocket", help="Use MQTT over WebSocket", action='store_true')
 parser.add_argument("-g", "--log_level", help="log level", type=int, default=logging.INFO)
 parser.add_argument("-t", "--topic", help="IoT topic", required=True)
+parser.add_argument("-o", "--topic2", help="Additional IoT topic")
 parser.add_argument("-i", "--clientID", help="Client ID", default='')  # empty string auto generates unique client ID
 args = parser.parse_args()
 
@@ -42,5 +43,14 @@ result = Publisher(
     args.cert
 ).publish(args.topic, data)
 
-if not result:
+result2 = True
+if args.topic2 is not None:
+    result2 = Publisher(
+        args.endpoint,
+        args.rootCA,
+        args.key,
+        args.cert
+    ).publish(args.topic2, data)
+
+if not result and not result2:
     exit(-1)
