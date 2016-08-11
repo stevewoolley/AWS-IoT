@@ -1,6 +1,5 @@
 import platform
 import subprocess
-import locale
 
 
 def node():
@@ -41,7 +40,7 @@ def process_count():
     """Returns the number of processes"""
     try:
         s = subprocess.check_output(["ps", "-e"])
-        return dict(process_count=len(s.decode(ENCODING).split('\n')))
+        return dict(process_count=len(s.split('\n')))
     except Exception as ex:
         print ex
         return dict(process_count='Na')
