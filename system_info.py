@@ -93,8 +93,8 @@ def os_name():
 def cpu_usage_info():
     item = {'in_use': 0}
     try:
-        item['in_use'] = subprocess.check_output("top -b -n2 | grep 'Cpu(s)'|tail -n 1 | awk '{print $2 + $4 }'",
-                                                 shell=True).replace('\n', '')
+        item['in_use'] = int(subprocess.check_output("top -b -n2 | grep 'Cpu(s)'|tail -n 1 | awk '{print $2 + $4 }'",
+                                                 shell=True).replace('\n', ''))
     except Exception as ex:
         print ex
     finally:
