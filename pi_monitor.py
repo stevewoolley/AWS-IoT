@@ -36,7 +36,7 @@ data["state"]["reported"]["ramAvailable"] = system_info.memory_usage_info()['mem
 data["state"]["reported"]["processCount"] = system_info.process_count()['process_count']
 data["state"]["reported"]["upTime"] = system_info.boot_info()['boot_info']['running_duration']
 try:
-    data["state"]["reported"]["cpuLoad"] = int(system_info.cpu_usage_info()['cpu_usage_info']['in_use'])
+    data["state"]["reported"]["cpuLoad"] = float(system_info.cpu_usage_info()['cpu_usage_info']['in_use'])
 except Exception as ex:
     pass
 # Publish
