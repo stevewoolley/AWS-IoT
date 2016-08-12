@@ -17,14 +17,27 @@ class Publisher:
         self.port = port
         self.logger = util.set_logger(level=log_level)
 
-    def publish(self, topic, obj, qos=1):
-        publish.single(topic, payload=json.dumps(obj), qos=qos,
-                       hostname=self.endpoint,
-                       port=self.port,
-                       tls={'ca_certs': self.root_ca,
-                            'certfile': self.cert,
-                            'keyfile': self.key,
-                            'tls_version': ssl.PROTOCOL_TLSv1_2
-                            },
-                       protocol=MQTTv311
-                       )
+    def publish(self, topic, obj, qos=0, retain=False):
+        msg = {'topic': topic, 'payload': json.dumps(obj), 'qos': qos, 'retain': retain}
+        publish.multiple([msg],
+                         hostname=self.endpoint,
+                         port=self.port,
+                         tls={'ca_certs': self.root_ca,
+                              'certfile': self.cert,
+                              'keyfile': self.key,
+                              'tls_version': ssl.PROTOCOL_TLSv1_2
+                              }
+                         ,
+                         protocol=MQTTv311)
+
+    def publish_multiple(self, obj):
+        publish.multiple(json.dumps(obj),
+                         hostname=self.endpoint,
+                         port=self.port,
+                         tls={'ca_certs': self.root_ca,
+                              'certfile': self.cert,
+                              'keyfile': self.key,
+                              'tls_version': ssl.PROTOCOL_TLSv1_2
+                              }
+                         ,
+                         protocol=MQTTv311)
