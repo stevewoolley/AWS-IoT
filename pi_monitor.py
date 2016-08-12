@@ -49,7 +49,7 @@ try:
 except Exception as ex:
     print "ERROR: publish %s %s" % (args.topic, ex.message)
 finally:
-    print "%s publish %s" % (args.topic, str(data))
+    print "%s %s publish %s" % (result1, args.topic, str(data))
 
 result2 = True
 if args.topic2 is not None:
@@ -63,5 +63,5 @@ if args.topic2 is not None:
     except Exception as ex:
         print "ERROR: publish %s %s" % (args.topic2, ex.message)
     finally:
-        print "%s publish %s" % (args.topic, str(data))
+        print "%s %s publish %s" % (result2, args.topic2, str(data))
 
