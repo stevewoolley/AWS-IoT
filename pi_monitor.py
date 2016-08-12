@@ -38,8 +38,9 @@ data["state"]["reported"]["upTime"] = system_info.boot_info()['boot_info']['runn
 data["state"]["reported"]["cpuLoad"] = system_info.cpu_usage_info()['cpu_usage_info']['in_use']
 
 # Publish
+result1 = True
 try:
-    result = Publisher(
+    result1 = Publisher(
         args.endpoint,
         args.rootCA,
         args.key,
@@ -47,6 +48,8 @@ try:
     ).publish(args.topic, str(data))
 except Exception as ex:
     print "ERROR: publish %s %s" % (args.topic, ex.message)
+finally:
+    print "%s publish %s" % (args.topic, str(data))
 
 result2 = True
 if args.topic2 is not None:
@@ -59,4 +62,6 @@ if args.topic2 is not None:
         ).publish(args.topic2, str(data))
     except Exception as ex:
         print "ERROR: publish %s %s" % (args.topic2, ex.message)
+    finally:
+        print "%s publish %s" % (args.topic, str(data))
 
