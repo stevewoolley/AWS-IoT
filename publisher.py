@@ -17,8 +17,7 @@ class Publisher:
         self.port = port
         self.logger = util.set_logger(level=log_level)
 
-    @staticmethod
-    def publish(topic, obj, qos=1):
+    def publish(self, topic, obj, qos=1):
         publish.single(topic, payload=json.dumps(obj), qos=qos,
                        hostname=self.endpoint,
                        port=self.port,
