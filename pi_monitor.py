@@ -46,13 +46,13 @@ try:
             args.rootCA,
             args.key,
             args.cert
-        ).publish(args.topic, str(data))
+        ).publish(args.topic, data)
     else:
         Publisher(
             args.endpoint,
             args.rootCA,
             args.key,
             args.cert
-        ).publish_multiple([{'topic': args.topic, 'payload': str(data)}, {'topic': args.topic2, 'payload': str(data)}])
+        ).publish_multiple([{'topic': args.topic, 'payload': data}, {'topic': args.topic2, 'payload': data}])
 except Exception as ex:
     print "ERROR: publish %s %s" % (args.topic, ex.message)
