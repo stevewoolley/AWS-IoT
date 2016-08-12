@@ -35,8 +35,10 @@ data["state"]["reported"]["ramTotal"] = system_info.memory_usage_info()['memory_
 data["state"]["reported"]["ramAvailable"] = system_info.memory_usage_info()['memory_usage_info']['available']
 data["state"]["reported"]["processCount"] = system_info.process_count()['process_count']
 data["state"]["reported"]["upTime"] = system_info.boot_info()['boot_info']['running_duration']
-data["state"]["reported"]["cpuLoad"] = int(system_info.cpu_usage_info()['cpu_usage_info']['in_use'])
-
+try:
+    data["state"]["reported"]["cpuLoad"] = int(system_info.cpu_usage_info()['cpu_usage_info']['in_use'])
+except Exception as ex:
+    pass
 # Publish
 
 try:
