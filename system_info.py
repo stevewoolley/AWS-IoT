@@ -107,22 +107,22 @@ def cpu_processor_count():
 
 
 def cpu_core_frequency():
+    core_frequency = 'Na'
     try:
         core_frequency = subprocess.check_output("vcgencmd get_config arm_freq | cut -d= -f2", shell=True).replace('\n',
                                                                                                                    '')
     except Exception as ex:
         print ex
-        core_frequency = 'Na'
     finally:
         return dict(cpu_core_frequency=core_frequency)
 
 
 def cpu_core_volt():
+    core_volt = 'Na'
     try:
         core_volt = subprocess.check_output("vcgencmd measure_volts | cut -d= -f2", shell=True).replace('\n', '')
     except Exception as ex:
         print ex
-        core_volt = 'Na'
     finally:
         return dict(cpu_core_volt=core_volt)
 

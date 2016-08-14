@@ -31,14 +31,12 @@ if root_fs:
     data["state"]["reported"]["totalDiskSpaceRoot"] = root_fs[1]
     data["state"]["reported"]["usedDiskSpaceRoot"] = root_fs[2]
 data["state"]["reported"]["networkConnections"] = system_info.connection_count()['connection_count']
-data["state"]["reported"]["ramTotal"] = system_info.memory_usage_info()['memory_usage_info']['total']
+data["state"]["reported"]["ramTotal"] = util.num(system_info.memory_usage_info()['memory_usage_info']['total'])
 data["state"]["reported"]["ramAvailable"] = system_info.memory_usage_info()['memory_usage_info']['available']
 data["state"]["reported"]["processCount"] = system_info.process_count()['process_count']
 data["state"]["reported"]["upTime"] = system_info.boot_info()['boot_info']['running_duration']
-try:
-    data["state"]["reported"]["cpuLoad"] = float(system_info.cpu_usage_info()['cpu_usage_info']['in_use'])
-except Exception as ex:
-    pass
+data["state"]["reported"]["cpuLoad"] = util.num(system_info.cpu_usage_info()['cpu_usage_info']['in_use'])
+
 # Publish
 
 try:

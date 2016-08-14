@@ -16,3 +16,10 @@ def search_list(l, search_string, idx):
         if sublist[idx] == search_string:
             return sublist
     return None
+
+
+def num(s):
+    try:
+        return int(s)
+    except ValueError:
+        return float(s)
