@@ -31,6 +31,9 @@ class Publisher:
                          protocol=MQTTv311)
 
     def publish_multiple(self, obj):
+        print "1:%s" % obj
+        print "2:%s" % json.dumps(obj)
+
         publish.multiple(json.dumps(obj),
                          hostname=self.endpoint,
                          port=self.port,
