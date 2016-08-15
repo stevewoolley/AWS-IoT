@@ -31,7 +31,7 @@ class Publisher:
                          protocol=MQTTv311)
 
     def publish_multiple(self, obj):
-        publish.multiple(json.dumps(obj),
+        publish.multiple(obj,
                          hostname=self.endpoint,
                          port=self.port,
                          tls={'ca_certs': self.root_ca,
