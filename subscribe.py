@@ -1,24 +1,14 @@
 import argparse
 import logging
-import datetime
 import time
-import yaml
+import datetime
 import sys
-from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
+from subscriber import Subscriber
+import yaml
 
 
-# Custom MQTT message callback
-def custom_callback(client, userdata, message):
-    print("%s %s: %s" % (datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), message.topic, message.payload))
-
-
-def set_logger(name='iot', level=logging.INFO):
-    logging.basicConfig(level=level,
-                        format='%(asctime)s %(levelname)-8s %(message)s',
-                        filename="/var/log/%s.log" % name,
-                        filemode='a')
-    return logging.getLogger()
-
+def my_callback(client, userdata, message):
+    print("%s %s %s" % (datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), message.topic, message.payload))
 
 # parse arguments
 parser = argparse.ArgumentParser()
@@ -32,36 +22,20 @@ parser.add_argument("-g", "--log_level", help="log level", type=int, default=log
 parser.add_argument("-y", "--config_file", help="config file (yaml format)", default='subscribe.yml')
 args = parser.parse_args()
 
-# Set logger
-logger = set_logger(level=args.log_level)
-
 # Load configuration file
 f = open(args.config_file)
 topics = yaml.safe_load(f)
 
-# AWSIoTMQTTClient connection configuration
-client = None
-if args.websocket:
-    client = AWSIoTMQTTClient(args.clientID, useWebsocket=True)
-    client.configureEndpoint(args.endpoint, 443)
-    client.configureCredentials(args.rootCA)
-else:
-    client = AWSIoTMQTTClient(args.clientID)
-    client.configureEndpoint(args.endpoint, 8883)
-    client.configureCredentials(args.rootCA, args.key, args.cert)
-client.configureAutoReconnectBackoffTime(1, 32, 20)
-client.configureOfflinePublishQueueing(-1)  # Infinite offline Publish queueing
-client.configureDrainingFrequency(2)  # Draining: 2 Hz
-client.configureConnectDisconnectTimeout(10)  # 10 sec
-client.configureMQTTOperationTimeout(5)  # 5 sec
+subscriber = Subscriber(
+    args.endpoint,
+    args.rootCA,
+    args.key,
+    args.cert
+)
 
-# Connect
-client.connect()
-
-# Subscribe
 for topic in topics[args.endpoint]:
-    logger.info("subscribing to: %s" % topic)
-    client.subscribe(topic, 1, custom_callback)
+    print("subscribing to: %s" % topic)
+    subscriber.subscribe(topic, my_callback)
     time.sleep(2)  # pause between subscribes (maybe not needed?)
 
 # Loop forever

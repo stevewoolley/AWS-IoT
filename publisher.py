@@ -3,7 +3,6 @@ import util
 import paho.mqtt.publish as publish
 from paho.mqtt.client import MQTTv311
 import ssl
-import json
 
 
 class Publisher:
