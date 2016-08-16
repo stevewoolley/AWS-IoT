@@ -32,8 +32,6 @@ class Publisher:
 
     def publish_multiple(self, obj):
         print "1:%s" % obj
-        print "2:%s" % json.dumps(obj)
-
         publish.multiple(obj,
                          hostname=self.endpoint,
                          port=self.port,
