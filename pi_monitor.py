@@ -54,6 +54,6 @@ try:
             args.rootCA,
             args.key,
             args.cert
-        ).publish_multiple([{'topic': args.topic, 'payload': data}, {'topic': args.topic2, 'payload': data}])
+        ).publish_multiple([{'topic': args.topic, 'payload': json.dumps(data)}, {'topic': args.topic2, 'payload': json.dumps(data)}])
 except Exception as ex:
     print "ERROR: publish %s %s" % (args.topic, ex.message)

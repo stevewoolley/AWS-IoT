@@ -31,7 +31,6 @@ class Publisher:
                          protocol=MQTTv311)
 
     def publish_multiple(self, obj):
-        print "1:%s" % obj
         publish.multiple(obj,
                          hostname=self.endpoint,
                          port=self.port,
