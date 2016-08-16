@@ -34,7 +34,7 @@ class Publisher:
         print "1:%s" % obj
         print "2:%s" % json.dumps(obj)
 
-        publish.multiple(json.dumps(obj),
+        publish.multiple(obj,
                          hostname=self.endpoint,
                          port=self.port,
                          tls={'ca_certs': self.root_ca,
