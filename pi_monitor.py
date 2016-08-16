@@ -53,6 +53,6 @@ try:
             args.rootCA,
             args.key,
             args.cert
-        ).publish_multiple(jsuon.dumps([{'topic': args.topic, 'payload': data}, {'topic': args.topic2, 'payload': data}]))
+        ).publish_multiple(json.dumps([{'topic': args.topic, 'payload': data}, {'topic': args.topic2, 'payload': data}]))
 except Exception as ex:
     print "ERROR: publish %s %s" % (args.topic, ex.message)
