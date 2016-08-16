@@ -38,6 +38,7 @@ data["state"]["reported"]["processCount"] = util.num(system_info.process_count()
 data["state"]["reported"]["upTime"] = system_info.boot_info()['boot_info']['running_duration']
 data["state"]["reported"]["cpuLoad"] = util.num(system_info.cpu_usage_info()['cpu_usage_info']['in_use'])
 
+msg = json.dumps(data)
 # Publish
 
 try:
@@ -47,13 +48,13 @@ try:
             args.rootCA,
             args.key,
             args.cert
-        ).publish(args.topic, data)
+        ).publish(args.topic, msg)
     else:
         Publisher(
             args.endpoint,
             args.rootCA,
             args.key,
             args.cert
-        ).publish_multiple([{'topic': args.topic, 'payload': json.dumps(data)}, {'topic': args.topic2, 'payload': json.dumps(data)}])
+        ).publish_multiple([{'topic': args.topic, 'payload': msg}, {'topic': args.topic2, 'payload': msg}])
 except Exception as ex:
     print "ERROR: publish %s %s" % (args.topic, ex.message)

@@ -18,7 +18,7 @@ class Publisher:
         self.logger = util.set_logger(level=log_level)
 
     def publish(self, topic, obj, qos=0, retain=False):
-        msg = {'topic': topic, 'payload': json.dumps(obj), 'qos': qos, 'retain': retain}
+        msg = {'topic': topic, 'payload': obj, 'qos': qos, 'retain': retain}
         publish.multiple([msg],
                          hostname=self.endpoint,
                          port=self.port,
