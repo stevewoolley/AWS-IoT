@@ -4,6 +4,7 @@ import argparse
 import logging
 import system_info
 import util
+import json
 from publisher import Publisher
 
 # parse arguments
