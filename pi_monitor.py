@@ -41,7 +41,7 @@ data["state"]["reported"]["cpuLoad"] = util.num(system_info.cpu_usage_info()['cp
 # Publish
 
 try:
-    if args.topic2 is not None:
+    if args.topic2 is None:
         Publisher(
             args.endpoint,
             args.rootCA,
