@@ -6,9 +6,8 @@ import time
 class Buzzer(threading.Thread):
     """A threaded Buzzer object"""
 
-    def __init__(self, name, pin):
+    def __init__(self, pin):
         threading.Thread.__init__(self)
-        self.name = name
         self.pin = pin
         self.finish = False
         self.daemon = True

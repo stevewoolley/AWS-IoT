@@ -33,7 +33,7 @@ args = parser.parse_args()
 # logging setup
 logger = util.set_logger(level=args.log_level)
 
-buzzer = Buzzer(args.buzzer_name, args.pin)
+buzzer = Buzzer(args.pin)
 buzzer.start()
 
 subscriber = Subscriber(
