@@ -17,6 +17,7 @@ parser.add_argument("-c", "--cert", help="Certificate file path")
 parser.add_argument("-k", "--key", help="Private key file path")
 parser.add_argument("-t", "--topic", help="MQTT topic", required=True)
 parser.add_argument("-o", "--topic2", help="Additional IoT topic")
+parser.add_argument("-x", "--topic3", help="Additional IoT topic")
 parser.add_argument("-s", "--source", help="Source", required=True)
 parser.add_argument("-p", "--pin", help="gpio pin (BCM)", type=int, required=True)
 parser.add_argument("-y", "--high_value", help="high value", default=Sensor.HIGH)
@@ -49,25 +50,36 @@ try:
                 status = args.high_value
             data["state"]["reported"][args.source] = str(status)
             msg = json.dumps(data)
-
-            try:
-                if args.topic2 is None:
+            if args.topic is not None:
+                try:
                     Publisher(
                         args.endpoint,
                         args.rootCA,
                         args.key,
                         args.cert
                     ).publish(args.topic, msg)
-                else:
+                except Exception as ex:
+                    print "ERROR publish %s %s" % (args.topic, ex.message)
+            if args.topic2 is not None:
+                try:
                     Publisher(
                         args.endpoint,
                         args.rootCA,
                         args.key,
                         args.cert
-                    ).publish_multiple([{'topic': args.topic, 'payload': msg}, {'topic': args.topic2, 'payload': msg}])
-            except Exception as ex:
-                print "ERROR: publish %s %s" % (args.topic, ex.message)
-
+                    ).publish(args.topic2, msg)
+                except Exception as ex:
+                    print "ERROR publish %s %s" % (args.topic2, ex.message)
+            if args.topic3 is not None:
+                try:
+                    Publisher(
+                        args.endpoint,
+                        args.rootCA,
+                        args.key,
+                        args.cert
+                    ).publish(args.topic3, msg)
+                except Exception as ex:
+                    print "ERROR publish %s %s" % (args.topic3, ex.message)
         time.sleep(0.2)
 except (KeyboardInterrupt, SystemExit):
     sys.exit()
