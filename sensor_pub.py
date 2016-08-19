@@ -65,7 +65,7 @@ try:
                     args.cert
                 ).publish_multiple(obj)
             except Exception as ex:
-                print "ERROR publish %s %s" % (args.topic, ex.message)
+                print "ERROR publish %s" % ex.message
         time.sleep(0.2)
 except (KeyboardInterrupt, SystemExit):
     sys.exit()
