@@ -1,8 +1,6 @@
 import threading
 import RPi.GPIO as GPIO
 import time
-import logging
-import util
 
 
 class Sensor(threading.Thread):
@@ -11,13 +9,12 @@ class Sensor(threading.Thread):
     LOW = GPIO.LOW
     HIGH = GPIO.HIGH
 
-    def __init__(self, pin, name='sensor', log_level=logging.INFO):
+    def __init__(self, pin, name='sensor'):
         threading.Thread.__init__(self)
         self.name = name
         self.pin = pin
         self.finish = False
         self.daemon = True
-        self.logger = util.set_logger(level=log_level)
         self.last_reading = None
 
         GPIO.setwarnings(False)
@@ -27,7 +24,6 @@ class Sensor(threading.Thread):
     def reading(self):
         value = GPIO.input(self.pin)
         if value != self.last_reading:
-            self.logger.debug('Sensor: reading_changed: %s %s' % (self.name, value))
             self.last_reading = value
         return value
 
