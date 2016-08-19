@@ -31,11 +31,10 @@ logger = util.set_logger(level=args.log_level)
 sensor = Sensor(args.pin, args.source)
 sensor.start()
 
-# Lookup data structure
+# initialize
 data = dict()
 data["state"] = {}
 data["state"]["reported"] = {}
-
 last_state = None
 status = None
 
@@ -48,7 +47,7 @@ try:
                 status = args.low_value
             else:
                 status = args.high_value
-            data["state"]["reported"][args.source] = str(status)
+            data["state"]["reported"][args.source] = status
             msg = json.dumps(data)
             obj = []
             if args.topic is not None:
@@ -58,7 +57,6 @@ try:
             if args.topic3 is not None:
                 obj.append({'topic': args.topic3, 'payload': msg})
             try:
-                logger.info("sensor_pub %s" % obj)
                 Publisher(
                     args.endpoint,
                     args.rootCA,

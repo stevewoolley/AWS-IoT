@@ -17,7 +17,6 @@ parser.add_argument("-i", "--clientID", help="Client ID", default='')  # empty s
 parser.add_argument("-r", "--rootCA", help="Root CA file path", required=True)
 parser.add_argument("-c", "--cert", help="Certificate file path")
 parser.add_argument("-k", "--key", help="Private key file path")
-parser.add_argument("-w", "--websocket", help="Use MQTT over WebSocket", action='store_true')
 parser.add_argument("-g", "--log_level", help="log level", type=int, default=logging.INFO)
 parser.add_argument("-y", "--config_file", help="config file (yaml format)", default='subscribe.yml')
 args = parser.parse_args()
