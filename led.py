@@ -1,8 +1,6 @@
 import threading
 import RPi.GPIO as GPIO
 import time
-import logging
-import util
 
 
 class LED(threading.Thread):
@@ -10,15 +8,11 @@ class LED(threading.Thread):
     state = 0
     cycle = 2.0
 
-    def __init__(self, name, pin, log_level=logging.INFO):
+    def __init__(self, pin):
         threading.Thread.__init__(self)
-        self.name = name
         self.pin = pin
         self.finish = False
         self.daemon = True
-
-        # set logger
-        self.logger = util.set_logger(level=log_level)
 
         # for GPIO numbering, choose BCM
         GPIO.setmode(GPIO.BCM)
@@ -30,18 +24,23 @@ class LED(threading.Thread):
     def set_led(self, value):
         self.state = value
 
+    def flash(self, count=2):
+        GPIO.output(self.pin, False)
+        for num in range(0, count):
+            GPIO.output(self.pin, True)
+            time.sleep(self.cycle / (self.state * 2))
+            GPIO.output(self.pin, False)
+            time.sleep(self.cycle / (self.state * 2))
+
     def run(self):
         while not self.finish:
-            try:
-                if self.state == 0:
-                    GPIO.output(self.pin, False)
-                elif self.state == 1:
-                    GPIO.output(self.pin, True)
-                elif self.state > 1:
-                    GPIO.output(self.pin, True)
-                    time.sleep(self.cycle / (self.state * 2))
-                    GPIO.output(self.pin, False)
-                    time.sleep(self.cycle / (self.state * 2))
-                time.sleep(.10)
-            except Exception as ex:
-                self.logger.warning("led: IGNORE: %s" % ex.message)
+            if self.state == 0:
+                GPIO.output(self.pin, False)
+            elif self.state == 1:
+                GPIO.output(self.pin, True)
+            elif self.state > 1:
+                GPIO.output(self.pin, True)
+                time.sleep(self.cycle / (self.state * 2))
+                GPIO.output(self.pin, False)
+                time.sleep(self.cycle / (self.state * 2))
+            time.sleep(.10)
