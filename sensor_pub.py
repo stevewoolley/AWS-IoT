@@ -58,6 +58,7 @@ try:
             if args.topic3 is not None:
                 obj.append({'topic': args.topic3, 'payload': msg})
             try:
+                logger.info("sensor_pub %s" % obj)
                 Publisher(
                     args.endpoint,
                     args.rootCA,
@@ -65,7 +66,7 @@ try:
                     args.cert
                 ).publish_multiple(obj)
             except Exception as ex:
-                print "ERROR publish %s" % ex.message
+                logger.error("ERROR publish %s" % ex.message)
         time.sleep(0.2)
 except (KeyboardInterrupt, SystemExit):
     sys.exit()
