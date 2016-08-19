@@ -50,36 +50,22 @@ try:
                 status = args.high_value
             data["state"]["reported"][args.source] = str(status)
             msg = json.dumps(data)
+            obj = []
             if args.topic is not None:
-                try:
-                    Publisher(
-                        args.endpoint,
-                        args.rootCA,
-                        args.key,
-                        args.cert
-                    ).publish(args.topic, msg)
-                except Exception as ex:
-                    print "ERROR publish %s %s" % (args.topic, ex.message)
+                obj.append({'topic': args.topic, 'payload': msg})
             if args.topic2 is not None:
-                try:
-                    Publisher(
-                        args.endpoint,
-                        args.rootCA,
-                        args.key,
-                        args.cert
-                    ).publish(args.topic2, msg)
-                except Exception as ex:
-                    print "ERROR publish %s %s" % (args.topic2, ex.message)
+                obj.append({'topic': args.topic2, 'payload': msg})
             if args.topic3 is not None:
-                try:
-                    Publisher(
-                        args.endpoint,
-                        args.rootCA,
-                        args.key,
-                        args.cert
-                    ).publish(args.topic3, msg)
-                except Exception as ex:
-                    print "ERROR publish %s %s" % (args.topic3, ex.message)
+                obj.append({'topic': args.topic3, 'payload': msg})
+            try:
+                Publisher(
+                    args.endpoint,
+                    args.rootCA,
+                    args.key,
+                    args.cert
+                ).publish_multiple(obj)
+            except Exception as ex:
+                print "ERROR publish %s %s" % (args.topic, ex.message)
         time.sleep(0.2)
 except (KeyboardInterrupt, SystemExit):
     sys.exit()
