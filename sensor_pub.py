@@ -16,6 +16,7 @@ parser.add_argument("-r", "--rootCA", help="Root CA file path", required=True)
 parser.add_argument("-c", "--cert", help="Certificate file path")
 parser.add_argument("-k", "--key", help="Private key file path")
 parser.add_argument("-t", "--topic", help="MQTT topic", required=True)
+parser.add_argument("-m", "--topic_fire_high_only", help="only fire on topic if Sensor.HIGH", action='store_false')
 parser.add_argument("-o", "--topic2", help="Additional IoT topic")
 parser.add_argument("-x", "--topic3", help="Additional IoT topic")
 parser.add_argument("-s", "--source", help="Source", required=True)
@@ -50,7 +51,7 @@ try:
             data["state"]["reported"][args.source] = status
             msg = json.dumps(data)
             obj = []
-            if args.topic is not None:
+            if args.topic is not None and args.topic_fire_high_only:
                 obj.append({'topic': args.topic, 'payload': msg})
             if args.topic2 is not None:
                 obj.append({'topic': args.topic2, 'payload': msg})
