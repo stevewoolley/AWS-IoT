@@ -53,8 +53,8 @@ try:
                 status = args.high_value
                 alert_count = args.high_count
             data["state"]["reported"][args.source] = status
+            data['alert_count'] = alert_count
             msg = json.dumps(data)
-            msg['alert_count'] = alert_count
             obj = []
             if args.topic is not None:
                 obj.append({'topic': args.topic, 'payload': msg})
