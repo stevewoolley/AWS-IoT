@@ -9,9 +9,8 @@ class Sensor(threading.Thread):
     LOW = GPIO.LOW
     HIGH = GPIO.HIGH
 
-    def __init__(self, pin, name='sensor'):
+    def __init__(self, pin):
         threading.Thread.__init__(self)
-        self.name = name
         self.pin = pin
         self.finish = False
         self.daemon = True

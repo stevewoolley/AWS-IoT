@@ -30,13 +30,14 @@ args = parser.parse_args()
 # logging setup
 logger = util.set_logger(level=args.log_level)
 
-sensor = Sensor(args.pin, args.source)
+sensor = Sensor(args.pin)
 sensor.start()
 
 # initialize
 data = dict()
 data["state"] = {}
 data["state"]["reported"] = {}
+data["alert_count"] = args.high_count
 last_state = None
 status = None
 
@@ -44,7 +45,6 @@ try:
     while True:
         current_state = sensor.reading()
         if current_state != last_state:
-            alert_count = args.high_count
             last_state = current_state  # reset state value
             if current_state == Sensor.LOW:
                 status = args.low_value
@@ -53,7 +53,6 @@ try:
                 status = args.high_value
                 alert_count = args.high_count
             data["state"]["reported"][args.source] = status
-            data['alert_count'] = alert_count
             msg = json.dumps(data)
             obj = []
             if args.topic is not None:
