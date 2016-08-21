@@ -23,6 +23,8 @@ parser.add_argument("-p", "--pin", help="gpio pin (BCM)", type=int, required=Tru
 parser.add_argument("-y", "--high_value", help="high value", default=Sensor.HIGH)
 parser.add_argument("-z", "--low_value", help="low value", default=Sensor.LOW)
 parser.add_argument("-g", "--log_level", help="logging level", type=int, default=logging.INFO)
+parser.add_argument("-n", "--high_count", help="number of alerts", type=int, default=2)
+parser.add_argument("-l", "--low_count", help="number of alerts", type=int, default=1)
 args = parser.parse_args()
 
 # logging setup
@@ -42,13 +44,17 @@ try:
     while True:
         current_state = sensor.reading()
         if current_state != last_state:
+            alert_count = args.high_count
             last_state = current_state  # reset state value
             if current_state == Sensor.LOW:
                 status = args.low_value
+                alert_count = args.low_count
             else:
                 status = args.high_value
+                alert_count = args.high_count
             data["state"]["reported"][args.source] = status
             msg = json.dumps(data)
+            msg['alert_count'] = alert_count
             obj = []
             if args.topic is not None:
                 obj.append({'topic': args.topic, 'payload': msg})
