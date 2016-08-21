@@ -5,14 +5,19 @@ import logging
 import util
 import time
 import sys
+import json
 from subscriber import Subscriber
 from buzzer import Buzzer
 
 
 def my_callback(client, userdata, message):
-    logger.info('buzzer_sub: beep')
-    buzzer.beep(beep_duration=args.beep_duration, quiet_duration=args.quiet_duration,
-                count=args.beep_count)
+    msg = json.loads(message.payload)
+    if msg.has_key('alert_count'):
+        buzzer.beep(beep_duration=args.beep_duration, quiet_duration=args.quiet_duration,
+                    count=msg['alert_count'])
+    else:
+        buzzer.beep(beep_duration=args.beep_duration, quiet_duration=args.quiet_duration,
+                    count=args.beep_count)
 
 
 # parse arguments

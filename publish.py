@@ -17,11 +17,7 @@ parser.add_argument("-i", "--clientID", help="Client ID", default='')  # empty s
 args = parser.parse_args()
 
 data = dict()
-if args.source is None:
-    data["source"] = args.topic
-else:
-    data["source"] = args.source
-data["message"] = args.message
+data["alert_count"] = 5
 msg = json.dumps(data)
 
 # Publish
