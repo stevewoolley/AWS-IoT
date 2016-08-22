@@ -13,11 +13,9 @@ from sensor import Sensor
 parser = argparse.ArgumentParser()
 parser.add_argument("-e", "--endpoint", help="AWS IoT endpoint", required=True)
 parser.add_argument("-r", "--rootCA", help="Root CA file path", required=True)
-parser.add_argument("-c", "--cert", help="Certificate file path")
-parser.add_argument("-k", "--key", help="Private key file path")
-parser.add_argument("-t", "--topic", help="MQTT topic", required=True)
-parser.add_argument("-o", "--topic2", help="Additional IoT topic")
-parser.add_argument("-x", "--topic3", help="Additional IoT topic")
+parser.add_argument("-c", "--cert", help="Certificate file path", required=True)
+parser.add_argument("-k", "--key", help="Private key file path", required=True)
+parser.add_argument("-t", "--topic", help="MQTT topic(s)", nargs='+', required=True)
 parser.add_argument("-s", "--source", help="Source", required=True)
 parser.add_argument("-p", "--pin", help="gpio pin (BCM)", type=int, required=True)
 parser.add_argument("-y", "--high_value", help="high value", default=Sensor.HIGH)
@@ -55,12 +53,8 @@ try:
             data["alert_count"] = alert_count
             msg = json.dumps(data)
             obj = []
-            if args.topic is not None:
-                obj.append({'topic': args.topic, 'payload': msg})
-            if args.topic2 is not None:
-                obj.append({'topic': args.topic2, 'payload': msg})
-            if args.topic3 is not None:
-                obj.append({'topic': args.topic3, 'payload': msg})
+            for t in args.topic:
+                obj.append({'topic': t, 'payload': msg})
             try:
                 Publisher(
                     args.endpoint,

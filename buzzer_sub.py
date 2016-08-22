@@ -27,7 +27,7 @@ parser.add_argument("-i", "--clientID", help="Client ID", default='')  # empty s
 parser.add_argument("-r", "--rootCA", help="Root CA file path", required=True)
 parser.add_argument("-c", "--cert", help="Certificate file path")
 parser.add_argument("-k", "--key", help="Private key file path")
-parser.add_argument("-t", "--topic", help="MQTT topic")
+parser.add_argument("-t", "--topic", help="MQTT topic(s)", nargs='+', required=True)
 parser.add_argument("-d", "--beep_duration", help="time in seconds for a beep duration", type=float, default=0.06)
 parser.add_argument("-q", "--quiet_duration", help="time in seconds between beeps", type=float, default=0.1)
 parser.add_argument("-n", "--beep_count", help="number of beeps", type=int, default=2)
@@ -48,8 +48,9 @@ subscriber = Subscriber(
     args.cert
 )
 
-subscriber.subscribe(args.topic, my_callback)
-time.sleep(2)  # pause
+for t in args.topic:
+    subscriber.subscribe(t, my_callback)
+    time.sleep(2)  # pause
 
 # Loop forever
 try:
