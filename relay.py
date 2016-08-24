@@ -2,7 +2,7 @@ import threading
 import time
 import logging
 import util
-import wiringpi as wiringpi
+import wiringpi as relay
 
 
 class Relay(threading.Thread):
@@ -20,7 +20,7 @@ class Relay(threading.Thread):
         self.logger = util.set_logger(level=log_level)
 
         # initialize relay
-        wiringpi.wiringPiSetup()
+        relay.wiringPiSetup()
 
     def pulse(self):
         # will pulse the relay for duration second(s)
@@ -30,17 +30,17 @@ class Relay(threading.Thread):
         self.flip()
 
     def reading(self):
-        return wiringpi.digitalRead(self.pin)
+        return relay.digitalRead(self.pin)
 
     def turn_on(self):
         if self.reading() == self.OFF:
-            wiringpi.pinMode(self.pin, self.ON)
-            wiringpi.digitalWrite(self.pin, self.ON)
+            relay.pinMode(self.pin, self.ON)
+            relay.digitalWrite(self.pin, self.ON)
 
     def turn_off(self):
         if self.reading() == self.ON:
-            wiringpi.pinMode(self.pin, self.OFF)
-            wiringpi.digitalWrite(self.pin, self.OFF)
+            relay.pinMode(self.pin, self.OFF)
+            relay.digitalWrite(self.pin, self.OFF)
 
     def flip(self):
         if self.reading() == self.ON:

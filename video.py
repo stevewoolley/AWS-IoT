@@ -10,64 +10,70 @@ import subprocess as sp
 
 class Video(threading.Thread):
     """A threaded video object"""
-    ON_STRING = 'ON'
-    OFF_STRING = 'OFF'
 
     def __init__(self,
-                 filename_prefix='output',
-                 filename_suffix='h264',
-                 log_level=logging.INFO,
+                 base_filename="output",
                  video_format='h264',
                  horizontal_resolution=640,
                  vertical_resolution=480,
                  rotation=0,
-                 snapshot_filename="snapshot.png"
+                 path="/tmp",
+                 log_level=logging.INFO
                  ):
         threading.Thread.__init__(self)
         self.daemon = True
-        self.filename_prefix = filename_prefix
-        self.filename_suffix = filename_suffix
-        self.filename = "%s.%s" % (self.filename_prefix, self.filename_suffix)
+        self.finish = False
+        self.path = path
+        self.camera = picamera.PiCamera()
+        self.camera.resolution = (horizontal_resolution, vertical_resolution)
+        self.camera.rotation = rotation
+        self.base_filename = base_filename
         self.recording = False
         self.video_format = video_format
-        self.finish = False
-        self.snapshot_filename = snapshot_filename
-        # initialize camera
-        self.horizontal_resolution = horizontal_resolution
-        self.vertical_resolution = vertical_resolution
-        self.rotation = rotation
-        self.camera = picamera.PiCamera()
-        self.camera.resolution = (self.horizontal_resolution, self.vertical_resolution)
-        self.camera.rotation = self.rotation
+        self.filename = None
         # set logger
         self.logger = util.set_logger(level=log_level)
+
+    def _file_name(self, suffix, prefix=None):
+        if prefix is None:
+            return "%s.%s" % (self.base_filename, suffix)
+        else:
+            return "%s-%s.%s" % (prefix, self.base_filename, suffix)
+
+    def _full_path(self, suffix, prefix=None):
+        return "%s/%s" % (self.path, self._file_name(suffix, prefix))
 
     def start_recording(self):
         if not self.recording:
             try:
-                self.filename = "%s-%s.%s" % (
-                    self.filename_prefix, datetime.now().strftime("%Y-%m-%d_%H.%M.%S"), self.filename_suffix)
+                self.filename = self._full_path(self.video_format, datetime.now().strftime("%Y-%m-%d_%H.%M.%S"))
                 self.camera.start_recording(self.filename, format=self.video_format)
                 self.recording = True
             except Exception as ex:
                 self.logger.debug('ERROR start_recording %s' % ex.message)
-                return False
+                self.filename = None
+                self.recording = False
         return self.recording
 
     def stop_recording(self):
-        if self.recording and self.filename:
+        if self.recording:
             self.recording = False
             self.camera.stop_recording()
-            return str(self.filename)
+            return self.filename
         else:
             return None
 
-    def snapshot(self):
+    def snapshot(self, snapshot_filename=None):
         try:
-            self.camera.capture(self.snapshot_filename, use_video_port=True)
-            return self.snapshot_filename
+            if snapshot_filename is None:
+                snapshot_filename = self._full_path('png', datetime.now().strftime("%Y-%m-%d_%H.%M.%S"))
+            if self.recording:
+                self.camera.capture(snapshot_filename, use_video_port=True)
+            else:
+                self.camera.capture(snapshot_filename, use_video_port=False)
+            return snapshot_filename
         except Exception as ex:
-            self.logger.debug('ERROR snapshot %s' % ex.message)
+            self.logger.debug('ERROR snapshot %s %s' % (snapshot_filename, ex.message))
             return None
 
     def run(self):
