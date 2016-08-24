@@ -2,14 +2,14 @@ import threading
 import time
 import logging
 import util
-import wiringpi2 as wiringpi
-
-LOW = 0
-HIGH = 1
+import wiringpi as wiringpi
 
 
 class Relay(threading.Thread):
     """A threaded Relay object"""
+
+    ON = 1
+    OFF = 0
 
     def __init__(self, pin, pulse_duration=1, log_level=logging.INFO):
         threading.Thread.__init__(self)
@@ -26,36 +26,28 @@ class Relay(threading.Thread):
     def pulse(self):
         # will pulse the relay for duration second(s)
         # should be sensitive for whether relay is HIGH or LOW
-        value = HIGH
-        opposite = LOW
-        if self.reading() != LOW:
-            # if relay is already high, pulse it low
-            value = LOW
-            opposite = HIGH
-        wiringpi.pinMode(self.pin, value)
-        wiringpi.digitalWrite(self.pin, value)
+        self.flip()
         time.sleep(self.pulse_duration)
-        wiringpi.digitalWrite(self.pin, opposite)
-        wiringpi.pinMode(self.pin, opposite)
+        self.flip()
 
     def reading(self):
-        result = wiringpi.digitalRead(self.pin)
-        self.logger.info('relay: reading: pin:%s %s' % (self.pin, result))
-        return result
+        return wiringpi.digitalRead(self.pin)
 
     def turn_on(self):
-        self.switch(HIGH)
+        if self.reading() == self.OFF:
+            wiringpi.pinMode(self.pin, self.ON)
+            wiringpi.digitalWrite(self.pin, self.ON)
 
     def turn_off(self):
-        self.switch(LOW)
+        if self.reading() == self.ON:
+            wiringpi.pinMode(self.pin, self.OFF)
+            wiringpi.digitalWrite(self.pin, self.OFF)
 
-    def switch(self, v):
-        if self.reading() != v:
-            self.logger.debug('relay: switch: pin:%s %s' % (self.pin, str(v)))
-            wiringpi.pinMode(self.pin, v)
-            wiringpi.digitalWrite(self.pin, v)
+    def flip(self):
+        if self.reading() == self.ON:
+            self.turn_off()
         else:
-            self.logger.debug('relay: switch: pin %s ignore already %s' % (self.pin, str(v)))
+            self.turn_on()
 
     def run(self):
         while not self.finish:
