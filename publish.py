@@ -16,8 +16,11 @@ parser.add_argument("-m", "--message", help="Message", default='')
 parser.add_argument("-i", "--clientID", help="Client ID", default='')  # empty string auto generates unique client ID
 args = parser.parse_args()
 
+RECORDING = 'recording'
+SNAPSHOT = 'snapshot'
+
 data = dict()
-data["alert_count"] = 5
+data[SNAPSHOT] = True
 msg = json.dumps(data)
 
 # Publish

@@ -1,4 +1,7 @@
 import logging
+import sys
+import os
+import subprocess as sp
 
 
 def set_logger(name='iot', level=logging.INFO):
@@ -23,3 +26,15 @@ def num(s):
         return int(s)
     except ValueError:
         return float(s)
+
+
+def move_to_s3(from_filename, *args):
+    try:
+        cmd = ['/usr/bin/aws',
+               's3',
+               'mv',
+               from_filename,
+               os.path.join('s3://', *args)]
+        pipe = sp.Popen(cmd, stdin=sp.PIPE, stderr=sp.PIPE)  # mv snapshot.png to s3
+    except Exception as e:
+        print >> sys.stderr, 'util.py move_to_s3 %s' % e.message

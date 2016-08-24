@@ -23,6 +23,8 @@ def my_callback(client, userdata, message):
             filename = video.stop_recording()
     if msg.has_key(SNAPSHOT):
         filename = video.snapshot()
+        if args.bucket is not None:
+            util.move_to_s3(filename, args.bucket, args.folder, args.name + '.png')
     if filename is not None:
         logger.info("video_sub file %s" % filename)
 
@@ -36,6 +38,9 @@ parser.add_argument("-k", "--key", help="Private key file path")
 parser.add_argument("-t", "--topic", help="MQTT topic(s)", nargs='+', required=True)
 parser.add_argument("-x", "--horizontal_resolution", help="horizontal_resolution", type=int, default=640)
 parser.add_argument("-y", "--vertical_resolution", help="vertical resolution", type=int, default=480)
+parser.add_argument("-b", "--bucket", help="S3 bucket", default=None)
+parser.add_argument("-f", "--folder", help="Snapshot folder", default='snapshots')
+parser.add_argument("-n", "--name", help="Name", default='snapshot')
 parser.add_argument("-z", "--rotation", help="image rotation", type=int, default=0)
 parser.add_argument("-g", "--log_level", help="log level", type=int, default=logging.INFO)
 args = parser.parse_args()
