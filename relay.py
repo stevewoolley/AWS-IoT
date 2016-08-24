@@ -11,9 +11,8 @@ HIGH = 1
 class Relay(threading.Thread):
     """A threaded Relay object"""
 
-    def __init__(self, pin, name='relay', pulse_duration=1, log_level=logging.INFO):
+    def __init__(self, pin, pulse_duration=1, log_level=logging.INFO):
         threading.Thread.__init__(self)
-        self.name = name
         self.pin = pin
         self.pulse_duration = pulse_duration
         self.finish = False
