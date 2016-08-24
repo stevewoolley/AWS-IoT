@@ -18,7 +18,6 @@ class Relay(threading.Thread):
         self.finish = False
         self.daemon = True
         self.logger = util.set_logger(level=log_level)
-        self.last_reading = None
 
         # initialize relay
         wiringpi.wiringPiSetup()
