@@ -12,6 +12,7 @@ from video import Video
 RECORDING = 'recording'
 SNAPSHOT = 'snapshot'
 
+
 def my_callback(client, userdata, message):
     msg = json.loads(message.payload)
     filename = None
