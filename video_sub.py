@@ -24,7 +24,7 @@ def my_callback(client, userdata, message):
             filename = video.stop_recording()
     if msg.has_key(SNAPSHOT):
         filename = video.snapshot()
-        util.annotate_image(filename,datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+        util.annotate_image(filename, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
         if args.bucket is not None:
             util.move_to_s3(filename, args.bucket, args.name + '.png')
     if filename is not None:
