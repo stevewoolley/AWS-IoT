@@ -11,14 +11,11 @@ parser.add_argument("-e", "--endpoint", help="AWS IoT endpoint", required=True)
 parser.add_argument("-r", "--rootCA", help="Root CA file path", required=True)
 parser.add_argument("-c", "--cert", help="Certificate file path")
 parser.add_argument("-k", "--key", help="Private key file path")
+parser.add_argument("-t", "--topic", help="MQTT topic(s)", nargs='+', required=True)
+parser.add_argument("-s", "--sleep", help="Sleep seconds", default=60)
 parser.add_argument("-g", "--log_level", help="log level", type=int, default=logging.INFO)
-parser.add_argument("-t", "--topic", help="IoT topic", required=True)
-parser.add_argument("-s", "--source", help="Source")
-parser.add_argument("-m", "--message", help="Message", default='')
-parser.add_argument("-i", "--clientID", help="Client ID", default='')  # empty string auto generates unique client ID
 args = parser.parse_args()
 
-RECORDING = 'recording'
 SNAPSHOT = 'snapshot'
 
 data = dict()
@@ -27,14 +24,15 @@ msg = json.dumps(data)
 
 # Publish
 while True:
-    result = Publisher(
-        args.endpoint,
-        args.rootCA,
-        args.key,
-        args.cert
-    ).publish(args.topic, msg)
-    print("%s %s" % (datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), result))
-    time.sleep(60)
+    for t in args.topic:
+        result = Publisher(
+            args.endpoint,
+            args.rootCA,
+            args.key,
+            args.cert
+        ).publish(t, msg)
+        print("%s %s %s" % (datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), t, result))
+    time.sleep(args.sleep)
 
 if not result:
     exit(-1)

@@ -8,14 +8,12 @@ import util
 class PIR(threading.Thread):
     """A threaded PIR object"""
 
-    def __init__(self, pin, name='pir', log_level=logging.INFO):
+    def __init__(self, pin, log_level=logging.INFO):
         threading.Thread.__init__(self)
-        self.name = name
         self.pin = pin
         self.finish = False
         self.daemon = True
         self.logger = util.set_logger(level=log_level)
-        self.last_reading = None
 
         # for GPIO numbering, choose BCM
         GPIO.setmode(GPIO.BCM)
@@ -23,12 +21,14 @@ class PIR(threading.Thread):
         # initialize motion sensor
         GPIO.setup(self.pin, GPIO.IN, GPIO.PUD_DOWN)
 
-    def detects_movement(self):
-        value = GPIO.input(self.pin)
-        if value != self.last_reading:
-            self.logger.debug('PIR: %s %s' % (self.name, value))
-            self.last_reading = value
-        return value
+    def movement(self):
+        if GPIO.input(self.pin) == 0:  # no movement
+            return False
+        else:  # movement
+            return True
+
+    def reading(self):
+        return GPIO.input(self.pin)
 
     def run(self):
         while not self.finish:
