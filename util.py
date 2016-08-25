@@ -40,8 +40,8 @@ def move_to_s3(from_filename, *args):
         print >> sys.stderr, 'util move_to_s3 %s' % e.message
 
 
-def annotate_image(filename, msg, font="/usr/share/fonts/truetype/msttcorefonts/arial.ttf", font_size="36",
-                   font_color="white", geometry="+50+50"):
+def annotate_image(filename, msg, font="/usr/share/fonts/truetype/msttcorefonts/arial.ttf", font_size="24",
+                   font_color="white", geometry="+25+25"):
     try:
         cmd = ['/usr/bin/convert',
                filename,
