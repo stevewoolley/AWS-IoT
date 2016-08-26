@@ -10,25 +10,26 @@ import json
 from subscriber import Subscriber
 from video import Video
 
-RECORDING = 'recording'
-SNAPSHOT = 'snapshot'
+
+def snapshot_callback(client, userdata, message):
+    msg = json.loads(message.payload)
+    filename = video.snapshot()
+    util.annotate_image(filename, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+    if args.bucket is not None:
+        util.move_to_s3(filename, args.bucket, args.name + '.png')
+    if filename is not None:
+        logger.info("video_sub snapshot %s %s" % (msg, filename))
 
 
-def my_callback(client, userdata, message):
+def recording_callback(client, userdata, message):
     msg = json.loads(message.payload)
     filename = None
-    if msg.has_key(RECORDING):
-        if msg[RECORDING]:
-            video.start_recording()
-        else:
-            filename = video.stop_recording()
-    if msg.has_key(SNAPSHOT):
-        filename = video.snapshot()
-        util.annotate_image(filename, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-        if args.bucket is not None:
-            util.move_to_s3(filename, args.bucket, args.name + '.png')
+    if video.recording:
+        filename = video.stop_recording()
+    else:
+        video.start_recording()
     if filename is not None:
-        logger.info("video_sub file %s" % filename)
+        logger.info("video_sub recording %s %s" % (msg, filename))
 
 
 # parse arguments
@@ -37,12 +38,16 @@ parser.add_argument("-e", "--endpoint", help="AWS IoT endpoint", required=True)
 parser.add_argument("-r", "--rootCA", help="Root CA file path", required=True)
 parser.add_argument("-c", "--cert", help="Certificate file path")
 parser.add_argument("-k", "--key", help="Private key file path")
-parser.add_argument("-t", "--topic", help="MQTT topic(s)", nargs='+', required=True)
 parser.add_argument("-x", "--horizontal_resolution", help="horizontal_resolution", type=int, default=640)
 parser.add_argument("-y", "--vertical_resolution", help="vertical resolution", type=int, default=480)
-parser.add_argument("-b", "--bucket", help="S3 bucket", default=None)
-parser.add_argument("-n", "--name", help="Name", default='snapshot')
 parser.add_argument("-z", "--rotation", help="image rotation", type=int, default=0)
+
+parser.add_argument("-s", "--snapshot", help="Snapshot topic(s)", nargs='+', required=True)
+parser.add_argument("-t", "--recording", help="Recording topic(s)", nargs='+', required=True)
+
+parser.add_argument("-n", "--name", help="Name", required=True)
+parser.add_argument("-b", "--bucket", help="S3 snapshot bucket", default=None)
+
 parser.add_argument("-g", "--log_level", help="log level", type=int, default=logging.INFO)
 args = parser.parse_args()
 
@@ -63,8 +68,12 @@ subscriber = Subscriber(
     args.cert
 )
 
-for t in args.topic:
-    subscriber.subscribe(t, my_callback)
+for t in args.snapshot:
+    subscriber.subscribe(t, snapshot_callback)
+    time.sleep(2)  # pause
+
+for t in args.recording:
+    subscriber.subscribe(t, recording_callback)
     time.sleep(2)  # pause
 
 # Loop forever
