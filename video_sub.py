@@ -7,6 +7,7 @@ import time
 import datetime
 import sys
 import json
+import os
 from subscriber import Subscriber
 from video import Video
 
@@ -15,8 +16,11 @@ def snapshot_callback(client, userdata, message):
     msg = json.loads(message.payload)
     filename = video.snapshot()
     util.annotate_image(filename, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+    if args.archive_bucket is not None:
+        os.path.basename(filename)
+        util.copy_to_s3(filename, args.archive_bucket, "%s_%s.%s" % (os.path.basename(filename), args.name, '.png'))
     if args.bucket is not None:
-        util.move_to_s3(filename, args.bucket, args.name + '.png')
+        util.move_to_s3(filename, args.bucket, "%s.%s" % (args.name, 'png'))
     if filename is not None:
         logger.info("video_sub snapshot %s %s" % (msg, filename))
 
@@ -47,6 +51,7 @@ parser.add_argument("-t", "--recording", help="Recording topic(s)", nargs='+', r
 
 parser.add_argument("-n", "--name", help="Name", required=True)
 parser.add_argument("-b", "--bucket", help="S3 snapshot bucket", default=None)
+parser.add_argument("-a", "--archive_bucket", help="S3 snapshot archive bucket", default=None)
 
 parser.add_argument("-g", "--log_level", help="log level", type=int, default=logging.INFO)
 args = parser.parse_args()

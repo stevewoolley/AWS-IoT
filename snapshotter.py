@@ -19,7 +19,6 @@ args = parser.parse_args()
 SNAPSHOT = 'snapshot'
 
 data = dict()
-data[SNAPSHOT] = True
 msg = json.dumps(data)
 
 # Publish

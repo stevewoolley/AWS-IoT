@@ -19,7 +19,7 @@ parser.add_argument("-t", "--topic", help="MQTT topic(s)", nargs='+', required=T
 parser.add_argument("-s", "--source", help="Source", required=True)
 parser.add_argument("-p", "--pin", help="gpio pin (BCM)", type=int, required=True)
 parser.add_argument("-n", "--alert_count", help="number of alerts", type=int, default=0)
-parser.add_argument("-x", "--active_sleep", help="sleep seconds during movement", type=float, default=3.0)
+parser.add_argument("-x", "--active_sleep", help="sleep seconds during movement", type=float, default=5.0)
 parser.add_argument("-y", "--passive_sleep", help="sleep seconds while quiet", type=float, default=0.5)
 parser.add_argument("-g", "--log_level", help="logging level", type=int, default=logging.INFO)
 args = parser.parse_args()
