@@ -67,15 +67,10 @@ def annotate_image(filename, msg, font="/usr/share/fonts/truetype/msttcorefonts/
                ]
         pipe = sp.Popen(cmd, stdin=sp.PIPE, stderr=sp.PIPE)  # mv snapshot.png to s3
     except Exception as e:
-        print >> sys.stderr, 'util annotate_image %s' % e.message
+        print >> sys.stderr, 'util annotate_image %s %s' % (filename, e.message)
 
 
 def generate_thumbnail(from_filename, to_filename='thumbnail.png'):
-    # generate thumbnail
-    # -i input filename
-    # -y overwrite thumbnail if exists
-    # -vf video filter - let FFmpeg pick best frame
-    # -vframes number of frames
     if from_filename is not None:
         try:
             cmd = ['/usr/bin/ffmpegthumbnailer',
