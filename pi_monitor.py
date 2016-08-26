@@ -20,9 +20,7 @@ parser.add_argument("-i", "--clientID", help="Client ID", default='')  # empty s
 args = parser.parse_args()
 
 # Lookup system_info
-data = dict()
-data["state"] = {}
-data["state"]["reported"] = {}
+data = {'state': {'reported': {}}}
 data["state"]["reported"]["cpuTemp"] = util.num(system_info.cpu_temperature()['cpu_temperature']['temperature'])
 data["state"]["reported"]["wlan0IpAddress"] = system_info.ip_address('wlan0')['interface']['wlan0']
 data["state"]["reported"]["eth0IpAddress"] = system_info.ip_address('eth0')['interface']['eth0']

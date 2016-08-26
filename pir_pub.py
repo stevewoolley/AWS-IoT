@@ -31,9 +31,7 @@ pir = PIR(args.pin)
 pir.start()
 
 # initialize
-data = dict()
-data["state"] = {}
-data["state"]["reported"] = {}
+data = {'state': {'reported': {}}}
 
 try:
     while True:

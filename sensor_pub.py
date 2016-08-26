@@ -32,9 +32,7 @@ sensor = Sensor(args.pin)
 sensor.start()
 
 # initialize
-data = dict()
-data["state"] = {}
-data["state"]["reported"] = {}
+data = {'state': {'reported': {}}}
 last_state = None
 status = None
 
