@@ -17,8 +17,7 @@ def snapshot_callback(client, userdata, message):
     filename = video.snapshot()
     util.annotate_image(filename, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
     if args.archive_bucket is not None:
-        os.path.basename(filename)
-        util.copy_to_s3(filename, args.archive_bucket, "%s_%s.%s" % (os.path.basename(filename), args.name, '.png'))
+        util.copy_to_s3(filename, args.archive_bucket, os.path.basename(filename))
     if args.bucket is not None:
         util.move_to_s3(filename, args.bucket, "%s.%s" % (args.name, 'png'))
     if filename is not None:
@@ -60,6 +59,7 @@ args = parser.parse_args()
 logger = util.set_logger(level=args.log_level)
 
 video = Video(
+    base_filename=args.name,
     rotation=args.rotation,
     horizontal_resolution=args.horizontal_resolution,
     vertical_resolution=args.vertical_resolution
