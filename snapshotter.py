@@ -2,7 +2,7 @@ import argparse
 import logging
 import json
 import time
-import datetime
+import util
 from publisher import Publisher
 
 # parse arguments
@@ -30,7 +30,7 @@ while True:
             args.key,
             args.cert
         ).publish(t, msg)
-        print("%s %s %s" % (datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), t, result))
+        print("%s %s %s" % (util.now_string(), t, result))
     time.sleep(args.sleep)
 
 if not result:

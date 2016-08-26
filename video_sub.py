@@ -4,7 +4,6 @@ import argparse
 import logging
 import util
 import time
-import datetime
 import sys
 import json
 import os
@@ -15,11 +14,11 @@ from video import Video
 def snapshot_callback(client, userdata, message):
     msg = json.loads(message.payload)
     filename = video.snapshot()
-    util.annotate_image(filename, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+    util.annotate_image(filename, util.now_string())
     if args.archive_bucket is not None:
         util.copy_to_s3(filename, args.archive_bucket, os.path.basename(filename))
     if args.bucket is not None:
-        util.move_to_s3(filename, args.bucket, "%s.%s" % (args.name, 'png'))
+        util.move_to_s3(filename, args.bucket, util.file_name('png', args.name))
     if filename is not None:
         logger.info("video_sub snapshot %s %s" % (msg, filename))
 
