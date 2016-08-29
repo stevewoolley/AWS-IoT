@@ -42,12 +42,12 @@ def move_to_s3(filename, *args):
         print >> sys.stderr, 'ERROR util move_to_s3 %s' % e.message
 
 
-def copy_to_s3(from_filename, *args):
+def copy_to_s3(filename, *args):
     try:
         cmd = ['/usr/bin/aws',
                's3',
                'cp',
-               from_filename,
+               filename,
                os.path.join('s3://', *args)]
         pipe = sp.Popen(cmd, stdin=sp.PIPE, stderr=sp.PIPE)  # mv snapshot.png to s3
     except Exception as e:

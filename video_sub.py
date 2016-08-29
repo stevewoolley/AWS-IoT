@@ -27,6 +27,8 @@ def recording_callback(client, userdata, message):
     filename = None
     if video.recording:
         filename = video.stop_recording()
+        if args.archive_bucket is not None:
+            util.move_to_s3(filename, args.archive_bucket, os.path.basename(filename))
     else:
         video.start_recording()
     if filename is not None:
