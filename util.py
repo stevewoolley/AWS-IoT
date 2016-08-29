@@ -39,7 +39,7 @@ def move_to_s3(filename, *args):
                os.path.join('s3://', *args)]
         pipe = sp.Popen(cmd, stdin=sp.PIPE, stderr=sp.PIPE)  # mv snapshot.png to s3
     except Exception as e:
-        print >> sys.stderr, 'util move_to_s3 %s' % e.message
+        print >> sys.stderr, 'ERROR util move_to_s3 %s' % e.message
 
 
 def copy_to_s3(from_filename, *args):
@@ -51,7 +51,7 @@ def copy_to_s3(from_filename, *args):
                os.path.join('s3://', *args)]
         pipe = sp.Popen(cmd, stdin=sp.PIPE, stderr=sp.PIPE)  # mv snapshot.png to s3
     except Exception as e:
-        print >> sys.stderr, 'util copy_to_s3 %s' % e.message
+        print >> sys.stderr, 'ERROR util copy_to_s3 %s' % e.message
 
 
 def annotate_image(filename, msg, font="/usr/share/fonts/truetype/msttcorefonts/arial.ttf", font_size="24",
@@ -67,7 +67,7 @@ def annotate_image(filename, msg, font="/usr/share/fonts/truetype/msttcorefonts/
                ]
         pipe = sp.Popen(cmd, stdin=sp.PIPE, stderr=sp.PIPE)  # mv snapshot.png to s3
     except Exception as e:
-        print >> sys.stderr, 'util annotate_image %s %s' % (filename, e.message)
+        print >> sys.stderr, 'ERROR util annotate_image %s %s' % (filename, e.message)
 
 
 def generate_thumbnail(from_filename, to_filename='thumbnail.png'):

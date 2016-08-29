@@ -15,6 +15,7 @@ class Video(threading.Thread):
                  vertical_resolution=480,
                  rotation=0,
                  path="/tmp",
+                 max_recording_seconds=10.0,
                  log_level=logging.INFO
                  ):
         threading.Thread.__init__(self)
@@ -28,6 +29,8 @@ class Video(threading.Thread):
         self.recording = False
         self.video_format = video_format
         self.filename = None
+        self.st_recording = None
+        self.max_recording_seconds = max_recording_seconds
         # set logger
         self.logger = util.set_logger(level=log_level)
 
@@ -37,15 +40,21 @@ class Video(threading.Thread):
                 self.filename = util.full_path(self.path, util.file_name(self.video_format, util.now_string()))
                 self.camera.start_recording(self.filename, format=self.video_format)
                 self.recording = True
+                self.st_recording = time.time()
             except Exception as ex:
                 self.logger.debug('ERROR start_recording %s' % ex.message)
                 self.filename = None
                 self.recording = False
+                self.st_recording = None
+        else:
+            if self.st_recording is not None:
+                self.st_recording = time.time()
         return self.recording
 
     def stop_recording(self):
         if self.recording:
             self.recording = False
+            self.st_recording = None
             self.camera.stop_recording()
             return self.filename
         else:
@@ -69,4 +78,8 @@ class Video(threading.Thread):
 
     def run(self):
         while not self.finish:
+            if self.recording:
+                if self.st_recording is not None:
+                    if time.time() - self.st_recording > self.max_recording_seconds:
+                        self.stop_recording()
             time.sleep(.001)
