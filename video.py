@@ -51,11 +51,13 @@ class Video(threading.Thread):
         else:
             return None
 
-    def snapshot(self, snapshot_filename=None):
+    def snapshot(self, snapshot_filename=None, annotate_text=None):
         try:
             if snapshot_filename is None:
                 snapshot_filename = util.full_path(self.path,
                                                    util.file_name('png', util.now_string()))
+            if annotate_text is not None:
+                self.camera.annotate_text = annotate_text
             if self.recording:
                 self.camera.capture(snapshot_filename, use_video_port=True)
             else:
