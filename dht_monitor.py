@@ -3,12 +3,27 @@
 import argparse
 import logging
 import json
+import time
 import Adafruit_DHT
 from publisher import Publisher
 
-SENSOR_ARGS = {11: Adafruit_DHT.DHT11,
-               22: Adafruit_DHT.DHT22,
-               2302: Adafruit_DHT.AM2302}
+# Define sensor type constants.
+DHT11 = 11
+DHT22 = 22
+AM2302 = 22
+SENSORS = [DHT11, DHT22, AM2302]
+
+
+def read_retry(sensor, pin, retries=15, delay_seconds=2):
+    if sensor not in SENSORS:
+        raise ValueError('Expected DHT11, DHT22, or AM2302 sensor value.')
+    for i in range(retries):
+        h, t = Adafruit_DHT.read(sensor, pin)
+        if h is not None and t is not None:
+            return h, t
+        time.sleep(delay_seconds)
+    return None, None
+
 
 # parse arguments
 parser = argparse.ArgumentParser()
@@ -20,12 +35,11 @@ parser.add_argument("-i", "--clientID", help="Client ID", default='')  # empty s
 parser.add_argument("-t", "--topic", help="IoT topic", required=True)
 parser.add_argument("-o", "--topic2", help="Additional IoT topic")
 parser.add_argument("-p", "--pin", help="gpio pin (using BCM numbering)", type=int, required=True)
-parser.add_argument("-y", "--dht_type", help="DHT sensor type %s" % (str(SENSOR_ARGS.keys())), type=int,
-                    default=Adafruit_DHT.DHT22)
+parser.add_argument("-y", "--dht_type", help="DHT sensor type %s" % SENSORS, type=int, default=DHT22)
 parser.add_argument("-g", "--log_level", help="log level", type=int, default=logging.INFO)
 args = parser.parse_args()
 
-humidity, temperature = Adafruit_DHT.read(SENSOR_ARGS[args.dht_type], args.pin)
+humidity, temperature = read_retry(args.dht_type, args.pin)
 
 # Lookup system_info
 data = dict()
