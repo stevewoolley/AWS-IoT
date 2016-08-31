@@ -30,7 +30,12 @@ class S3Archiver(threading.Thread):
         while not self.finish:
             if not self.empty():
                 self.logger.debug('S3Archiver processing %s file(s)' % len(self.files))
+                stragglers = []
                 for f in self.files:
                     self.logger.info('S3Archiver processing file %s' % f)
-                    util.move_to_s3(f, self.bucket, os.path.basename(f))
+                    if util.is_locked(f):
+                        stragglers.append(f)
+                    else:
+                        util.move_to_s3(f, self.bucket, os.path.basename(f))
+                self.files = stragglers
             time.sleep(60)

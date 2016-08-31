@@ -96,3 +96,18 @@ def full_path(*args):
 
 def now_string():
     return datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+
+def is_locked(filepath):
+    """Checks if a file is locked by opening it in append mode.
+    If no exception thrown, then the file is not locked.
+    """
+    locked = None
+    if os.path.exists(filepath):
+        try:
+            os.rename(filepath, filepath)
+            locked = False
+        except OSError as ex:
+            locked = True
+            print >> sys.stderr, 'util file_locked %s %s' % (filepath, ex.message)
+    return locked
