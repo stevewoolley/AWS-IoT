@@ -9,15 +9,17 @@ import json
 import os
 from subscriber import Subscriber
 from video import Video
+from s3archiver import S3Archiver
 
 
 def snapshot_callback(client, userdata, message):
     msg = json.loads(message.payload)
     filename = video.snapshot(annotate_text=util.now_string())
-    if args.archive_bucket is not None:
-        util.copy_to_s3(filename, args.archive_bucket, os.path.basename(filename))
     if args.bucket is not None:
-        util.move_to_s3(filename, args.bucket, util.file_name('png', args.name))
+        util.copy_to_s3(filename, args.bucket, util.file_name('png', args.name))
+    if args.archive_bucket is not None:
+        archiver.add_file(filename)
+        # util.copy_to_s3(filename, args.archive_bucket, os.path.basename(filename))
     if filename is not None:
         logger.info("video_sub snapshot %s %s" % (msg, filename))
 
@@ -29,6 +31,8 @@ def recording_callback(client, userdata, message):
         filename = video.stop_recording()
     else:
         video.start_recording()
+        if video.filename is not None:
+            archiver.add_file(video.filename)
     if filename is not None:
         logger.info("video_sub recording %s %s" % (msg, filename))
 
@@ -63,6 +67,8 @@ video = Video(
     vertical_resolution=args.vertical_resolution
 )
 video.start()
+
+archiver = S3Archiver(args.archive_bucket)
 
 subscriber = Subscriber(
     args.endpoint,
