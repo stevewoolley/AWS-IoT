@@ -69,6 +69,7 @@ video = Video(
 video.start()
 
 archiver = S3Archiver(args.archive_bucket)
+archiver.start()
 
 subscriber = Subscriber(
     args.endpoint,
