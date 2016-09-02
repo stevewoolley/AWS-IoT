@@ -66,7 +66,8 @@ class Video(threading.Thread):
         try:
             if snapshot_filename is None:
                 snapshot_filename = util.full_path(self.path,
-                                                   util.file_name('png', util.now_string().replace(" ", "_")))
+                                                   util.file_name('png', util.now_string().replace(" ", "_"),
+                                                                  self.base_filename))
             if annotate_text is not None:
                 self.camera.annotate_text = annotate_text
             if self.recording:
