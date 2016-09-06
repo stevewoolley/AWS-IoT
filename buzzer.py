@@ -28,4 +28,4 @@ class Buzzer(threading.Thread):
 
     def run(self):
         while not self.finish:
-            time.sleep(0.0001)
+            time.sleep(0.01)
