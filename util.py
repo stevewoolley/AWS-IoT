@@ -6,6 +6,10 @@ import time
 import datetime
 
 
+def convert_celsius_to_fahrenheit(c):
+    return 9.0 / 5.0 * c + 32
+
+
 def set_logger(name='iot', level=logging.INFO):
     logging.basicConfig(level=level,
                         format='%(asctime)s %(levelname)-8s %(message)s',
