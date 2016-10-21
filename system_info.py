@@ -1,5 +1,6 @@
 import platform
 import subprocess
+from gpiozero import CPUTemperature
 
 
 def node():
@@ -128,9 +129,10 @@ def cpu_core_volt():
 
 
 def cpu_temperature():
+    temp = CPUTemperature()
     cpu_info = {'temperature': 0, 'color': 'white'}
     try:
-        cpu_temp = float(subprocess.check_output(["vcgencmd measure_temp"], shell=True).split('=')[1].split('\'')[0])
+        cpu_temp = temp.temperature
         cpu_info['temperature'] = cpu_temp
         if cpu_temp > 50:
             cpu_info['color'] = 'red'
