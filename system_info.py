@@ -82,9 +82,10 @@ def process_count():
 
 def cpu_generic_details():
     items = dict()
-    for s in os_execute_shell("cat /proc/cpuinfo  | grep 'model name\|Hardware\|Serial' | uniq "):
-        items[util.camel_case(s.split(':')[0])] = s.split(':')[1].replace('\t', '').replace('\n', '')
+    for s in os_execute_shell("cat /proc/cpuinfo  | grep 'model name\|Hardware\|Serial' | uniq ").split('\n'):
+        items[util.camel_case(s.split(':')[0])] = s.split(':')[1].replace('\t', '').strip()
     return items
+
 
 def boot_info():
     item = dict()
