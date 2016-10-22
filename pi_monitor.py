@@ -42,7 +42,7 @@ docker = system_info.os_execute('docker --version')
 if docker != 'NA':
     data["state"]["reported"]["dockerVersion"] = docker
     docker_info = system_info.docker_info()
-    data["state"]["reported"]["dockerContainersRunning"] = docker_info['running']
+    data["state"]["reported"]["dockerContainersRunning"] = util.num(docker_info['running'])
 
 msg = json.dumps(data)
 # Publish
