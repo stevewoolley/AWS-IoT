@@ -88,28 +88,26 @@ def cpu_generic_details():
 
 
 def boot_info():
-    item = dict()
-    item['running_duration'] = os_execute('uptime -p')
-    item['start_time'] = os_execute('uptime -s')
-    return dict(boot_info=item)
+    items = dict()
+    items['running_duration'] = os_execute('uptime -p')
+    items['start_time'] = os_execute('uptime -s')
+    return items
 
 
 def memory_usage_info():
-    item = dict()
-    item['total'] = os_execute_shell("free -m -t | awk 'NR==2' | awk '{print $2'}")
-    item['used'] = os_execute_shell("free -m -t | awk 'NR==3' | awk '{print $3'}")
-    item['available'] = int(item['total']) - int(item['used'])
-    return dict(memory_usage_info=item)
+    items = dict()
+    items['total'] = os_execute_shell("free -m -t | awk 'NR==2' | awk '{print $2'}")
+    items['used'] = os_execute_shell("free -m -t | awk 'NR==3' | awk '{print $3'}")
+    items['available'] = int(items['total']) - int(items['used'])
+    return items
 
 
 def os_name():
-    return dict(os_name=os_execute_shell("cat /etc/*-release | grep PRETTY_NAME | cut -d= -f2").replace('"', ''))
+    return os_execute_shell("cat /etc/*-release | grep PRETTY_NAME | cut -d= -f2").replace('"', '')
 
 
 def cpu_usage_info():
-    item = dict()
-    item['in_use'] = os_execute_shell("top -b -n2 | grep 'Cpu(s)'|tail -n 1 | awk '{print $2 + $4 }'")
-    return dict(cpu_usage_info=item)
+    return os_execute_shell("top -b -n2 | grep 'Cpu(s)'|tail -n 1 | awk '{print $2 + $4 }'")
 
 
 def cpu_processor_count():
@@ -117,11 +115,11 @@ def cpu_processor_count():
 
 
 def cpu_core_frequency():
-    return dict(cpu_core_frequency=os_execute_shell("vcgencmd get_config arm_freq | cut -d= -f2"))
+    return os_execute_shell("vcgencmd get_config arm_freq | cut -d= -f2")
 
 
 def cpu_core_volt():
-    return dict(cpu_core_volt=os_execute_shell("vcgencmd measure_volts | cut -d= -f2"))
+    return os_execute_shell("vcgencmd measure_volts | cut -d= -f2")
 
 
 def cpu_temperature():
@@ -138,7 +136,7 @@ def cpu_temperature():
     except Exception as ex:
         print ex
     finally:
-        return dict(cpu_temperature=cpu_info)
+        return cpu_info
 
 
 def disk_usage_list():
