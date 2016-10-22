@@ -18,58 +18,66 @@ def machine():
 
 def ip_address(interface):
     """Returns the IP address for the given interface e.g. eth0"""
-    item = {interface: 'Na'}
-    try:
-        s = subprocess.check_output(["ip", "addr", "show", interface])
-        item[interface] = s.split('\n')[2].strip().split(' ')[1].split('/')[0]
-    except Exception as ex:
-        print ex
-    finally:
-        return dict(interface=item)
+    result = os_execute("ip addr show %s" % interface)
+    if result is not None:
+        return result.split('\n')[2].strip().split(' ')[1].split('/')[0]
+    else:
+        return None
 
 
 def connection_count():
     """Returns the number of network connections"""
-    try:
-        s = subprocess.check_output(["netstat", "-tun"])
-        return dict(connection_count=len([x for x in s.split() if x == 'ESTABLISHED']))
-    except Exception as ex:
-        print ex
-        return dict(connection_count='Na')
+    result = os_execute('netstat -tun')
+    if result is not None:
+        return dict(connection_count=len([x for x in result.split() if x == 'ESTABLISHED']))
+    else:
+        return dict(connection_count=0)
 
 
 def docker_info():
     """Returns docker information"""
+    result = dict()
     try:
-        result = {}
-        s = subprocess.check_output(['docker', 'info'])
-        for e in s.split('\n'):
+        s = os_execute('docker info')
+        for e in s.splitlines():
             p = e.split(':')
             if len(p) == 2:
                 result[util.camel_case(p[0])] = p[1].strip()
         return result
     except Exception as ex:
-        print ex
-        return {}
+        return result
 
 
 def os_execute(s):
-    """Returns result of os call"""
+    """Returns string result of os call"""
     try:
         result = subprocess.check_output(s.split()).rstrip('\n')
         return result
     except Exception as ex:
-        return 'NA'
+        return None
+
+
+def os_execute_shell(s):
+    """Returns string result of os call"""
+    try:
+        result = subprocess.check_output([s], shell=True).rstrip('\n')
+        return result
+    except Exception as ex:
+        return None
+
+
+def os_execute_dict(s, k):
+    """Returns dict result of os call"""
+    return {k, os_execute(s)}
 
 
 def process_count():
     """Returns the number of processes"""
-    try:
-        s = subprocess.check_output(["ps", "-e"])
-        return dict(process_count=len(s.split('\n')))
-    except Exception as ex:
-        print ex
-        return dict(process_count='Na')
+    result = os_execute('ps -e')
+    if result is not None:
+        return dict(process_count=len(result.split('\n')) - 1)
+    else:
+        return dict(process_count=0)
 
 
 def cpu_generic_details():
@@ -85,72 +93,40 @@ def cpu_generic_details():
 
 
 def boot_info():
-    item = {'start_time': 'Na', 'running_duration': 'Na'}
-    try:
-        item['running_duration'] = subprocess.check_output(['uptime -p'], shell=True).replace('\n', '')
-        item['start_time'] = subprocess.check_output(['uptime -s'], shell=True).replace('\n', '')
-    except Exception as ex:
-        print ex
-    finally:
-        return dict(boot_info=item)
+    item = dict()
+    item['running_duration'] = os_execute('uptime -p')
+    item['start_time'] = os_execute('uptime -s')
+    return dict(boot_info=item)
 
 
 def memory_usage_info():
-    item = {'total': 'Na', 'used': 'Na', 'available': 'Na'}
-    try:
-        item['total'] = subprocess.check_output(["free -m -t | awk 'NR==2' | awk '{print $2'}"], shell=True).replace(
-            '\n', '')
-        item['used'] = subprocess.check_output(["free -m -t | awk 'NR==3' | awk '{print $3'}"], shell=True).replace(
-            '\n', '')
-        item['available'] = int(item['total']) - int(item['used'])
-    except Exception as ex:
-        print ex
-    finally:
-        return dict(memory_usage_info=item)
+    item = dict()
+    item['total'] = os_execute_shell("free -m -t | awk 'NR==2' | awk '{print $2'}")
+    item['used'] = os_execute_shell("free -m -t | awk 'NR==3' | awk '{print $3'}")
+    item['available'] = int(item['total']) - int(item['used'])
+    return dict(memory_usage_info=item)
 
 
 def os_name():
-    os_info = subprocess.check_output(
-        "cat /etc/*-release | grep PRETTY_NAME | cut -d= -f2", shell=True).replace('\n',
-                                                                                   '').replace('"', '')
-    return dict(os_name=os_info)
+    return dict(os_name=os_execute_shell("cat /etc/*-release | grep PRETTY_NAME | cut -d= -f2").replace('"', ''))
 
 
 def cpu_usage_info():
-    item = {'in_use': 0}
-    try:
-        item['in_use'] = subprocess.check_output("top -b -n2 | grep 'Cpu(s)'|tail -n 1 | awk '{print $2 + $4 }'",
-                                                 shell=True).replace('\n', '')
-    except Exception as ex:
-        print ex
-    finally:
-        return dict(cpu_usage_info=item)
+    item = dict()
+    item['in_use'] = os_execute_shell("top -b -n2 | grep 'Cpu(s)'|tail -n 1 | awk '{print $2 + $4 }'")
+    return dict(cpu_usage_info=item)
 
 
 def cpu_processor_count():
-    proc_info = subprocess.check_output("nproc", shell=True).replace('\n', '')
-    return dict(cpu_processor_count=proc_info)
+    return os_execute_dict('nproc', 'cpu_processor_count')
 
 
 def cpu_core_frequency():
-    core_frequency = 'Na'
-    try:
-        core_frequency = subprocess.check_output("vcgencmd get_config arm_freq | cut -d= -f2", shell=True).replace('\n',
-                                                                                                                   '')
-    except Exception as ex:
-        print ex
-    finally:
-        return dict(cpu_core_frequency=core_frequency)
+    return dict(cpu_core_frequency=os_execute_shell("vcgencmd get_config arm_freq | cut -d= -f2"))
 
 
 def cpu_core_volt():
-    core_volt = 'Na'
-    try:
-        core_volt = subprocess.check_output("vcgencmd measure_volts | cut -d= -f2", shell=True).replace('\n', '')
-    except Exception as ex:
-        print ex
-    finally:
-        return dict(cpu_core_volt=core_volt)
+    return dict(cpu_core_volt=os_execute_shell("vcgencmd measure_volts | cut -d= -f2"))
 
 
 def cpu_temperature():
