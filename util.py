@@ -11,7 +11,7 @@ def convert_celsius_to_fahrenheit(c):
 
 
 def camel_case(s):
-    s = s.title().replace(' ', '')
+    s = s.title().replace(' ', '').replace('\t', '').replace('\n', '')
     return s[0].lower() + s[1:]
 
 

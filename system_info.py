@@ -75,22 +75,16 @@ def process_count():
     """Returns the number of processes"""
     result = os_execute('ps -e')
     if result is not None:
-        return dict(process_count=len(result.split('\n')) - 1)
+        return len(result.split('\n')) - 1
     else:
-        return dict(process_count=0)
+        return 0
 
 
 def cpu_generic_details():
-    items = []
-    try:
-        items = [s.split('\t: ') for s in
-                 subprocess.check_output(["cat /proc/cpuinfo  | grep 'model name\|Hardware\|Serial' | uniq "],
-                                         shell=True).splitlines()]
-    except Exception as ex:
-        print ex
-    finally:
-        return items
-
+    items = dict()
+    for s in os_execute_shell("cat /proc/cpuinfo  | grep 'model name\|Hardware\|Serial' | uniq "):
+        items[util.camel_case(s.split(':')[0])] = s.split(':')[1].replace('\t', '').replace('\n', '')
+    return items
 
 def boot_info():
     item = dict()
