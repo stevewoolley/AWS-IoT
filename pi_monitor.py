@@ -34,6 +34,10 @@ data["state"]["reported"]["ramAvailable"] = util.num(system_info.memory_usage_in
 data["state"]["reported"]["processCount"] = util.num(system_info.process_count()['process_count'])
 data["state"]["reported"]["upTime"] = system_info.boot_info()['boot_info']['running_duration']
 data["state"]["reported"]["cpuLoad"] = util.num(system_info.cpu_usage_info()['cpu_usage_info']['in_use'])
+#
+data["state"]["reported"]["osName"] = system_info.os_name()['os_name']
+data["state"]["reported"]["cpuProcessorCount"] = util.num(system_info.cpu_processor_count()['cpu_processor_count'])
+data["state"]["reported"]["cpuCoreFrequency"] = util.num(system_info.cpu_core_frequency()['cpu_core_frequency'])
 
 msg = json.dumps(data)
 # Publish
