@@ -29,9 +29,9 @@ def connection_count():
     """Returns the number of network connections"""
     result = os_execute('netstat -tun')
     if result is not None:
-        return dict(connection_count=len([x for x in result.split() if x == 'ESTABLISHED']))
+        return len([x for x in result.split() if x == 'ESTABLISHED'])
     else:
-        return dict(connection_count=0)
+        return 0
 
 
 def docker_info():
@@ -96,8 +96,8 @@ def boot_info():
 
 def memory_usage_info():
     items = dict()
-    items['total'] = os_execute_shell("free -m -t | awk 'NR==2' | awk '{print $2'}")
-    items['used'] = os_execute_shell("free -m -t | awk 'NR==3' | awk '{print $3'}")
+    items['total'] = util.num(os_execute_shell("free -m -t | awk 'NR==2' | awk '{print $2'}"))
+    items['used'] = util.num(os_execute_shell("free -m -t | awk 'NR==3' | awk '{print $3'}"))
     items['available'] = int(items['total']) - int(items['used'])
     return items
 
@@ -107,15 +107,15 @@ def os_name():
 
 
 def cpu_usage_info():
-    return os_execute_shell("top -b -n2 | grep 'Cpu(s)'|tail -n 1 | awk '{print $2 + $4 }'")
+    return util.num(os_execute_shell("top -b -n2 | grep 'Cpu(s)'|tail -n 1 | awk '{print $2 + $4 }'"))
 
 
 def cpu_processor_count():
-    return os_execute_dict('nproc', 'cpu_processor_count')
+    return util.num(os_execute('nproc'))
 
 
 def cpu_core_frequency():
-    return os_execute_shell("vcgencmd get_config arm_freq | cut -d= -f2")
+    return util.num(os_execute_shell("vcgencmd get_config arm_freq | cut -d= -f2"))
 
 
 def cpu_core_volt():
@@ -123,20 +123,7 @@ def cpu_core_volt():
 
 
 def cpu_temperature():
-    temp = CPUTemperature()
-    cpu_info = {'temperature': 0, 'color': 'white'}
-    try:
-        cpu_temp = temp.temperature
-        cpu_info['temperature'] = cpu_temp
-        if cpu_temp > 50:
-            cpu_info['color'] = 'red'
-        elif cpu_temp > 40:
-            cpu_info['color'] = 'orange'
-        return cpu_info
-    except Exception as ex:
-        print ex
-    finally:
-        return cpu_info
+    return CPUTemperature().temperature
 
 
 def disk_usage_list():

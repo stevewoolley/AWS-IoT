@@ -21,23 +21,23 @@ args = parser.parse_args()
 
 # Lookup system_info
 data = {'state': {'reported': {}}}
-data["state"]["reported"]["cpuTemp"] = util.num(system_info.cpu_temperature()['cpu_temperature']['temperature'])
-data["state"]["reported"]["wlan0IpAddress"] = system_info.ip_address('wlan0')['interface']['wlan0']
-data["state"]["reported"]["eth0IpAddress"] = system_info.ip_address('eth0')['interface']['eth0']
+data["state"]["reported"]["cpuTemp"] = system_info.cpu_temperature()
+data["state"]["reported"]["wlan0IpAddress"] = system_info.ip_address('wlan0')
+data["state"]["reported"]["eth0IpAddress"] = system_info.ip_address('eth0')
 root_fs = util.search_list(system_info.disk_usage_list(), '/', 5)
 if root_fs:
     data["state"]["reported"]["totalDiskSpaceRoot"] = root_fs[1]
     data["state"]["reported"]["usedDiskSpaceRoot"] = root_fs[2]
-data["state"]["reported"]["networkConnections"] = system_info.connection_count()['connection_count']
-data["state"]["reported"]["ramTotal"] = util.num(system_info.memory_usage_info()['memory_usage_info']['total'])
-data["state"]["reported"]["ramAvailable"] = util.num(system_info.memory_usage_info()['memory_usage_info']['available'])
-data["state"]["reported"]["processCount"] = util.num(system_info.process_count()['process_count'])
-data["state"]["reported"]["upTime"] = system_info.boot_info()['boot_info']['running_duration']
-data["state"]["reported"]["cpuLoad"] = util.num(system_info.cpu_usage_info()['cpu_usage_info']['in_use'])
+data["state"]["reported"]["networkConnections"] = system_info.connection_count()
+data["state"]["reported"]["ramTotal"] = system_info.memory_usage_info()['total']
+data["state"]["reported"]["ramAvailable"] = system_info.memory_usage_info()['available']
+data["state"]["reported"]["processCount"] = system_info.process_count()
+data["state"]["reported"]["upTime"] = system_info.boot_info()['running_duration']
+data["state"]["reported"]["cpuLoad"] = system_info.cpu_usage_info()
 #
-data["state"]["reported"]["osName"] = system_info.os_name()['os_name']
-data["state"]["reported"]["cpuProcessorCount"] = util.num(system_info.cpu_processor_count()['cpu_processor_count'])
-data["state"]["reported"]["cpuCoreFrequency"] = util.num(system_info.cpu_core_frequency()['cpu_core_frequency'])
+data["state"]["reported"]["osName"] = system_info.os_name()
+data["state"]["reported"]["cpuProcessorCount"] = system_info.cpu_processor_count()
+data["state"]["reported"]["cpuCoreFrequency"] = system_info.cpu_core_frequency()
 docker = system_info.os_execute('docker --version')
 if docker != 'NA':
     data["state"]["reported"]["dockerVersion"] = docker
