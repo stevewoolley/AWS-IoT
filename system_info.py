@@ -1,5 +1,6 @@
 import platform
 import subprocess
+import util
 from gpiozero import CPUTemperature
 
 
@@ -35,6 +36,30 @@ def connection_count():
     except Exception as ex:
         print ex
         return dict(connection_count='Na')
+
+
+def docker_info():
+    """Returns docker information"""
+    try:
+        result = {}
+        s = subprocess.check_output(['docker', 'info'])
+        for e in s.split('\n'):
+            p = e.split(':')
+            if len(p) == 2:
+                result[util.camel_case(p[0])] = p[1].strip()
+        return result
+    except Exception as ex:
+        print ex
+        return {}
+
+
+def os_execute(s):
+    """Returns result of os call"""
+    try:
+        result = subprocess.check_output(s.split()).rstrip('\n')
+        return result
+    except Exception as ex:
+        return 'NA'
 
 
 def process_count():

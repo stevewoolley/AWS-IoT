@@ -38,6 +38,11 @@ data["state"]["reported"]["cpuLoad"] = util.num(system_info.cpu_usage_info()['cp
 data["state"]["reported"]["osName"] = system_info.os_name()['os_name']
 data["state"]["reported"]["cpuProcessorCount"] = util.num(system_info.cpu_processor_count()['cpu_processor_count'])
 data["state"]["reported"]["cpuCoreFrequency"] = util.num(system_info.cpu_core_frequency()['cpu_core_frequency'])
+docker = system_info.os_execute('docker --version')
+if docker != 'NA':
+    data["state"]["reported"]["dockerVersion"] = system_info.os_execute('docker --version')
+    docker_info = system_info.docker_info()
+    data["state"]["reported"]["dockerContainersRunning"] = docker_info['running']
 
 msg = json.dumps(data)
 # Publish

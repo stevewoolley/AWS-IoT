@@ -10,6 +10,11 @@ def convert_celsius_to_fahrenheit(c):
     return 9.0 / 5.0 * c + 32
 
 
+def camel_case(s):
+    s = s.title().replace(' ', '')
+    return s[0].lower() + s[1:]
+
+
 def set_logger(name='iot', level=logging.INFO):
     logging.basicConfig(level=level,
                         format='%(asctime)s %(levelname)-8s %(message)s',
