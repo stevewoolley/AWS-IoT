@@ -40,7 +40,7 @@ data["state"]["reported"]["cpuProcessorCount"] = util.num(system_info.cpu_proces
 data["state"]["reported"]["cpuCoreFrequency"] = util.num(system_info.cpu_core_frequency()['cpu_core_frequency'])
 docker = system_info.os_execute('docker --version')
 if docker != 'NA':
-    data["state"]["reported"]["dockerVersion"] = system_info.os_execute('docker --version')
+    data["state"]["reported"]["dockerVersion"] = docker
     docker_info = system_info.docker_info()
     data["state"]["reported"]["dockerContainersRunning"] = docker_info['running']
 
