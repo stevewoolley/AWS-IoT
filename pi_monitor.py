@@ -17,7 +17,7 @@ parser.add_argument("-g", "--log_level", help="log level", type=int, default=log
 parser.add_argument("-t", "--topic", help="IoT topic", required=True)
 parser.add_argument("-o", "--topic2", help="Additional IoT topic")
 parser.add_argument("-i", "--clientID", help="Client ID", default='')  # empty string auto generates unique client ID
-parser.add_argument("-p", "--party", help="monitor party", default=None)  # empty string auto generates unique client ID
+parser.add_argument("-p", "--party", help="monitor party", default=None)
 args = parser.parse_args()
 
 # Lookup system_info
@@ -48,6 +48,7 @@ if args.party is None or args.party == 'docker':
         data["state"]["reported"]["dockerVersion"] = docker
         docker_info = system_info.docker_info()
         data["state"]["reported"]["dockerContainersRunning"] = util.num(docker_info['running'])
+        data["state"]["reported"]["dockerArchitecture"] = docker_info['architecture']
 
 msg = json.dumps(data)
 
