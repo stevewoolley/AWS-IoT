@@ -12,7 +12,7 @@ from relay import Relay
 
 def my_callback(client, userdata, message):
     msg = json.loads(message.payload)
-    logger.info('relay_sub received %s' % msg)
+    logger.info("relay_sub topic:{} {}".format(args.topic, msg))
     relay.pulse()
 
 

@@ -40,6 +40,7 @@ try:
     while True:
         current_state = sensor.reading()
         if current_state != last_state:
+            logger.info("sensor pin:{} state:{}".format(args.pin, current_state))
             last_state = current_state  # reset state value
             if current_state == Sensor.LOW:
                 status = args.low_value
@@ -60,8 +61,9 @@ try:
                     args.key,
                     args.cert
                 ).publish_multiple(obj)
+                logger.info("publish pin:{} {}".format(args.pin, obj))
             except Exception as ex:
-                logger.error("ERROR publish %s" % ex.message)
+                logger.error("publish pin:{} {}".format(args.pin, ex.message))
         time.sleep(0.2)
 except (KeyboardInterrupt, SystemExit):
     sys.exit()

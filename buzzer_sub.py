@@ -12,12 +12,13 @@ from buzzer import Buzzer
 
 def my_callback(client, userdata, message):
     msg = json.loads(message.payload)
-    if msg.has_key('alert_count'):
-        buzzer.beep(beep_duration=args.beep_duration, quiet_duration=args.quiet_duration,
-                    count=msg['alert_count'])
-    else:
-        buzzer.beep(beep_duration=args.beep_duration, quiet_duration=args.quiet_duration,
-                    count=args.beep_count)
+    logger.info("buzzer_sub topic:{} {}".format(args.topic, msg))
+    c = args.beep_count
+    if 'alert_count' in msg:
+        c = msg['alert_count']
+    buzzer.beep(beep_duration=args.beep_duration, quiet_duration=args.quiet_duration,
+                count=c)
+    logger.info("beep {}".format(c))
 
 
 # parse arguments

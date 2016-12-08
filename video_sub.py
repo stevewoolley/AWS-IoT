@@ -14,6 +14,7 @@ from s3archiver import S3Archiver
 
 def snapshot_callback(client, userdata, message):
     msg = json.loads(message.payload)
+    logger.info("snapshot_sub topic:{} {}".format(args.topic, msg))
     filename = video.snapshot(annotate_text=util.now_string())
     if args.bucket is not None:
         util.copy_to_s3(filename, args.bucket, util.file_name('png', args.name))
@@ -21,11 +22,12 @@ def snapshot_callback(client, userdata, message):
         archiver.add_file(filename)
         # util.copy_to_s3(filename, args.archive_bucket, os.path.basename(filename))
     if filename is not None:
-        logger.info("video_sub snapshot %s %s" % (msg, filename))
+        logger.info("video_sub snapshot to {}".format(filename))
 
 
 def recording_callback(client, userdata, message):
     msg = json.loads(message.payload)
+    logger.info("recording_sub topic:{} {}".format(args.topic, msg))
     filename = None
     if video.recording:
         filename = video.stop_recording()
@@ -34,7 +36,7 @@ def recording_callback(client, userdata, message):
         if video.filename is not None:
             archiver.add_file(video.filename)
     if filename is not None:
-        logger.info("video_sub recording %s %s" % (msg, filename))
+        logger.info("recording_sub recording to {}".format(filename))
 
 
 # parse arguments
@@ -46,14 +48,11 @@ parser.add_argument("-k", "--key", help="Private key file path")
 parser.add_argument("-x", "--horizontal_resolution", help="horizontal_resolution", type=int, default=640)
 parser.add_argument("-y", "--vertical_resolution", help="vertical resolution", type=int, default=480)
 parser.add_argument("-z", "--rotation", help="image rotation", type=int, default=0)
-
 parser.add_argument("-s", "--snapshot", help="Snapshot topic(s)", nargs='+', required=True)
 parser.add_argument("-t", "--recording", help="Recording topic(s)", nargs='+', required=True)
-
 parser.add_argument("-n", "--name", help="Name", required=True)
 parser.add_argument("-b", "--bucket", help="S3 snapshot bucket", default=None)
 parser.add_argument("-a", "--archive_bucket", help="S3 snapshot archive bucket", default=None)
-
 parser.add_argument("-g", "--log_level", help="log level", type=int, default=logging.INFO)
 args = parser.parse_args()
 
