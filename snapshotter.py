@@ -30,7 +30,7 @@ while True:
             args.key,
             args.cert
         ).publish(t, msg)
-        print("%s %s %s" % (util.now_string(), t, result))
+        print("{} {} {}".format(util.now_string(), t, result))
     time.sleep(args.sleep)
 
 if not result:

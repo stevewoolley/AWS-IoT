@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 import argparse
 import logging
 import util
@@ -10,7 +9,7 @@ from subscriber import Subscriber
 
 
 def my_callback(client, userdata, message):
-    logger.info('led_sub %s %s' % (message.topic, message.payload))
+    logger.info('led_sub {} {}'.format(message.topic, message.payload))
     led.flash(2)
 
 

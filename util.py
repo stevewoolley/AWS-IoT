@@ -16,10 +16,15 @@ def camel_case(s):
 
 
 def set_logger(name='iot', level=logging.INFO):
+    """Set logger to write logs to /var/log/NAME.log If not writeable, try /tmp/NAME.log"""
+    fname = "/var/log/{}.log".format(name)
+    if not os.access(fname, os.W_OK):
+        fname = "/tmp/{}.log".format(name)
     logging.basicConfig(level=level,
                         format='%(asctime)s %(levelname)-8s %(message)s',
-                        filename="/var/log/%s.log" % name,
+                        filename=fname,
                         filemode='a')
+
     return logging.getLogger()
 
 
@@ -48,7 +53,7 @@ def move_to_s3(filename, *args):
                os.path.join('s3://', *args)]
         pipe = sp.Popen(cmd, stdin=sp.PIPE, stderr=sp.PIPE)  # mv snapshot.png to s3
     except Exception as e:
-        print >> sys.stderr, 'ERROR util move_to_s3 %s' % e.message
+        print >> sys.stderr, 'ERROR util move_to_s3 {}'.format(e.message)
 
 
 def copy_to_s3(filename, *args):
@@ -60,7 +65,7 @@ def copy_to_s3(filename, *args):
                os.path.join('s3://', *args)]
         pipe = sp.Popen(cmd, stdin=sp.PIPE, stderr=sp.PIPE)  # mv snapshot.png to s3
     except Exception as e:
-        print >> sys.stderr, 'ERROR util copy_to_s3 %s' % e.message
+        print >> sys.stderr, 'ERROR util copy_to_s3 {}'.format(e.message)
 
 
 def annotate_image(filename, msg, font="/usr/share/fonts/truetype/msttcorefonts/arial.ttf", font_size="24",
@@ -76,7 +81,7 @@ def annotate_image(filename, msg, font="/usr/share/fonts/truetype/msttcorefonts/
                ]
         pipe = sp.Popen(cmd, stdin=sp.PIPE, stderr=sp.PIPE)  # mv snapshot.png to s3
     except Exception as e:
-        print >> sys.stderr, 'ERROR util annotate_image %s %s' % (filename, e.message)
+        print >> sys.stderr, 'ERROR util annotate_image {} {}'.format(filename, e.message)
 
 
 def generate_thumbnail(from_filename, to_filename='thumbnail.png'):
@@ -92,7 +97,7 @@ def generate_thumbnail(from_filename, to_filename='thumbnail.png'):
             time.sleep(0.5)  # give some time to complete file write
             pipe = sp.Popen(cmd, stdin=sp.PIPE, stderr=sp.PIPE)  # write thumbnail.png
         except Exception as ex:
-            print >> sys.stderr, 'generate_thumbnail %s %s %s' % (from_filename, to_filename, ex.message)
+            print >> sys.stderr, 'generate_thumbnail {} {} {}'.format(from_filename, to_filename, ex.message)
 
 
 def file_name(suffix, *args):
@@ -118,5 +123,5 @@ def is_locked(filepath):
             locked = False
         except OSError as ex:
             locked = True
-            print >> sys.stderr, 'util file_locked %s %s' % (filepath, ex.message)
+            print >> sys.stderr, "util file_locked {} {}".format(filepath, ex.message)
     return locked

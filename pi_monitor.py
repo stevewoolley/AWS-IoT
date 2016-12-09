@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 import argparse
 import logging
 import system_info
@@ -68,4 +67,4 @@ try:
             args.cert
         ).publish_multiple([{'topic': args.topic, 'payload': msg}, {'topic': args.topic2, 'payload': msg}])
 except Exception as ex:
-    print "ERROR: publish %s %s" % (args.topic, ex.message)
+    print "ERROR: publish {} {}".format(args.topic, ex.message)

@@ -29,10 +29,10 @@ class S3Archiver(threading.Thread):
     def run(self):
         while not self.finish:
             if not self.empty():
-                self.logger.debug('S3Archiver processing %s file(s)' % len(self.files))
+                self.logger.debug('S3Archiver processing {} file(s)'.format(len(self.files)))
                 stragglers = []
                 for f in self.files:
-                    self.logger.info('S3Archiver processing file %s' % f)
+                    self.logger.info('S3Archiver processing file {}'.format(f))
                     if util.is_locked(f):
                         stragglers.append(f)
                     else:

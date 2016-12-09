@@ -18,7 +18,7 @@ def machine():
 
 def ip_address(interface):
     """Returns the IP address for the given interface e.g. eth0"""
-    result = os_execute("ip addr show %s" % interface)
+    result = os_execute("ip addr show %{}".format(interface))
     if result is not None:
         return result.split('\n')[2].strip().split(' ')[1].split('/')[0]
     else:

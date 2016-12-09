@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 import argparse
 import time
 import util
@@ -50,7 +49,7 @@ try:
                     args.cert
                 ).publish_multiple(obj)
             except Exception as ex:
-                logger.error("ERROR publish %s" % ex.message)
+                logger.error("ERROR publish {}".format(ex.message))
             time.sleep(args.active_sleep)
         else:
             time.sleep(args.passive_sleep)

@@ -44,7 +44,7 @@ class Video(threading.Thread):
                 self.recording = True
                 self.st_recording = time.time()
             except Exception as ex:
-                self.logger.debug('ERROR start_recording %s' % ex.message)
+                self.logger.debug('ERROR start_recording {}'.format(ex.message))
                 self.filename = None
                 self.recording = False
                 self.st_recording = None
@@ -76,7 +76,7 @@ class Video(threading.Thread):
                 self.camera.capture(snapshot_filename, use_video_port=False)
             return snapshot_filename
         except Exception as ex:
-            self.logger.debug('ERROR snapshot %s %s' % (snapshot_filename, ex.message))
+            self.logger.debug('ERROR snapshot {} {}'.format(snapshot_filename, ex.message))
             return None
 
     def run(self):
