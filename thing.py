@@ -25,6 +25,7 @@ class Thing(threading.Thread):
         self.key = key
         self.cert = cert
         self.finish = False
+        self.daemon = True
         self.shadow = None
         self.status = None
         self.properties = None
@@ -73,5 +74,7 @@ class Thing(threading.Thread):
         self.shadow.shadowGet(self.custom_shadow_callback_get, 30)
 
     def run(self):
+        print "run 0"
         while not self.finish:
             time.sleep(0.001)
+        print "run 1"
