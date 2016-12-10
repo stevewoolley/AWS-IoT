@@ -55,11 +55,16 @@ class Thing(threading.Thread):
             self.last_update = msg['timestamp']
 
     def update(self, properties, state=REPORTED):
+        print("a")
         if not self.connected:
             self.connect()
+        print("b")
         payload = {self.STATE: {state: {}}}
+        print("c")
         payload[self.STATE][state] = properties
+        print("d")
         self.shadow.shadowUpdate(json.dumps(payload), self.custom_shadow_callback_update, 30)
+        print("e")
 
     def custom_shadow_callback_get(self, payload, response_status, token):
         if response_status == self.ACCEPTED:
