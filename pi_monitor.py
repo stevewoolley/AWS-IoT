@@ -50,3 +50,4 @@ args = parser.parse_args()
 # Lookup system_info
 thing = Thing(args.name, args.endpoint, args.rootCA, args.key, args.cert)
 thing.update({'state': {'reported': get_properties(args.party)}})
+thing.finish = True
