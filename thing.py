@@ -69,9 +69,12 @@ class Thing(threading.Thread):
             self.last_refresh = msg['timestamp']
 
     def refresh(self):
+        print("A")
         if not self.connected:
             self.connect()
+        print("B")
         self.shadow.shadowGet(self.custom_shadow_callback_get, 30)
+        print("C")
 
     def run(self):
         while not self.finish:
