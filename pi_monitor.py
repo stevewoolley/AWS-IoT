@@ -3,7 +3,6 @@ import argparse
 import system_info
 import util
 import time
-import sys
 from thing import Thing
 
 

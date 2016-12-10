@@ -32,7 +32,6 @@ class Thing(threading.Thread):
         self.client_id = ''
         self.last_update = None
         self.last_refresh = None
-        self.refresh()
 
     def connect(self):
         # Setup
