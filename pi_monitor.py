@@ -49,15 +49,9 @@ parser.add_argument("-p", "--party", help="Monitor party", default=None)
 args = parser.parse_args()
 
 # Lookup system_info
-print("1")
 thing = Thing(args.name, args.endpoint, args.rootCA, args.key, args.cert)
-print("2")
 thing.start()
-print("3")
 time.sleep(3)
-print("4")
 thing.update(get_properties(args.party))
-print("5")
 time.sleep(3)
-print("6")
 

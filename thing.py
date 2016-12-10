@@ -32,10 +32,6 @@ class Thing(threading.Thread):
         self.client_id = ''
         self.last_update = None
         self.last_refresh = None
-
-    def connect(self):
-        print 'x1'
-        # Setup
         if self.web_socket:
             self.client = AWSIoTMQTTShadowClient(self.client_id, useWebsocket=True)
             self.client.configureEndpoint(self.endpoint, 443)
@@ -44,16 +40,16 @@ class Thing(threading.Thread):
             self.client = AWSIoTMQTTShadowClient(self.client_id)
             self.client.configureEndpoint(self.endpoint, 8883)
             self.client.configureCredentials(self.root_ca, self.key, self.cert)
-        print 'x2'
         self.client.configureConnectDisconnectTimeout(10)  # 10 sec
-        print 'x3'
         self.client.configureMQTTOperationTimeout(5)  # 5 sec
+
+    def connect(self):
         # Connect
-        print 'x4'
-        self.connected = self.client.connect()
-        print 'x5'
-        self.shadow = self.client.createShadowHandlerWithName(self.name, True)
-        print 'x6'
+        try:
+            self.connected = self.client.connect()
+            self.shadow = self.client.createShadowHandlerWithName(self.name, True)
+        except Exception as ex:
+            self.connected = False
 
     def custom_shadow_callback_update(self, payload, response_status, token):
         if response_status == self.ACCEPTED:
@@ -61,16 +57,11 @@ class Thing(threading.Thread):
             self.last_update = msg['timestamp']
 
     def update(self, properties, state=REPORTED):
-        print("a")
         if not self.connected:
             self.connect()
-        print("b")
         payload = {self.STATE: {state: {}}}
-        print("c")
         payload[self.STATE][state] = properties
-        print("d")
         self.shadow.shadowUpdate(json.dumps(payload), self.custom_shadow_callback_update, 30)
-        print("e")
 
     def custom_shadow_callback_get(self, payload, response_status, token):
         if response_status == self.ACCEPTED:
@@ -79,12 +70,9 @@ class Thing(threading.Thread):
             self.last_refresh = msg['timestamp']
 
     def refresh(self):
-        print("A")
         if not self.connected:
             self.connect()
-        print("B")
         self.shadow.shadowGet(self.custom_shadow_callback_get, 30)
-        print("C")
 
     def run(self):
         while not self.finish:
