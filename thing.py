@@ -74,7 +74,5 @@ class Thing(threading.Thread):
         self.shadow.shadowGet(self.custom_shadow_callback_get, 30)
 
     def run(self):
-        print "run 0"
         while not self.finish:
             time.sleep(0.001)
-        print "run 1"
