@@ -39,6 +39,7 @@ def get_properties(group):
 
 # parse arguments
 parser = argparse.ArgumentParser()
+parser.add_argument("-n", "--name", help="pi AWS thing name", required=True)
 parser.add_argument("-e", "--endpoint", help="AWS IoT endpoint", required=True)
 parser.add_argument("-r", "--rootCA", help="Root CA file path", required=True)
 parser.add_argument("-c", "--cert", help="Certificate file path")
