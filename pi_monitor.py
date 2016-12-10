@@ -52,4 +52,5 @@ args = parser.parse_args()
 thing = Thing(args.name, args.endpoint, args.rootCA, args.key, args.cert)
 thing.start()
 thing.update(get_properties(args.party))
-time.sleep(5)
+time.sleep(3)
+thing.finish = True
