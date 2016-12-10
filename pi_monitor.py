@@ -3,6 +3,7 @@ import argparse
 import system_info
 import util
 import time
+import sys
 from thing import Thing
 
 
@@ -53,3 +54,5 @@ thing = Thing(args.name, args.endpoint, args.rootCA, args.key, args.cert)
 thing.start()
 thing.update(get_properties(args.party))
 time.sleep(3)
+sys.exit()
+
