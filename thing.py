@@ -1,79 +1,139 @@
-import threading
+#!/usr/bin/env python
+
 import time
+import datetime
 import json
+import argparse
+import sys
+import logging
+import util
+
+
 from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTShadowClient
 
+# constants
+STATE = 'state'
+REPORTED = 'reported'
+DESIRED = 'desired'
+TIMEOUT = 'timeout'
+ACCEPTED = 'accepted'
+REJECTED = 'rejected'
+TIMESTAMP = 'timestamp'
+CLIENT_TOKEN = 'clientToken'
+VERSION = 'version'
+METADATA = 'metadata'
+DT_FORMAT = '%Y/%m/%d %-I:%M %p %Z'
 
-class Thing(threading.Thread):
-    """A threaded IoT Thing object"""
 
-    STATE = 'state'
-    REPORTED = 'reported'
-    DESIRED = 'desired'
-    TIMEOUT = 'timeout'
-    ACCEPTED = 'accepted'
-    REJECTED = 'rejected'
+class Thing():
+    """A Thingy"""
 
-    def __init__(self, name, endpoint, root_ca, key, cert, web_socket=False):
-        threading.Thread.__init__(self)
+    def __init__(self, name, endpoint, root_ca, key, cert, client_id='', web_socket=False):
         self.name = name
-        self.client = None
+        self._client = None
+        self._shadow = None
         self.connected = False
-        self.endpoint = endpoint
-        self.web_socket = web_socket
-        self.root_ca = root_ca
-        self.key = key
-        self.cert = cert
-        self.finish = False
-        self.daemon = True
-        self.shadow = None
-        self.status = None
-        self.properties = None
-        self.client_id = ''
-        self.last_update = None
+        self.properties = {}
         self.last_refresh = None
-        if self.web_socket:
-            self.client = AWSIoTMQTTShadowClient(self.client_id, useWebsocket=True)
-            self.client.configureEndpoint(self.endpoint, 443)
-            self.client.configureCredentials(self.root_ca)
+        self.last_report = None
+        self.client_token = None
+        self.version = None
+        self.metadata = None
+        self.token = None
+        # setup client connection
+        if web_socket:
+            self._client = AWSIoTMQTTShadowClient(client_id, useWebsocket=web_socket)
+            self._client.configureEndpoint(endpoint, 443)
+            self._client.configureCredentials(root_ca)
         else:
-            self.client = AWSIoTMQTTShadowClient(self.client_id)
-            self.client.configureEndpoint(self.endpoint, 8883)
-            self.client.configureCredentials(self.root_ca, self.key, self.cert)
-        self.client.configureConnectDisconnectTimeout(10)  # 10 sec
-        self.client.configureMQTTOperationTimeout(5)  # 5 sec
+            self._client = AWSIoTMQTTShadowClient(client_id)
+            self._client.configureEndpoint(endpoint, 8883)
+            self._client.configureCredentials(root_ca, key, cert)
+        self._client.configureConnectDisconnectTimeout(10)  # 10 sec
+        self._client.configureMQTTOperationTimeout(5)  # 5 sec
 
-    def connect(self):
-        # Connect
-        try:
-            self.connected = self.client.connect()
-            self.shadow = self.client.createShadowHandlerWithName(self.name, True)
-        except Exception as ex:
-            self.connected = False
-
-    def custom_shadow_callback_update(self, payload, response_status, token):
-        if response_status == self.ACCEPTED:
+    def shadow_callback_update(self, payload, response_status, token):
+        logger.info("UPDATE RESPONSE {} {}".format(args.name, response_status))
+        if response_status == ACCEPTED:
             msg = json.loads(payload)
-            self.last_update = msg['timestamp']
+            self.token = token
+            logger.info("UPDATE ACCEPTED {} {}".format(args.name, msg))
 
-    def update(self, properties, state=REPORTED):
+    def shadow_callback_get(self, payload, response_status, token):
+        logger.info("GET RESPONSE {} {}".format(args.name, response_status))
+        if response_status == ACCEPTED:
+            msg = json.loads(payload)
+            self.last_refresh = msg[TIMESTAMP]
+            self.client_token = msg[CLIENT_TOKEN]
+            self.properties = msg[STATE][REPORTED]
+            self.version = msg[VERSION]
+            self.metadata = msg[METADATA][REPORTED]
+            self.token = token
+            for k, v in self.metadata.iteritems():
+                if v[TIMESTAMP] is None or v[TIMESTAMP] > self.last_report:
+                    self.last_report = v[TIMESTAMP]
+            logger.info("GET ACCEPTED {} {}".format(args.name, msg))
+
+    def shadow_callback_delete(self, payload, response_status, token):
+        logger.info("DELETE RESPONSE {} {}".format(args.name, response_status))
+        if response_status == ACCEPTED:
+            msg = json.loads(payload)
+            self.token = token
+            logger.info("DELETE ACCEPTED {} {}".format(args.name, msg))
+
+    def _connect(self):
         if not self.connected:
-            self.connect()
-        payload = {self.STATE: {state: {}}}
-        payload[self.STATE][state] = properties
-        self.shadow.shadowUpdate(json.dumps(payload), self.custom_shadow_callback_update, 30)
+            self._client.connect()
+            self._shadow = self._client.createShadowHandlerWithName(self.name, True)
+            self.connected = True
 
-    def custom_shadow_callback_get(self, payload, response_status, token):
-        if response_status == self.ACCEPTED:
-            self.properties = payload
-            msg = json.loads(payload)
-            self.last_refresh = msg['timestamp']
+    def put(self, properties, state=REPORTED):
+        self._connect()
+        # self._shadow.shadowDelete(self.shadow_callback_delete, 5)  # Delete shadow JSON doc
+        payload = {STATE: {state: {}}}
+        for k, v in properties.iteritems():
+            payload[STATE][state][k] = v
+        self._shadow.shadowUpdate(json.dumps(payload), self.shadow_callback_update, 30)
 
     def refresh(self):
-        if not self.connected:
-            self.connect()
-        self.shadow.shadowGet(self.custom_shadow_callback_get, 30)
+        self._connect()
+        self._shadow.shadowGet(self.shadow_callback_get, 30)
 
-    def run(self):
-        while not self.finish:
-            time.sleep(0.001)
+
+if __name__ == "__main__":
+
+    # parse arguments
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-n", "--name", help="Thing name", required=True)
+    parser.add_argument("-e", "--endpoint", help="AWS IoT endpoint", required=True)
+    parser.add_argument("-r", "--root_ca", help="Root CA file path", required=True)
+    parser.add_argument("-c", "--cert", help="Certificate file path")
+    parser.add_argument("-k", "--key", help="Private key file path")
+    parser.add_argument("-w", "--web_socket", help="Use web socket", action='store_true')
+    parser.add_argument("-i", "--client_id", help="Client ID", default='')
+    parser.add_argument("-g", "--log_level", help="log level", type=int, default=logging.INFO)
+    args = parser.parse_args()
+
+    # initialize
+    logger = util.set_logger(level=args.log_level)
+    thing = Thing(args.name, args.endpoint, args.root_ca, args.key, args.cert, args.client_id, args.web_socket)
+
+    try:
+        count = 0
+        while True:
+            count += 1
+            thing.refresh()
+            t_string = util.now_string()
+            print("{} {} {}".format(t_string, thing.name, thing.version, thing.properties, thing.metadata))
+            if thing.last_refresh is not None:
+                print("TIMESTAMP REFRESH {}".format(datetime.datetime.fromtimestamp(thing.last_refresh)))
+                print("PROPERTIES {} ".format(thing.properties))
+                print("METADATA {} ".format(thing.metadata))
+                print("TIMESTAMP LAST REPORT {}".format(datetime.datetime.fromtimestamp(thing.last_report)))
+            print("================================================")
+            if count % 20 == 0:
+                thing.put({'message': t_string})
+            time.sleep(60)
+            pass
+    except (KeyboardInterrupt, SystemExit):
+        sys.exit()
