@@ -3,6 +3,7 @@ import argparse
 import system_info
 import util
 import time
+import logging
 from thing import Thing
 
 
@@ -46,12 +47,10 @@ parser.add_argument("-r", "--rootCA", help="Root CA file path", required=True)
 parser.add_argument("-c", "--cert", help="Certificate file path")
 parser.add_argument("-k", "--key", help="Private key file path")
 parser.add_argument("-p", "--party", help="Monitor party", default=None)
+parser.add_argument("-g", "--log_level", help="log level", type=int, default=logging.WARNING)
 args = parser.parse_args()
 
 # Lookup system_info
-thing = Thing(args.name, args.endpoint, args.rootCA, args.key, args.cert)
-thing.start()
-time.sleep(3)
-thing.update(get_properties(args.party))
-time.sleep(3)
+thing = Thing(args.name, args.log_level)
+thing.put(Thing.REPORTED, get_properties(args.party))
 
