@@ -1,14 +1,11 @@
 #!/usr/bin/env python
 
 import time
-import datetime
 import json
 import argparse
 import sys
 import logging
 import util
-
-
 from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTShadowClient
 
 # constants
@@ -25,8 +22,8 @@ METADATA = 'metadata'
 DT_FORMAT = '%Y/%m/%d %-I:%M %p %Z'
 
 
-class Thing():
-    """A Thingy"""
+class Thing:
+    """A AWS IoT Thing"""
 
     def __init__(self, name, endpoint, root_ca, key, cert, client_id='', web_socket=False):
         self.name = name
@@ -111,7 +108,7 @@ if __name__ == "__main__":
     parser.add_argument("-k", "--key", help="Private key file path")
     parser.add_argument("-w", "--web_socket", help="Use web socket", action='store_true')
     parser.add_argument("-i", "--client_id", help="Client ID", default='')
-    parser.add_argument("-g", "--log_level", help="log level", type=int, default=logging.INFO)
+    parser.add_argument("-g", "--log_level", help="log level", type=int, default=logging.WARNING)
     args = parser.parse_args()
 
     # initialize
@@ -119,21 +116,9 @@ if __name__ == "__main__":
     thing = Thing(args.name, args.endpoint, args.root_ca, args.key, args.cert, args.client_id, args.web_socket)
 
     try:
-        count = 0
         while True:
-            count += 1
-            thing.refresh()
-            t_string = util.now_string()
-            print("{} {} {}".format(t_string, thing.name, thing.version, thing.properties, thing.metadata))
-            if thing.last_refresh is not None:
-                print("TIMESTAMP REFRESH {}".format(datetime.datetime.fromtimestamp(thing.last_refresh)))
-                print("PROPERTIES {} ".format(thing.properties))
-                print("METADATA {} ".format(thing.metadata))
-                print("TIMESTAMP LAST REPORT {}".format(datetime.datetime.fromtimestamp(thing.last_report)))
-            print("================================================")
-            if count % 20 == 0:
-                thing.put({'message': t_string})
             time.sleep(60)
+            thing.refresh()
             pass
     except (KeyboardInterrupt, SystemExit):
         sys.exit()
