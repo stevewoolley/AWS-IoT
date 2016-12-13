@@ -19,13 +19,13 @@ TIMESTAMP = 'timestamp'
 CLIENT_TOKEN = 'clientToken'
 VERSION = 'version'
 METADATA = 'metadata'
-DT_FORMAT = '%Y/%m/%d %-I:%M %p %Z'
 
 
 class Thing:
     """A AWS IoT Thing"""
 
-    def __init__(self, name, endpoint, root_ca, key, cert, client_id='', web_socket=False):
+    def __init__(self, name, endpoint, root_ca, key=None, cert=None, web_socket=False, client_id='',
+                 log_level=logging.WARNING):
         self.name = name
         self._client = None
         self._shadow = None
@@ -37,6 +37,8 @@ class Thing:
         self.version = None
         self.metadata = None
         self.token = None
+        self.logger = util.set_logger(level=log_level)
+
         # setup client connection
         if web_socket:
             self._client = AWSIoTMQTTShadowClient(client_id, useWebsocket=web_socket)
@@ -50,14 +52,14 @@ class Thing:
         self._client.configureMQTTOperationTimeout(5)  # 5 sec
 
     def shadow_callback_update(self, payload, response_status, token):
-        logger.info("UPDATE RESPONSE {} {}".format(args.name, response_status))
+        self.logger.info("UPDATE RESPONSE {} {}".format(args.name, response_status))
         if response_status == ACCEPTED:
             msg = json.loads(payload)
             self.token = token
-            logger.info("UPDATE ACCEPTED {} {}".format(args.name, msg))
+            self.logger.info("UPDATE ACCEPTED {} {}".format(args.name, msg))
 
     def shadow_callback_get(self, payload, response_status, token):
-        logger.info("GET RESPONSE {} {}".format(args.name, response_status))
+        self.logger.info("GET RESPONSE {} {}".format(args.name, response_status))
         if response_status == ACCEPTED:
             msg = json.loads(payload)
             self.last_refresh = msg[TIMESTAMP]
@@ -69,14 +71,14 @@ class Thing:
             for k, v in self.metadata.iteritems():
                 if v[TIMESTAMP] is None or v[TIMESTAMP] > self.last_report:
                     self.last_report = v[TIMESTAMP]
-            logger.info("GET ACCEPTED {} {}".format(args.name, msg))
+            self.logger.info("GET ACCEPTED {} {}".format(args.name, msg))
 
     def shadow_callback_delete(self, payload, response_status, token):
-        logger.info("DELETE RESPONSE {} {}".format(args.name, response_status))
+        self.logger.info("DELETE RESPONSE {} {}".format(args.name, response_status))
         if response_status == ACCEPTED:
             msg = json.loads(payload)
             self.token = token
-            logger.info("DELETE ACCEPTED {} {}".format(args.name, msg))
+            self.logger.info("DELETE ACCEPTED {} {}".format(args.name, msg))
 
     def _connect(self):
         if not self.connected:
@@ -112,8 +114,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # initialize
-    logger = util.set_logger(level=args.log_level)
-    thing = Thing(args.name, args.endpoint, args.root_ca, args.key, args.cert, args.client_id, args.web_socket)
+    thing = Thing(args.name, args.endpoint, args.root_ca, args.key, args.cert, args.web_socket, args.client_id,
+                  args.log_level)
 
     try:
         while True:
