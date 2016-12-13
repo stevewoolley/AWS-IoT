@@ -43,7 +43,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-n", "--name", help="pi name", required=True)
     parser.add_argument("-e", "--endpoint", help="AWS IoT endpoint", required=True)
-    parser.add_argument("-r", "--rootCA", help="Root CA file path", required=True)
+    parser.add_argument("-r", "--root_ca", help="Root CA file path", required=True)
     parser.add_argument("-c", "--cert", help="Certificate file path")
     parser.add_argument("-k", "--key", help="Private key file path")
     parser.add_argument("-i", "--client_id", help="Client ID", default='')
