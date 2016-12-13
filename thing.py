@@ -52,14 +52,14 @@ class Thing:
         self._client.configureMQTTOperationTimeout(5)  # 5 sec
 
     def shadow_callback_update(self, payload, response_status, token):
-        self.logger.info("UPDATE RESPONSE {} {}".format(args.name, response_status))
+        self.logger.info("UPDATE RESPONSE {} {}".format(self.name, response_status))
         if response_status == ACCEPTED:
             msg = json.loads(payload)
             self.token = token
-            self.logger.info("UPDATE ACCEPTED {} {}".format(args.name, msg))
+            self.logger.info("UPDATE ACCEPTED {} {}".format(self.name, msg))
 
     def shadow_callback_get(self, payload, response_status, token):
-        self.logger.info("GET RESPONSE {} {}".format(args.name, response_status))
+        self.logger.info("GET RESPONSE {} {}".format(self.name, response_status))
         if response_status == ACCEPTED:
             msg = json.loads(payload)
             self.last_refresh = msg[TIMESTAMP]
@@ -71,14 +71,14 @@ class Thing:
             for k, v in self.metadata.iteritems():
                 if v[TIMESTAMP] is None or v[TIMESTAMP] > self.last_report:
                     self.last_report = v[TIMESTAMP]
-            self.logger.info("GET ACCEPTED {} {}".format(args.name, msg))
+            self.logger.info("GET ACCEPTED {} {}".format(self.name, msg))
 
     def shadow_callback_delete(self, payload, response_status, token):
-        self.logger.info("DELETE RESPONSE {} {}".format(args.name, response_status))
+        self.logger.info("DELETE RESPONSE {} {}".format(self.name, response_status))
         if response_status == ACCEPTED:
             msg = json.loads(payload)
             self.token = token
-            self.logger.info("DELETE ACCEPTED {} {}".format(args.name, msg))
+            self.logger.info("DELETE ACCEPTED {} {}".format(self.name, msg))
 
     def _connect(self):
         if not self.connected:
