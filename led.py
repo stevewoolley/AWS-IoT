@@ -1,25 +1,19 @@
 import threading
-import RPi.GPIO as GPIO
 import time
+from gpiozero import LED
 
 
 class LED(threading.Thread):
     """A threaded LED object"""
-    state = 0
-    cycle = 2.0
+    CYCLE = 2.0
 
     def __init__(self, pin):
         threading.Thread.__init__(self)
         self.pin = pin
+        self._led = LED(self.pin)
         self.finish = False
         self.daemon = True
 
-        # for GPIO numbering, choose BCM
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setwarnings(False)
-        # set pin
-        GPIO.setup(self.pin, GPIO.OUT)
-        GPIO.output(self.pin, False)  # on start , turn LED off
 
     def set_led(self, value):
         self.state = value

@@ -6,12 +6,11 @@ from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
 class Publisher:
     """A threaded Publisher object"""
 
-    def __init__(self, endpoint, root_ca, key, cert, client_id='', web_socket=False, log_level=logging.INFO):
+    def __init__(self, endpoint, root_ca, key, cert, client_id='', log_level=logging.INFO):
         self.endpoint = endpoint
         self.root_ca = root_ca
         self.client_id = client_id
         self.client = None
-        self.web_socket = web_socket
         self.key = key
         self.cert = cert
         self.logger = util.set_logger(level=log_level)
@@ -19,14 +18,9 @@ class Publisher:
 
     def connect(self):
         # Setup
-        if self.web_socket:
-            self.client = AWSIoTMQTTClient(self.client_id, useWebsocket=True)
-            self.client.configureEndpoint(self.endpoint, 443)
-            self.client.configureCredentials(self.root_ca)
-        else:
-            self.client = AWSIoTMQTTClient(self.client_id)
-            self.client.configureEndpoint(self.endpoint, 8883)
-            self.client.configureCredentials(self.root_ca, self.key, self.cert)
+        self.client = AWSIoTMQTTClient(self.client_id)
+        self.client.configureEndpoint(self.endpoint, 8883)
+        self.client.configureCredentials(self.root_ca, self.key, self.cert)
         self.client.configureOfflinePublishQueueing(-1)  # Infinite offline Publish queueing
         self.client.configureConnectDisconnectTimeout(10)  # 10 sec
         self.client.configureMQTTOperationTimeout(5)  # 5 sec

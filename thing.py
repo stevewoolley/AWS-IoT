@@ -7,7 +7,6 @@ import util
 import boto3
 
 
-
 class Thing:
     """A AWS IoT Thing"""
 
@@ -33,6 +32,7 @@ class Thing:
         self.metadata = {}
         self.last_report = None
         self.last_refresh = None
+        self.version = None
         # set initial shadow
         self.refresh()
 
@@ -52,6 +52,8 @@ class Thing:
                 for k, v in self.metadata.iteritems():
                     if v[self.TIMESTAMP] is None or v[self.TIMESTAMP] > self.last_report:
                         self.last_report = v[self.TIMESTAMP]
+        if self.VERSION in self._shadow:
+            self.version = self._shadow['version']
 
     def put(self, state, obj):
         payload = {self.STATE: {state: {}}}

@@ -37,24 +37,14 @@ def get_properties(group):
             properties["dockerArchitecture"] = docker_info['architecture']
     return properties
 
-if __name__ == "__main__":
 
+if __name__ == "__main__":
     # parse arguments
     parser = argparse.ArgumentParser()
     parser.add_argument("-n", "--name", help="pi name", required=True)
-    parser.add_argument("-e", "--endpoint", help="AWS IoT endpoint", required=True)
-    parser.add_argument("-r", "--root_ca", help="Root CA file path", required=True)
-    parser.add_argument("-c", "--cert", help="Certificate file path")
-    parser.add_argument("-k", "--key", help="Private key file path")
-    parser.add_argument("-i", "--client_id", help="Client ID", default='')
     parser.add_argument("-p", "--party", help="Monitor party", default=None)
-    parser.add_argument("-w", "--web_socket", help="Use web socket", action='store_true')
     parser.add_argument("-g", "--log_level", help="log level", type=int, default=logging.WARNING)
     args = parser.parse_args()
 
-    thing = Thing(args.name, args.endpoint, args.root_ca, args.key, args.cert, args.web_socket, args.client_id,
-                  args.log_level)
-
-    thing.put(get_properties(args.party))
-
-
+    thing = Thing(args.name, args.log_level)
+    thing.put(Thing.REPORTED, (args.party))

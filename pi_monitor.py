@@ -2,7 +2,6 @@
 import argparse
 import system_info
 import util
-import time
 import logging
 from thing import Thing
 
@@ -38,19 +37,15 @@ def get_properties(group):
             properties["dockerArchitecture"] = docker_info['architecture']
     return properties
 
+if __name__ == "__main__":
+    # parse arguments
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-n", "--name", help="pi AWS thing name", required=True)
+    parser.add_argument("-p", "--party", help="Monitor party", default=None)
+    parser.add_argument("-g", "--log_level", help="log level", type=int, default=logging.WARNING)
+    args = parser.parse_args()
 
-# parse arguments
-parser = argparse.ArgumentParser()
-parser.add_argument("-n", "--name", help="pi AWS thing name", required=True)
-parser.add_argument("-e", "--endpoint", help="AWS IoT endpoint", required=True)
-parser.add_argument("-r", "--rootCA", help="Root CA file path", required=True)
-parser.add_argument("-c", "--cert", help="Certificate file path")
-parser.add_argument("-k", "--key", help="Private key file path")
-parser.add_argument("-p", "--party", help="Monitor party", default=None)
-parser.add_argument("-g", "--log_level", help="log level", type=int, default=logging.WARNING)
-args = parser.parse_args()
-
-# Lookup system_info
-thing = Thing(args.name, args.log_level)
-thing.put(Thing.REPORTED, get_properties(args.party))
+    # Lookup system_info
+    thing = Thing(args.name, args.log_level)
+    thing.put(Thing.REPORTED, get_properties(args.party))
 
