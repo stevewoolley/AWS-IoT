@@ -4,8 +4,6 @@ import RPi.GPIO as GPIO
 import time
 import sys
 import argparse
-import util
-import logging
 
 
 class Sensor(threading.Thread):
@@ -41,11 +39,7 @@ if __name__ == "__main__":
     # parse arguments
     parser = argparse.ArgumentParser()
     parser.add_argument("-p", "--pin", help="gpio pin (BCM)", type=int, required=True)
-    parser.add_argument("-g", "--log_level", help="logging level", type=int, default=logging.INFO)
     args = parser.parse_args()
-
-    # logging setup
-    logger = util.set_logger(level=args.log_level)
 
     sensor = Sensor(args.pin)
     sensor.start()
@@ -56,7 +50,6 @@ if __name__ == "__main__":
         while True:
             current_state = sensor.reading()
             if current_state != last_state:
-                logger.info("sensor pin:{} state:{}".format(args.pin, current_state))
                 print("sensor pin:{} state:{}".format(args.pin, current_state))
                 last_state = current_state  # reset state value
             time.sleep(0.1)  # sleep needed because CPU race

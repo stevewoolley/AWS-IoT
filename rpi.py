@@ -3,7 +3,7 @@ import argparse
 import system_info
 import util
 import logging
-from thing import Thing
+from reporter import Thing
 
 
 def get_properties(group):

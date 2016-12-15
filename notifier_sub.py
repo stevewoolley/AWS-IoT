@@ -1,9 +1,9 @@
 #!/usr/bin/env python
+
 import argparse
-import logging
 import time
 import sys
-from subscriber import Subscriber
+from cloud_tools import Subscriber
 import yaml
 import json
 from pync import Notifier
@@ -27,12 +27,11 @@ if __name__ == "__main__":
     parser.add_argument("-r", "--rootCA", help="Root CA file path", required=True)
     parser.add_argument("-c", "--cert", help="Certificate file path")
     parser.add_argument("-k", "--key", help="Private key file path")
-    parser.add_argument("-g", "--log_level", help="log level", type=int, default=logging.INFO)
     parser.add_argument("-t", "--topic", help="MQTT topic(s)", nargs='+', required=False)
     parser.add_argument("-f", "--input_file", help="input file (yaml format)", default=None)
     args = parser.parse_args()
 
-    subscriber = Subscriber(args.endpoint, args.rootCA, args.key, args.cert, args.clientID, args.log_level)
+    subscriber = Subscriber(args.endpoint, args.rootCA, args.key, args.cert, args.clientID)
 
     # Load configuration file
     if args.input_file is not None:

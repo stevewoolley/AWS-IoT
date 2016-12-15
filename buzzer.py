@@ -1,9 +1,9 @@
+#!/usr/bin/env python
+
 import threading
 import RPi.GPIO as GPIO
 import time
 import argparse
-import util
-import logging
 
 
 class Buzzer(threading.Thread):
@@ -41,11 +41,7 @@ if __name__ == "__main__":
     parser.add_argument("-n", "--number_of_beeps", help="number of beeps", type=int, default=1)
     parser.add_argument("-d", "--beep_duration", help="time in seconds for a beep duration", type=float, default=0.06)
     parser.add_argument("-q", "--quiet_duration", help="time in seconds between beeps", type=float, default=0.1)
-    parser.add_argument("-g", "--log_level", help="logging level", type=int, default=logging.INFO)
     args = parser.parse_args()
-
-    # logging setup
-    logger = util.set_logger(level=args.log_level)
 
     buzzer = Buzzer(args.pin)
     buzzer.start()

@@ -1,12 +1,12 @@
 #!/usr/bin/env python
+
 import argparse
-import logging
 import util
 from gpiozero import LED
 import sys
 import time
 import yaml
-from subscriber import Subscriber
+from cloud_tools import Subscriber
 
 
 def my_callback(client, userdata, message):
@@ -25,7 +25,6 @@ if __name__ == "__main__":
     parser.add_argument("-k", "--key", help="Private key file path")
     parser.add_argument("-t", "--topic", help="MQTT topic(s)", nargs='+', required=False)
     parser.add_argument("-p", "--pin", help="gpio pin (using BCM numbering)", type=int, required=True)
-    parser.add_argument("-g", "--log_level", help="log level", type=int, default=logging.INFO)
     parser.add_argument("-f", "--input_file", help="input file (yaml format)", default=None)
     args = parser.parse_args()
 
@@ -35,7 +34,7 @@ if __name__ == "__main__":
     led = LED(args.pin)
     led.start()
 
-    subscriber = Subscriber(args.endpoint, args.rootCA, args.key, args.cert, args.clientID, args.log_level)
+    subscriber = Subscriber(args.endpoint, args.rootCA, args.key, args.cert, args.clientID)
 
     # Load configuration file
     if args.input_file is not None:

@@ -1,19 +1,17 @@
 import threading
 import RPi.GPIO as GPIO
 import time
-import logging
 import util
 
 
 class PIR(threading.Thread):
     """A threaded PIR object"""
 
-    def __init__(self, pin, log_level=logging.INFO):
+    def __init__(self, pin):
         threading.Thread.__init__(self)
         self.pin = pin
         self.finish = False
         self.daemon = True
-        self.logger = util.set_logger(level=log_level)
 
         # for GPIO numbering, choose BCM
         GPIO.setmode(GPIO.BCM)

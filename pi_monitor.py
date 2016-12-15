@@ -1,9 +1,10 @@
 #!/usr/bin/env python
+
 import argparse
 import system_info
 import util
-import logging
-from thing import Thing
+
+from cloud_tools import Reporter
 
 
 def get_properties(group):
@@ -42,10 +43,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-n", "--name", help="pi AWS thing name", required=True)
     parser.add_argument("-p", "--party", help="Monitor party", default=None)
-    parser.add_argument("-g", "--log_level", help="log level", type=int, default=logging.WARNING)
     args = parser.parse_args()
 
     # Lookup system_info
-    thing = Thing(args.name, args.log_level)
-    thing.put(Thing.REPORTED, get_properties(args.party))
+    Reporter(args.name).put(Reporter.REPORTED, get_properties(args.party))
 

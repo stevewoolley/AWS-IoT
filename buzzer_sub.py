@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 import argparse
-import logging
 import util
 import time
 import sys
 import json
 import yaml
-from subscriber import Subscriber
+from cloud_tools import Subscriber
 from buzzer import Buzzer
 
 
@@ -33,7 +32,6 @@ if __name__ == "__main__":
     parser.add_argument("-n", "--beep_count", help="number of beeps", type=int, default=2)
     parser.add_argument("-p", "--pin", help="gpio pin (using BCM numbering)", type=int, required=True)
     parser.add_argument("-f", "--input_file", help="input file (yaml format)", default=None)
-    parser.add_argument("-g", "--log_level", help="log level", type=int, default=logging.INFO)
     args = parser.parse_args()
 
     # logging setup
@@ -42,7 +40,7 @@ if __name__ == "__main__":
     buzzer = Buzzer(args.pin)
     buzzer.start()
 
-    subscriber = Subscriber(args.endpoint, args.rootCA, args.key, args.cert, args.clientID, args.log_level)
+    subscriber = Subscriber(args.endpoint, args.rootCA, args.key, args.cert, args.clientID)
 
     # Load configuration file
     if args.input_file is not None:

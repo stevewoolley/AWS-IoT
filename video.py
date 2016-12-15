@@ -1,7 +1,6 @@
 import threading
 import time
 import picamera
-import logging
 import util
 
 
@@ -15,9 +14,7 @@ class Video(threading.Thread):
                  vertical_resolution=480,
                  rotation=0,
                  path="/tmp",
-                 max_recording_seconds=10.0,
-                 log_level=logging.INFO
-                 ):
+                 max_recording_seconds=10.0):
         threading.Thread.__init__(self)
         self.daemon = True
         self.finish = False
@@ -31,8 +28,6 @@ class Video(threading.Thread):
         self.filename = None
         self.st_recording = None
         self.max_recording_seconds = max_recording_seconds
-        # set logger
-        self.logger = util.set_logger(level=log_level)
 
     def start_recording(self):
         if not self.recording:
@@ -44,7 +39,6 @@ class Video(threading.Thread):
                 self.recording = True
                 self.st_recording = time.time()
             except Exception as ex:
-                self.logger.debug('ERROR start_recording {}'.format(ex.message))
                 self.filename = None
                 self.recording = False
                 self.st_recording = None
@@ -76,7 +70,6 @@ class Video(threading.Thread):
                 self.camera.capture(snapshot_filename, use_video_port=False)
             return snapshot_filename
         except Exception as ex:
-            self.logger.debug('ERROR snapshot {} {}'.format(snapshot_filename, ex.message))
             return None
 
     def run(self):

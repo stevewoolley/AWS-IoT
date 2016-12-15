@@ -1,17 +1,14 @@
 #!/usr/bin/env python
 import argparse
-import logging
 import time
-import util
 import Adafruit_DHT
-from thing import Thing
+from cloud_tools import Reporter
 
 # Define sensor type constants.
 DHT11 = 11
 DHT22 = 22
 AM2302 = 22
 SENSORS = [DHT11, DHT22, AM2302]
-REPORTED = 'reported'
 
 
 def read_retry(sensor, pin, retries=15, delay_seconds=2):
@@ -30,12 +27,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("-n", "--name", help="Thing name", required=True)
 parser.add_argument("-p", "--pin", help="gpio pin (using BCM numbering)", type=int, required=True)
 parser.add_argument("-y", "--dht_type", help="DHT sensor type %s" % SENSORS, type=int, default=DHT22)
-parser.add_argument("-g", "--log_level", help="log level", type=int, default=logging.WARNING)
 args = parser.parse_args()
 
-# logging setup
-logger = util.set_logger(level=args.log_level)
-
 humidity, temperature = read_retry(args.dht_type, args.pin)
-thing = Thing(args.name, args.log_level)
-thing.put(REPORTED, {"temperature": temperature, "humidity": humidity})
+Reporter(args.name).put(Reporter.REPORTED, {"temperature": temperature, "humidity": humidity})

@@ -1,6 +1,5 @@
 import threading
 import time
-import logging
 import util
 import os
 
@@ -8,14 +7,11 @@ import os
 class S3Archiver(threading.Thread):
     """A threaded object to archive files to S3"""
 
-    def __init__(self,
-                 bucket,
-                 log_level=logging.INFO):
+    def __init__(self, bucket):
         threading.Thread.__init__(self)
         self.finish = False
         self.daemon = True
         self.bucket = bucket
-        self.logger = util.set_logger(level=log_level)
         self.files = []
 
     def add_file(self, f):
@@ -29,10 +25,8 @@ class S3Archiver(threading.Thread):
     def run(self):
         while not self.finish:
             if not self.empty():
-                self.logger.debug('S3Archiver processing {} file(s)'.format(len(self.files)))
                 stragglers = []
                 for f in self.files:
-                    self.logger.info('S3Archiver processing file {}'.format(f))
                     if util.is_locked(f):
                         stragglers.append(f)
                     else:
