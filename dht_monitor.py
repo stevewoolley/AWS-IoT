@@ -28,6 +28,8 @@ def read_retry(sensor, pin, retries=15, delay_seconds=2):
 # parse arguments
 parser = argparse.ArgumentParser()
 parser.add_argument("-n", "--name", help="Thing name", required=True)
+parser.add_argument("-p", "--pin", help="gpio pin (using BCM numbering)", type=int, required=True)
+parser.add_argument("-y", "--dht_type", help="DHT sensor type %s" % SENSORS, type=int, default=DHT22)
 parser.add_argument("-g", "--log_level", help="log level", type=int, default=logging.WARNING)
 args = parser.parse_args()
 
