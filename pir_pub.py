@@ -5,22 +5,14 @@ import util
 import json
 import logging
 import sys
-from publisher import Publisher
+from thing import Thing
 from pir import PIR
 
 # parse arguments
 parser = argparse.ArgumentParser()
-parser.add_argument("-e", "--endpoint", help="AWS IoT endpoint", required=True)
-parser.add_argument("-r", "--rootCA", help="Root CA file path", required=True)
-parser.add_argument("-c", "--cert", help="Certificate file path", required=True)
-parser.add_argument("-k", "--key", help="Private key file path", required=True)
-parser.add_argument("-t", "--topic", help="MQTT topic(s)", nargs='+', required=True)
-parser.add_argument("-s", "--source", help="Source", required=True)
-parser.add_argument("-p", "--pin", help="gpio pin (BCM)", type=int, required=True)
-parser.add_argument("-n", "--alert_count", help="number of alerts", type=int, default=0)
-parser.add_argument("-x", "--active_sleep", help="sleep seconds during movement", type=float, default=5.0)
-parser.add_argument("-y", "--passive_sleep", help="sleep seconds while quiet", type=float, default=0.5)
-parser.add_argument("-g", "--log_level", help="logging level", type=int, default=logging.INFO)
+parser.add_argument("-n", "--name", help="Thing name", required=True)
+parser.add_argument("-g", "--log_level", help="log level", type=int, default=logging.WARNING)
+parser.add_argument("-n", "--alert_count", help="number of beeps", type=int, default=2)
 args = parser.parse_args()
 
 # logging setup

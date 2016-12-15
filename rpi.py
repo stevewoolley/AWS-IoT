@@ -47,4 +47,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     thing = Thing(args.name, args.log_level)
-    thing.put(Thing.REPORTED, (args.party))
+    thing.put(Thing.REPORTED, get_properties(args.party))
