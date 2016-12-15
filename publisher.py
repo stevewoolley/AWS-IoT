@@ -1,5 +1,6 @@
 import logging
 import util
+import json
 from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
 
 
@@ -30,10 +31,5 @@ class Publisher:
     def publish(self, topic, obj, qos=0):
         if not self.connected:
             self.connect()
-        self.client.publish(topic, obj, qos)
-
-    def publish_multiple(self, objects, qos=0):
-        if not self.connected:
-            self.connect()
-        for obj in objects:
-            self.client.publish(obj['topic'], obj['payload'], qos)
+        msg = json.dumps(obj)
+        self.client.publish(topic, msg, qos)
