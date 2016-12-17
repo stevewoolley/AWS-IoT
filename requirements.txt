@@ -1,4 +1,5 @@
 PyYAML
 AWSIoTPythonSDK
 argparse
+psutil
 

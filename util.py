@@ -6,6 +6,24 @@ import time
 import datetime
 
 
+def os_execute(s):
+    """Returns string result of os call"""
+    try:
+        result = sp.check_output(s.split()).rstrip('\n')
+        return result
+    except Exception as ex:
+        return None
+
+
+def os_execute_shell(s):
+    """Returns string result of os call"""
+    try:
+        result = sp.check_output([s], shell=True).rstrip('\n')
+        return result
+    except Exception as ex:
+        return None
+
+
 def convert_celsius_to_fahrenheit(c):
     return 9.0 / 5.0 * c + 32
 

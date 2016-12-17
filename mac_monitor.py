@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 
 import argparse
-import system_info
 import util
+import platform
 import psutil
 import datetime
-import platform
-
 from cloud_tools import Reporter
+
+DT_FORMAT = '%Y/%m/%d %-I:%M %p %Z'
 
 
 def get_ip(i):
@@ -21,12 +21,25 @@ def get_ip(i):
         return None
 
 
+def docker_info():
+    """Returns docker information"""
+    result = dict()
+    try:
+        s = util.os_execute('/usr/local/bin/docker info')
+        for e in s.splitlines():
+            p = e.split(':')
+            if len(p) == 2:
+                result[util.camel_case(p[0])] = p[1].strip()
+        return result
+    except Exception as ex:
+        return result
+
+
 def get_properties(group):
     mem = psutil.virtual_memory()
     disk = psutil.disk_usage('/')
     properties = {}
     if group is None or group == 'fresh':
-        properties["cpuTemp"] = system_info.cpu_temperature()
         properties["ramAvailable"] = int(mem.available / (1024 * 1024))
         properties["totalDiskSpaceRoot"] = int(disk.total / (1024 * 1024))
         properties["usedDiskSpaceRoot"] = int(disk.used / (1024 * 1024))
@@ -34,8 +47,8 @@ def get_properties(group):
         properties["cpuLoad"] = psutil.cpu_percent(interval=2)
 
     if group is None or group == 'seldom':
-        properties["wlan0IpAddress"] = get_ip('wlan0')
-        properties["eth0IpAddress"] = get_ip('eth0')
+        properties["en0IpAddress"] = get_ip('en0')
+        properties["en1IpAddress"] = get_ip('en1')
         properties["release"] = platform.mac_ver()[0]
         properties["hostname"] = platform.node()
         properties["machine"] = platform.machine()
@@ -44,12 +57,12 @@ def get_properties(group):
         properties["ramTotal"] = int(mem.total / (1024 * 1024))
 
     if group is None or group == 'docker':
-        docker = system_info.os_execute('docker --version')
+        docker = util.os_execute('/usr/local/bin/docker --version')
         if docker != 'NA':
             properties["dockerVersion"] = docker
-            docker_info = system_info.docker_info()
-            properties["dockerContainersRunning"] = util.num(docker_info['running'])
-            properties["dockerArchitecture"] = docker_info['architecture']
+            di = docker_info()
+            properties["dockerContainersRunning"] = util.num(di['running'])
+            properties["dockerArchitecture"] = di['architecture']
     return properties
 
 
@@ -59,6 +72,4 @@ if __name__ == "__main__":
     parser.add_argument("-n", "--name", help="pi AWS thing name", required=True)
     parser.add_argument("-p", "--party", help="Monitor party", default=None)
     args = parser.parse_args()
-
-    # Lookup system_info
     Reporter(args.name).put(Reporter.REPORTED, get_properties(args.party))
