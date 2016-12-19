@@ -45,7 +45,7 @@ def get_properties(group):
             properties["wlan0IpAddress"] = get_ip('wlan0')
             properties["eth0IpAddress"] = get_ip('eth0')
         elif platform.machine().startswith('arm') and platform.system() == 'Linux':  # raspberry pi
-            properties["distribution"] = "{} {}".format(platform.mac_ver()[0], platform.mac_ver()[1])
+            properties["distribution"] = "{} {}".format(platform.dist()[0], platform.dist()[1])
             properties["en0IpAddress"] = get_ip('en0')
             properties["en1IpAddress"] = get_ip('en1')
         properties["totalDiskSpaceRoot"] = int(disk.total / (1024 * 1024))
