@@ -35,7 +35,6 @@ def get_properties(group):
         if platform.machine().startswith('arm') and platform.system() == 'Linux':  # raspberry pi
             properties["cpuTemp"] = get_rpi_cpu_temperature()
         properties["ramAvailable"] = int(mem.available / (1024 * 1024))
-        properties["totalDiskSpaceRoot"] = int(disk.total / (1024 * 1024))
         properties["usedDiskSpaceRoot"] = int(disk.used / (1024 * 1024))
         properties["bootTime"] = datetime.datetime.fromtimestamp(psutil.boot_time()).strftime(DT_FORMAT)
         properties["cpuLoad"] = psutil.cpu_percent(interval=3)
@@ -49,6 +48,7 @@ def get_properties(group):
             properties["distribution"] = "{} {}".format(platform.mac_ver()[0], platform.mac_ver()[1])
             properties["en0IpAddress"] = get_ip('en0')
             properties["en1IpAddress"] = get_ip('en1')
+        properties["totalDiskSpaceRoot"] = int(disk.total / (1024 * 1024))
         properties["hostname"] = platform.node()
         properties["machine"] = platform.machine()
         properties["system"] = platform.system()
