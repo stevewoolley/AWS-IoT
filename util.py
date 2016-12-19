@@ -24,6 +24,11 @@ def os_execute_shell(s):
         return None
 
 
+def os_execute_dict(s, k):
+    """Returns dict result of os call"""
+    return {k, os_execute(s)}
+
+
 def convert_celsius_to_fahrenheit(c):
     return 9.0 / 5.0 * c + 32
 
