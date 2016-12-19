@@ -5,6 +5,8 @@ import util
 import logging
 from reporter import Thing
 
+DT_FORMAT = '%Y/%m/%d %-I:%M %p %Z'
+
 
 def get_properties(group):
     properties = {}

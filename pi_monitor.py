@@ -6,8 +6,9 @@ import util
 import psutil
 import datetime
 import platform
-
 from cloud_tools import Reporter
+
+DT_FORMAT = '%Y/%m/%d %-I:%M %p %Z'
 
 
 def get_ip(i):
