@@ -26,6 +26,7 @@ if __name__ == "__main__":
     parser.add_argument("-r", "--rootCA", help="Root CA file path", required=True)
     parser.add_argument("-c", "--cert", help="Certificate file path")
     parser.add_argument("-k", "--key", help="Private key file path")
+    parser.add_argument("-i", "--clientID", help="Client ID", default='')
     parser.add_argument("-x", "--horizontal_resolution", help="horizontal_resolution", type=int, default=640)
     parser.add_argument("-y", "--vertical_resolution", help="vertical resolution", type=int, default=480)
     parser.add_argument("-z", "--rotation", help="image rotation", type=int, default=0)
@@ -60,7 +61,7 @@ if __name__ == "__main__":
             if args.bucket is not None:
                 if camera.filename != last_filename:
                     # copy to web image bucket
-                    util.copy_to_s3(camera.filename, args.bucket, "{}.{}"(args.source, args.image_format))
+                    util.copy_to_s3(camera.filename, args.bucket, "{}.{}".format(args.source, args.image_format))
                     # move to archive
                     archiver.add_file(camera.filename)
                     last_filename = camera.filename
