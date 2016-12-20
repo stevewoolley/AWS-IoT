@@ -10,9 +10,9 @@ REPORTED = 'reported'
 # parse arguments
 parser = argparse.ArgumentParser()
 parser.add_argument("-n", "--name", help="Thing name", required=True)
-parser.add_argument("-e", "--endpoint", help="AWS IoT endpoint", required=True)
+parser.add_argument("-e", "--endpoint", help="AWS IoT endpoint")
 parser.add_argument("-i", "--clientID", help="Client ID", default='')
-parser.add_argument("-r", "--rootCA", help="Root CA file path", required=True)
+parser.add_argument("-r", "--rootCA", help="Root CA file path")
 parser.add_argument("-c", "--cert", help="Certificate file path")
 parser.add_argument("-k", "--key", help="Private key file path")
 parser.add_argument("-t", "--topic", help="MQTT topic(s)", nargs='+', required=False)
@@ -40,9 +40,10 @@ try:
                 status = args.low_value
             else:
                 status = args.high_value
-                reporter.put(REPORTED, {args.source: status})
-            for t in args.topic:
-                Publisher(args.endpoint, args.rootCA, args.key, args.cert).publish(t, {args.source: status,
+            reporter.put(REPORTED, {args.source: status})
+            if args.topic is not None:
+                for t in args.topic:
+                    Publisher(args.endpoint, args.rootCA, args.key, args.cert).publish(t, {args.source: status,
                                                                                        'alert_count': args.alert_count})
         time.sleep(0.2)
 except (KeyboardInterrupt, SystemExit):
