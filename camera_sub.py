@@ -12,6 +12,7 @@ from s3archiver import S3Archiver
 
 def my_callback(client, userdata, message):
     msg = json.loads(message.payload)
+    print msg
     if camera.snapping:
         camera.stop_snapping()
     else:
