@@ -42,10 +42,11 @@ if __name__ == "__main__":
             subscriber.subscribe(t, my_callback)
             time.sleep(2)  # pause between subscribes (maybe not needed?)
 
-    for t in args.topic:
-        print("Subscribing to {}".format(t))
-        subscriber.subscribe(t, my_callback)
-        time.sleep(2)  # pause between subscribes (maybe not needed?)
+    if args.topic is not None:
+        for t in args.topic:
+            print("Subscribing to {}".format(t))
+            subscriber.subscribe(t, my_callback)
+            time.sleep(2)  # pause between subscribes (maybe not needed?)
 
     # Loop forever
     try:
