@@ -65,5 +65,4 @@ if __name__ == "__main__":
     parser.add_argument("-p", "--party", help="Monitor party", default=None)
     args = parser.parse_args()
 
-    # Lookup system_info
     Reporter(args.name).put(Reporter.REPORTED, get_properties(args.party))
