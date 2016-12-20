@@ -3,6 +3,7 @@ import time
 import picamera
 import util
 import datetime
+import sys
 
 
 class Camera(threading.Thread):
@@ -37,10 +38,12 @@ class Camera(threading.Thread):
     def start_snapping(self):
         self.snapping = True
         print "snapping = True"
+        print >> sys.stderr, "snapping = True"
+
 
     def stop_snapping(self):
         self.snapping = False
-        print "snapping = False"
+        print >> sys.stderr, "snapping = False"
 
     def snapshot(self, filename=None, annotate_text=None):
         try:
@@ -51,7 +54,7 @@ class Camera(threading.Thread):
             else:
                 self.camera.annotate_text = ''
             self.camera.capture(filename, use_video_port=False)
-            print "SNAPPED {}".format(filename)
+            print >> sys.stderr, "snapped {}".format(filename)
             return filename
         except Exception as ex:
             return None
