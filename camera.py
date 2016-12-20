@@ -36,9 +36,11 @@ class Camera(threading.Thread):
 
     def start_snapping(self):
         self.snapping = True
+        print "snapping = True"
 
     def stop_snapping(self):
         self.snapping = False
+        print "snapping = False"
 
     def snapshot(self, filename=None, annotate_text=None):
         try:
@@ -49,6 +51,7 @@ class Camera(threading.Thread):
             else:
                 self.camera.annotate_text = ''
             self.camera.capture(filename, use_video_port=False)
+            print "SNAPPED {}".format(filename)
             return filename
         except Exception as ex:
             return None
