@@ -11,7 +11,7 @@
           },
           {
             "AttributeName": "timestamp",
-            "AttributeType": "S"
+            "AttributeType": "N"
           }
         ],
         "KeySchema": [
