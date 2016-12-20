@@ -9,7 +9,7 @@ from pir import PIR
 # parse arguments
 parser = argparse.ArgumentParser()
 parser.add_argument("-n", "--name", help="Thing name", required=True)
-parser.add_argument("-x", "--active_sleep", help="sleep seconds during movement", type=float, default=0.5)
+parser.add_argument("-z", "--active_sleep", help="sleep seconds during movement", type=float, default=0.5)
 parser.add_argument("-y", "--passive_sleep", help="sleep seconds while quiet", type=float, default=0.5)
 parser.add_argument("-p", "--pin", help="gpio pin (using BCM numbering)", type=int, required=True)
 parser.add_argument("-s", "--source", help="Source", default="PIR")
