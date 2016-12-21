@@ -32,6 +32,7 @@ if __name__ == "__main__":
     parser.add_argument("-x", "--horizontal_resolution", help="horizontal_resolution", type=int, default=640)
     parser.add_argument("-y", "--vertical_resolution", help="vertical resolution", type=int, default=480)
     parser.add_argument("-z", "--rotation", help="image rotation", type=int, default=0)
+    parser.add_argument("-w", "--sleep", help="sleep seconds between snapshots", type=float, default=2.0)
     parser.add_argument("-s", "--source", help="Source", required=True)
     parser.add_argument("-f", "--image_format", help="Image Format(jpg, png, etc.)", default='png')
     parser.add_argument("-b", "--bucket", help="S3 snapshot bucket", default=None)
@@ -61,7 +62,7 @@ if __name__ == "__main__":
                     # copy to web image bucket
                     util.copy_to_s3(camera.filename, args.bucket, "{}.{}".format(args.source, args.image_format))
                     last_filename = camera.filename
-                    time.sleep(1)
+                    time.sleep(args.sleep)
             time.sleep(0.2)  # sleep needed because CPU race
             pass
     except (KeyboardInterrupt, SystemExit):
