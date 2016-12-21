@@ -46,9 +46,6 @@ if __name__ == "__main__":
     )
     camera.start()
 
-    archiver = S3Archiver(args.archive_bucket)
-    archiver.start()
-
     subscriber = Subscriber(args.endpoint, args.rootCA, args.key, args.cert, args.clientID)
 
     for t in args.topic:
@@ -63,8 +60,6 @@ if __name__ == "__main__":
                 if camera.filename != last_filename:
                     # copy to web image bucket
                     util.copy_to_s3(camera.filename, args.bucket, "{}.{}".format(args.source, args.image_format))
-                    # move to archive
-                    archiver.add_file(camera.filename)
                     last_filename = camera.filename
             time.sleep(0.2)  # sleep needed because CPU race
             pass
