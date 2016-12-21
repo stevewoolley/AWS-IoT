@@ -7,7 +7,6 @@ import json
 import util
 from cloud_tools import Subscriber
 from camera import Camera
-from s3archiver import S3Archiver
 
 
 def my_callback(client, userdata, message):
