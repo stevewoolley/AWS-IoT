@@ -17,9 +17,11 @@ DATE_FORMAT = '%Y_%m_%d_%H_%M_%S'
 
 def my_callback(client, userdata, message):
     msg = json.loads(message.payload)
+    print >> sys.stderr, 'callback {}'.format(msg)
     if camera.snap('/'.join((STORAGE_DIRECTORY, SNAP_FILENAME))):
         filename, file_extension = os.path.splitext(SNAP_FILENAME)
         f = "{}_{}{}".format(datetime.datetime.now().strftime(DATE_FORMAT), args.source, file_extension)
+        print >> sys.stderr, 'callback new file'.format(f)
         Reporter(args.name).put(Reporter.REPORTED, {'last_snapshot': f})
         util.copy_to_s3(camera.filename, args.bucket, f)
 
@@ -49,6 +51,7 @@ if __name__ == "__main__":
 
     for t in args.topic:
         subscriber.subscribe(t, my_callback)
+        print >> sys.stderr, 'subscribing {}'.format(t)
         time.sleep(2)  # pause
 
     # Loop forever
