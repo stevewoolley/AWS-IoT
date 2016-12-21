@@ -6,24 +6,23 @@ import sys
 import json
 import util
 import datetime
+import os
 from cloud_tools import Subscriber, Reporter
 from camera import Camera
 
 STORAGE_DIRECTORY = '/tmp'
-
-def _generate_image_filename(self):
-    return "/".join((self.path,
-                     "{}_{}.{}".format(datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S'),
-                                       self.base_filename,
-                                       self.image_format)
-                     ))
+SNAP_FILENAME = 'snapshot.png'
+DATE_FORMAT = '%Y_%m_%d_%H_%M_%S'
 
 
 def my_callback(client, userdata, message):
     msg = json.loads(message.payload)
-    Reporter(args.name).put(Reporter.REPORTED, {'camera': False})
-    util.copy_to_s3(camera.filename, args.bucket, "{}.{}".format(args.source, args.image_format))
-    last_filename = camera.filename
+    if camera.snap('/'.join((STORAGE_DIRECTORY, SNAP_FILENAME))):
+        filename, file_extension = os.path.splitext(SNAP_FILENAME)
+        f = "{}_{}{}".format(datetime.datetime.now().strftime(DATE_FORMAT), args.source, file_extension)
+        Reporter(args.name).put(Reporter.REPORTED, {'last_snapshot': f})
+        util.copy_to_s3(camera.filename, args.bucket, f)
+
 
 if __name__ == "__main__":
 
@@ -41,11 +40,11 @@ if __name__ == "__main__":
     parser.add_argument("-z", "--rotation", help="image rotation", type=int, default=0)
     parser.add_argument("-w", "--sleep", help="sleep seconds between snapshots", type=float, default=3.0)
     parser.add_argument("-s", "--source", help="Source", required=True)
-    parser.add_argument("-f", "--image_format", help="Image Format(jpg, png, etc.)", default='png')
     parser.add_argument("-b", "--bucket", help="S3 snapshot bucket", default=None)
     args = parser.parse_args()
 
-    camera = Camera(rotation=args.rotation, horizontal_resolution=args.horizontal_resolution, vertical_resolution=args.vertical_resolution).snap()
+    camera = Camera(rotation=args.rotation, horizontal_resolution=args.horizontal_resolution,
+                    vertical_resolution=args.vertical_resolution)
 
     subscriber = Subscriber(args.endpoint, args.rootCA, args.key, args.cert, args.clientID)
 
