@@ -43,15 +43,18 @@ if __name__ == "__main__":
     parser.add_argument("-s", "--source", help="Source", required=True)
     parser.add_argument("-b", "--bucket", help="S3 snapshot bucket", default=None)
     args = parser.parse_args()
+    print >> sys.stderr, 'debug 1'
 
     camera = Camera(rotation=args.rotation, horizontal_resolution=args.horizontal_resolution,
                     vertical_resolution=args.vertical_resolution)
+    print >> sys.stderr, 'debug 2'
 
     subscriber = Subscriber(args.endpoint, args.rootCA, args.key, args.cert, args.clientID)
+    print >> sys.stderr, 'debug 3'
 
     for t in args.topic:
-        subscriber.subscribe(t, my_callback)
         print >> sys.stderr, 'subscribing {}'.format(t)
+        subscriber.subscribe(t, my_callback)
         time.sleep(2)  # pause
 
     # Loop forever
