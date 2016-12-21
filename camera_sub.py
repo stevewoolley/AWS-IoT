@@ -19,12 +19,12 @@ MQTT_KEEPALIVE = 60
 
 def my_callback(client, userdata, message):
     msg = json.loads(message.payload)
-    if camera.snap('/'.join((STORAGE_DIRECTORY, SNAP_FILENAME))):
-        filename, file_extension = os.path.splitext(SNAP_FILENAME)
-        f = "{}_{}{}".format(datetime.datetime.now().strftime(DATE_FORMAT), args.source, file_extension)
-        Publisher(args.endpoint, args.rootCA, args.key, args.cert, client_id=args.clientID).report(t,
-                                                                                                   {'last_snapshot': f})
-        util.copy_to_s3(camera.filename, args.bucket, f)
+    # if camera.snap('/'.join((STORAGE_DIRECTORY, SNAP_FILENAME))):
+    #     filename, file_extension = os.path.splitext(SNAP_FILENAME)
+    #     f = "{}_{}{}".format(datetime.datetime.now().strftime(DATE_FORMAT), args.source, file_extension)
+    #     Publisher(args.endpoint, args.rootCA, args.key, args.cert, client_id=args.clientID).report(t,
+    #                                                                                                {'last_snapshot': f})
+    #     util.copy_to_s3(camera.filename, args.bucket, f)
 
 
 def on_message(mqttc, obj, msg):
@@ -41,6 +41,10 @@ def on_subscribe(mqttc, obj, mid, granted_qos):
 
 def on_publish(mqttc, obj, mid):
     print("mid: " + str(mid))
+
+
+def on_log(mqttc, obj, level, string):
+    print(string)
 
 
 if __name__ == "__main__":
@@ -60,8 +64,8 @@ if __name__ == "__main__":
     parser.add_argument("-b", "--bucket", help="S3 snapshot bucket", default=None)
     args = parser.parse_args()
 
-    camera = Camera(rotation=args.rotation, horizontal_resolution=args.horizontal_resolution,
-                    vertical_resolution=args.vertical_resolution)
+    # camera = Camera(rotation=args.rotation, horizontal_resolution=args.horizontal_resolution,
+    #                 vertical_resolution=args.vertical_resolution)
 
     # client connect
     client = mqtt.Client()
@@ -69,6 +73,7 @@ if __name__ == "__main__":
     client.on_message = on_message
     client.on_publish = on_publish
     client.on_subscribe = on_subscribe
+    client.on_log = on_log
 
     client.tls_set(args.rootCA, certfile=args.cert, keyfile=args.key, cert_reqs=ssl.CERT_REQUIRED,
                    tls_version=ssl.PROTOCOL_TLSv1_2)
