@@ -3,23 +3,26 @@ import threading
 import time
 import boto3
 import ssl
-import paho.mqtt.client as mqtt
+import paho.mqtt.publish as publish
 
 
 class Publisher:
     """A Publisher object"""
 
-    def __init__(self, endpoint, root_ca, key, cert, client_id='', port=8883, keepalive=60):
-        self.client = mqtt.Client()
-        self.client.tls_set(root_ca, certfile=cert, keyfile=key, cert_reqs=ssl.CERT_REQUIRED)
+    def __init__(self, endpoint, root_ca, key, cert, port=8883, keepalive=60, client_id='',
+                 tls_version=ssl.PROTOCOL_TLSv1_2):
         self._endpoint = endpoint
         self._port = port
-        self._keepalive = keepalive
+        self._keep_alive = keepalive
+        self._client_id = client_id
+        self._tls_dict = {'ca_certs': root_ca, 'certfile': cert, 'keyfile': key, 'tls_version': tls_version}
+        #
 
     def publish(self, topic, obj, qos=0):
-        self.client.connect(self._endpoint, self._port, self._keepalive)
         msg = json.dumps(obj)
-        result, mid = self.client.publish(topic, payload=msg, qos=qos)
+        publish.single(topic, payload=msg, qos=qos, retain=False, hostname=self._endpoint,
+                       port=self._port, client_id=self._client_id, keepalive=self._keep_alive,
+                       tls=self._tls_dict)
 
 
 class Subscriber(threading.Thread):

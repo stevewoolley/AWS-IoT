@@ -1,28 +1,27 @@
 #!/usr/bin/env python
 
 import argparse
-import time
-import sys
 import json
 import util
 import datetime
 import os
-from cloud_tools import Subscriber, Reporter
+import ssl
+import paho.mqtt.client as mqtt
 from camera import Camera
 
 STORAGE_DIRECTORY = '/tmp'
 SNAP_FILENAME = 'snapshot.png'
 DATE_FORMAT = '%Y_%m_%d_%H_%M_%S'
+MQTT_PORT = 8883
+MQTT_KEEPALIVE = 60
 
 
 def my_callback(client, userdata, message):
     msg = json.loads(message.payload)
-    print >> sys.stderr, 'callback {}'.format(msg)
     if camera.snap('/'.join((STORAGE_DIRECTORY, SNAP_FILENAME))):
         filename, file_extension = os.path.splitext(SNAP_FILENAME)
         f = "{}_{}{}".format(datetime.datetime.now().strftime(DATE_FORMAT), args.source, file_extension)
-        print >> sys.stderr, 'callback new file'.format(f)
-        Reporter(args.name).put(Reporter.REPORTED, {'last_snapshot': f})
+        # Reporter(args.name).put(Reporter.REPORTED, {'last_snapshot': f})
         util.copy_to_s3(camera.filename, args.bucket, f)
 
 
@@ -43,24 +42,15 @@ if __name__ == "__main__":
     parser.add_argument("-s", "--source", help="Source", required=True)
     parser.add_argument("-b", "--bucket", help="S3 snapshot bucket", default=None)
     args = parser.parse_args()
-    print >> sys.stderr, 'debug 1'
 
     camera = Camera(rotation=args.rotation, horizontal_resolution=args.horizontal_resolution,
                     vertical_resolution=args.vertical_resolution)
-    print >> sys.stderr, 'debug 2'
 
-    subscriber = Subscriber(args.endpoint, args.rootCA, args.key, args.cert, args.clientID)
-    print >> sys.stderr, 'debug 3'
-
+    client = mqtt.Client()
+    client.tls_set(args.rootCA, certfile=args.cert, keyfile=args.key, cert_reqs=ssl.CERT_REQUIRED,
+                   tls_version=ssl.PROTOCOL_TLSv1_2)
+    client.connect(args.endpoint, MQTT_PORT, MQTT_KEEPALIVE)
     for t in args.topic:
-        print >> sys.stderr, 'subscribing {}'.format(t)
-        subscriber.subscribe(t, my_callback)
-        time.sleep(2)  # pause
+        client.message_callback_add(t, my_callback)
 
-    # Loop forever
-    try:
-        while True:
-            time.sleep(0.2)  # sleep needed because CPU race
-            pass
-    except (KeyboardInterrupt, SystemExit):
-        sys.exit()
+    client.loop_forever()
