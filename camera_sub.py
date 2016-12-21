@@ -61,6 +61,7 @@ if __name__ == "__main__":
                     # copy to web image bucket
                     util.copy_to_s3(camera.filename, args.bucket, "{}.{}".format(args.source, args.image_format))
                     last_filename = camera.filename
+                    time.sleep(1)
             time.sleep(0.2)  # sleep needed because CPU race
             pass
     except (KeyboardInterrupt, SystemExit):
