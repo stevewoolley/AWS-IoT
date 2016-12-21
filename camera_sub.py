@@ -17,7 +17,7 @@ MQTT_PORT = 8883
 MQTT_KEEPALIVE = 60
 
 
-def my_callback(client, userdata, message):
+def on_message(client, userdata, message):
     msg = json.loads(message.payload)
     if camera.snap('/'.join((STORAGE_DIRECTORY, SNAP_FILENAME))):
         filename, file_extension = os.path.splitext(SNAP_FILENAME)
@@ -51,10 +51,11 @@ if __name__ == "__main__":
     client.tls_set(args.rootCA, certfile=args.cert, keyfile=args.key, cert_reqs=ssl.CERT_REQUIRED,
                    tls_version=ssl.PROTOCOL_TLSv1_2)
     client.connect(args.endpoint, MQTT_PORT, MQTT_KEEPALIVE)
+    client.on_message = on_message
 
-    # load callbacks
     for t in args.topic:
-        client.message_callback_add(t, my_callback)
+        print "{} {}".format(t)
+        client.subscribe(t, 0)
 
     # loop forever
     client.loop_forever()
