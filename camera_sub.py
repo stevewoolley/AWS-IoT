@@ -32,11 +32,10 @@ if __name__ == "__main__":
     parser.add_argument("-x", "--horizontal_resolution", help="horizontal_resolution", type=int, default=640)
     parser.add_argument("-y", "--vertical_resolution", help="vertical resolution", type=int, default=480)
     parser.add_argument("-z", "--rotation", help="image rotation", type=int, default=0)
-    parser.add_argument("-w", "--sleep", help="sleep seconds between snapshots", type=float, default=2.0)
+    parser.add_argument("-w", "--sleep", help="sleep seconds between snapshots", type=float, default=3.0)
     parser.add_argument("-s", "--source", help="Source", required=True)
     parser.add_argument("-f", "--image_format", help="Image Format(jpg, png, etc.)", default='png')
     parser.add_argument("-b", "--bucket", help="S3 snapshot bucket", default=None)
-    parser.add_argument("-a", "--archive_bucket", help="S3 snapshot archive bucket", default=None)
     args = parser.parse_args()
 
     camera = Camera(
