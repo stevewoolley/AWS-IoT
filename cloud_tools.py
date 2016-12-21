@@ -1,6 +1,4 @@
 import json
-import threading
-import time
 import boto3
 import ssl
 import paho.mqtt.publish as publish
@@ -8,51 +6,26 @@ import paho.mqtt.publish as publish
 
 class Publisher:
     """A Publisher object"""
+    STATE = 'state'
+    REPORTED = 'reported'
+    DESIRED = 'desired'
 
-    def __init__(self, endpoint, root_ca, key, cert, port=8883, keepalive=60, client_id='',
+    def __init__(self, endpoint, root_ca, key, cert, port=8883, keepalive=60, client_id=None,
                  tls_version=ssl.PROTOCOL_TLSv1_2):
         self._endpoint = endpoint
         self._port = port
         self._keep_alive = keepalive
         self._client_id = client_id
         self._tls_dict = {'ca_certs': root_ca, 'certfile': cert, 'keyfile': key, 'tls_version': tls_version}
-        #
 
     def publish(self, topic, obj, qos=0):
-        msg = json.dumps(obj)
-        publish.single(topic, payload=msg, qos=qos, retain=False, hostname=self._endpoint,
+        publish.single(topic, payload=json.dumps(obj), qos=qos, retain=False, hostname=self._endpoint,
                        port=self._port, client_id=self._client_id, keepalive=self._keep_alive,
                        tls=self._tls_dict)
+        # time.sleep(3)
 
-
-class Subscriber(threading.Thread):
-    """A threaded Subscriber object"""
-
-    def __init__(self, endpoint, root_ca, key, cert, client_id=''):
-        threading.Thread.__init__(self)
-        self.endpoint = endpoint
-        self.client_id = client_id
-        self.root_ca = root_ca
-        self.key = key
-        self.cert = cert
-        self._client = None
-        self.finish = False
-        self.daemon = True
-        self.connected = False
-
-    def connect(self):
-        # Setup
-        # Connect
-        self.connected = self._client.connect()
-
-    def subscribe(self, topic, callback, qos=1):
-        if not self.connected:
-            self.connect()
-        self._client.subscribe(topic, qos, callback)
-
-    def run(self):
-        while not self.finish:
-            time.sleep(0.001)
+    def report(self, topic, obj, state=REPORTED, qos=0):
+        self.publish(topic, {self.STATE: {state: obj}}, qos=qos)
 
 
 class Reporter:
@@ -103,7 +76,7 @@ class Reporter:
             self.version = self._shadow[self.VERSION]
 
     def put(self, state, obj):
-        payload = {self.STATE: {state: {}}}
+        payload = {self.STATE: {state: obj}}
         for k, v in obj.iteritems():
             payload[self.STATE][state][k] = v
         self._client.update_thing_shadow(thingName=self.name, payload=json.dumps(payload))

@@ -7,6 +7,7 @@ import datetime
 import os
 import ssl
 import paho.mqtt.client as mqtt
+from cloud_tools import Publisher
 from camera import Camera
 
 STORAGE_DIRECTORY = '/tmp'
@@ -21,7 +22,7 @@ def my_callback(client, userdata, message):
     if camera.snap('/'.join((STORAGE_DIRECTORY, SNAP_FILENAME))):
         filename, file_extension = os.path.splitext(SNAP_FILENAME)
         f = "{}_{}{}".format(datetime.datetime.now().strftime(DATE_FORMAT), args.source, file_extension)
-        # Reporter(args.name).put(Reporter.REPORTED, {'last_snapshot': f})
+        Publisher(args.endpoint, args.rootCA, args.key, args.cert, client_id=args.clientID).report(t, {'last_snapshot': f})
         util.copy_to_s3(camera.filename, args.bucket, f)
 
 
@@ -46,11 +47,15 @@ if __name__ == "__main__":
     camera = Camera(rotation=args.rotation, horizontal_resolution=args.horizontal_resolution,
                     vertical_resolution=args.vertical_resolution)
 
+    # client connect
     client = mqtt.Client()
     client.tls_set(args.rootCA, certfile=args.cert, keyfile=args.key, cert_reqs=ssl.CERT_REQUIRED,
                    tls_version=ssl.PROTOCOL_TLSv1_2)
     client.connect(args.endpoint, MQTT_PORT, MQTT_KEEPALIVE)
+
+    # load callbacks
     for t in args.topic:
         client.message_callback_add(t, my_callback)
 
+    # loop forever
     client.loop_forever()

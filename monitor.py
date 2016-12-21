@@ -5,7 +5,7 @@ import util
 import psutil
 import datetime
 import platform
-from cloud_tools import Reporter
+from cloud_tools import Publisher
 
 DT_FORMAT = '%Y/%m/%d %-I:%M %p %Z'
 
@@ -61,8 +61,16 @@ def get_properties(group):
 if __name__ == "__main__":
     # parse arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument("-n", "--name", help="pi AWS thing name", required=True)
+    parser.add_argument("-e", "--endpoint", help="AWS IoT endpoint", required=True)
+    parser.add_argument("-r", "--rootCA", help="Root CA file path", required=True)
+    parser.add_argument("-c", "--cert", help="Certificate file path")
+    parser.add_argument("-k", "--key", help="Private key file path")
+    parser.add_argument("-i", "--clientID", help="Client ID", default='')
+    parser.add_argument("-t", "--topic", help="MQTT topic(s)", nargs='+', required=True)
     parser.add_argument("-p", "--party", help="Monitor party", default=None)
     args = parser.parse_args()
 
-    Reporter(args.name).put(Reporter.REPORTED, get_properties(args.party))
+    props = get_properties(args.party)
+
+    for t in args.topic:
+        Publisher(args.endpoint, args.rootCA, args.key, args.cert, client_id=args.clientID).report(t, props)
