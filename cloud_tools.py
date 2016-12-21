@@ -2,37 +2,24 @@ import json
 import threading
 import time
 import boto3
-from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
+import ssl
+import paho.mqtt.client as mqtt
 
 
 class Publisher:
-    """A threaded Publisher object"""
+    """A Publisher object"""
 
-    def __init__(self, endpoint, root_ca, key, cert, client_id=''):
-        self.endpoint = endpoint
-        self.root_ca = root_ca
-        self.client_id = client_id
-        self.client = None
-        self.key = key
-        self.cert = cert
-        self.connected = False
-
-    def connect(self):
-        # Setup
-        self.client = AWSIoTMQTTClient(self.client_id)
-        self.client.configureEndpoint(self.endpoint, 8883)
-        self.client.configureCredentials(self.root_ca, self.key, self.cert)
-        self.client.configureOfflinePublishQueueing(-1)  # Infinite offline Publish queueing
-        self.client.configureConnectDisconnectTimeout(10)  # 10 sec
-        self.client.configureMQTTOperationTimeout(5)  # 5 sec
-        # Connect
-        self.connected = self.client.connect()
+    def __init__(self, endpoint, root_ca, key, cert, client_id='', port=8883, keepalive=60):
+        self.client = mqtt.Client()
+        self.client.tls_set(root_ca, certfile=cert, keyfile=key, cert_reqs=ssl.CERT_REQUIRED)
+        self._endpoint = endpoint
+        self._port = port
+        self._keepalive = keepalive
 
     def publish(self, topic, obj, qos=0):
-        if not self.connected:
-            self.connect()
+        self.client.connect(self._endpoint, self._port, self._keepalive)
         msg = json.dumps(obj)
-        self.client.publish(topic, msg, qos)
+        result, mid = self.client.publish(topic, payload=msg, qos=qos)
 
 
 class Subscriber(threading.Thread):
@@ -52,12 +39,6 @@ class Subscriber(threading.Thread):
 
     def connect(self):
         # Setup
-        self._client = AWSIoTMQTTClient(self.client_id)
-        self._client.configureEndpoint(self.endpoint, 8883)
-        self._client.configureCredentials(self.root_ca, self.key, self.cert)
-        self._client.configureOfflinePublishQueueing(-1)  # Infinite offline Publish queueing
-        self._client.configureConnectDisconnectTimeout(10)  # 10 sec
-        self._client.configureMQTTOperationTimeout(5)  # 5 sec
         # Connect
         self.connected = self._client.connect()
 

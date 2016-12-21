@@ -1,5 +1,4 @@
 PyYAML
-AWSIoTPythonSDK
 argparse
 psutil
-
+paho-mqtt
