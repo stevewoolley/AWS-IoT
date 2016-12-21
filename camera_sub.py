@@ -11,12 +11,12 @@ from camera import Camera
 
 def my_callback(client, userdata, message):
     msg = json.loads(message.payload)
-    print >> sys.stdout, 'camera callback msg received: {}'.format(msg)
     if camera.snapping:
+        Reporter(args.name).put(Reporter.REPORTED, {'camera': False})
         camera.stop_snapping()
     else:
+        Reporter(args.name).put(Reporter.REPORTED, {'camera': True})
         camera.start_snapping()
-    Reporter(args.name).put(Reporter.REPORTED, {'camera': camera.snapping})
 
 
 if __name__ == "__main__":
@@ -50,18 +50,15 @@ if __name__ == "__main__":
     subscriber = Subscriber(args.endpoint, args.rootCA, args.key, args.cert, args.clientID)
 
     for t in args.topic:
-        print >> sys.stdout, 'camera setup callback: {}'.format(t)
         subscriber.subscribe(t, my_callback)
         time.sleep(2)  # pause
 
     # Loop forever
     last_filename = None
     try:
-        print >> sys.stdout, 'camera filename: {}'.format(camera.filename)
         while True:
             if args.bucket is not None:
                 if camera.filename != last_filename:
-                    print >> sys.stdout, 'camera archive: {}'.format(camera.filename)
                     # copy to web image bucket
                     util.copy_to_s3(camera.filename, args.bucket, "{}.{}".format(args.source, args.image_format))
                     last_filename = camera.filename
