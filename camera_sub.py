@@ -5,19 +5,25 @@ import time
 import sys
 import json
 import util
+import datetime
 from cloud_tools import Subscriber, Reporter
 from camera import Camera
+
+STORAGE_DIRECTORY = '/tmp'
+
+def _generate_image_filename(self):
+    return "/".join((self.path,
+                     "{}_{}.{}".format(datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S'),
+                                       self.base_filename,
+                                       self.image_format)
+                     ))
 
 
 def my_callback(client, userdata, message):
     msg = json.loads(message.payload)
-    if camera.snapping:
-        Reporter(args.name).put(Reporter.REPORTED, {'camera': False})
-        camera.stop_snapping()
-    else:
-        Reporter(args.name).put(Reporter.REPORTED, {'camera': True})
-        camera.start_snapping()
-
+    Reporter(args.name).put(Reporter.REPORTED, {'camera': False})
+    util.copy_to_s3(camera.filename, args.bucket, "{}.{}".format(args.source, args.image_format))
+    last_filename = camera.filename
 
 if __name__ == "__main__":
 
@@ -39,13 +45,7 @@ if __name__ == "__main__":
     parser.add_argument("-b", "--bucket", help="S3 snapshot bucket", default=None)
     args = parser.parse_args()
 
-    camera = Camera(
-        base_filename=args.source,
-        rotation=args.rotation,
-        horizontal_resolution=args.horizontal_resolution,
-        vertical_resolution=args.vertical_resolution
-    )
-    camera.start()
+    camera = Camera(rotation=args.rotation, horizontal_resolution=args.horizontal_resolution, vertical_resolution=args.vertical_resolution).snap()
 
     subscriber = Subscriber(args.endpoint, args.rootCA, args.key, args.cert, args.clientID)
 
@@ -54,15 +54,8 @@ if __name__ == "__main__":
         time.sleep(2)  # pause
 
     # Loop forever
-    last_filename = None
     try:
         while True:
-            if args.bucket is not None:
-                if camera.filename != last_filename:
-                    # copy to web image bucket
-                    util.copy_to_s3(camera.filename, args.bucket, "{}.{}".format(args.source, args.image_format))
-                    last_filename = camera.filename
-                    time.sleep(args.sleep)
             time.sleep(0.2)  # sleep needed because CPU race
             pass
     except (KeyboardInterrupt, SystemExit):

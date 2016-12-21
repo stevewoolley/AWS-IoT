@@ -1,61 +1,42 @@
-import threading
-import time
 import picamera
-import util
-import datetime
-import sys
+import argparse
 
 
-class Camera(threading.Thread):
-    """A threaded camera object"""
+class Camera:
+    """A camera object"""
 
     def __init__(self,
-                 base_filename="output",
+                 filename='snapshot',
                  horizontal_resolution=640,
                  vertical_resolution=480,
                  rotation=0,
-                 image_format='png',
-                 path="/tmp"):
-        threading.Thread.__init__(self)
-        self.daemon = True
-        self.finish = False
-        self.path = path
+                 annotation=None,
+                 image_format='png'):
         self.camera = picamera.PiCamera()
         self.camera.resolution = (horizontal_resolution, vertical_resolution)
         self.camera.rotation = rotation
-        self.base_filename = base_filename
-        self.snapping = False
-        self.image_format = image_format
-        self.filename = None
+        self.filename = filename
+        self.annotation = annotation
 
-    def _generate_image_filename(self):
-        return "/".join((self.path,
-                         "{}_{}.{}".format(datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S'),
-                                           self.base_filename,
-                                           self.image_format)
-                         ))
-
-    def start_snapping(self):
-        self.snapping = True
-
-    def stop_snapping(self):
-        self.snapping = False
-
-    def snapshot(self, filename=None, annotate_text=None):
+    def snap(self, new_filename=None):
+        if new_filename is not None:
+            self.filename = new_filename
         try:
-            if filename is None:
-                filename = self._generate_image_filename()
-            if annotate_text is not None:
-                self.camera.annotate_text = annotate_text
-            else:
-                self.camera.annotate_text = ''
-            self.camera.capture(filename, use_video_port=False)
-            return filename
+            if self.annotation is not None:
+                self.camera.annotate_text = self.annotation
+            self.camera.capture(self.filename, use_video_port=False)
+            return True
         except Exception as ex:
-            return None
+            return False
 
-    def run(self):
-        while not self.finish:
-            if self.snapping:
-                self.filename = self.snapshot(annotate_text=util.now_string())
-            time.sleep(.001)
+
+if __name__ == "__main__":
+    # parse arguments
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-x", "--horizontal_resolution", help="horizontal_resolution", type=int, default=640)
+    parser.add_argument("-y", "--vertical_resolution", help="vertical resolution", type=int, default=480)
+    parser.add_argument("-z", "--rotation", help="image rotation", type=int, default=0)
+    parser.add_argument("-o", "--filename", help="Output Filename", default='snapshot.png')
+    args = parser.parse_args()
+
+    Camera(rotation=args.rotation, horizontal_resolution=args.horizontal_resolution, vertical_resolution=args.vertical_resolution).snap(args.filename)
