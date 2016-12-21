@@ -17,13 +17,30 @@ MQTT_PORT = 8883
 MQTT_KEEPALIVE = 60
 
 
-def on_message(client, userdata, message):
+def my_callback(client, userdata, message):
     msg = json.loads(message.payload)
     if camera.snap('/'.join((STORAGE_DIRECTORY, SNAP_FILENAME))):
         filename, file_extension = os.path.splitext(SNAP_FILENAME)
         f = "{}_{}{}".format(datetime.datetime.now().strftime(DATE_FORMAT), args.source, file_extension)
-        Publisher(args.endpoint, args.rootCA, args.key, args.cert, client_id=args.clientID).report(t, {'last_snapshot': f})
+        Publisher(args.endpoint, args.rootCA, args.key, args.cert, client_id=args.clientID).report(t,
+                                                                                                   {'last_snapshot': f})
         util.copy_to_s3(camera.filename, args.bucket, f)
+
+
+def on_message(mqttc, obj, msg):
+    print(msg.topic + " " + str(msg.qos) + " " + str(msg.payload))
+
+
+def on_connect(mqttc, obj, flags, rc):
+    print "Connected to %s:%s" % (mqttc._host, mqttc._port)
+
+
+def on_subscribe(mqttc, obj, mid, granted_qos):
+    print("Subscribed: " + str(mid) + " " + str(granted_qos))
+
+
+def on_publish(mqttc, obj, mid):
+    print("mid: " + str(mid))
 
 
 if __name__ == "__main__":
@@ -48,13 +65,16 @@ if __name__ == "__main__":
 
     # client connect
     client = mqtt.Client()
+    client.on_connect = on_connect
+    client.on_message = on_message
+    client.on_publish = on_publish
+    client.on_subscribe = on_subscribe
+
     client.tls_set(args.rootCA, certfile=args.cert, keyfile=args.key, cert_reqs=ssl.CERT_REQUIRED,
                    tls_version=ssl.PROTOCOL_TLSv1_2)
     client.connect(args.endpoint, MQTT_PORT, MQTT_KEEPALIVE)
-    client.on_message = on_message
 
     for t in args.topic:
-        print "{} {}".format(t)
         client.subscribe(t, 0)
 
     # loop forever
