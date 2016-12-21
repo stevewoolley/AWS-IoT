@@ -6,7 +6,7 @@ class Camera:
     """A camera object"""
 
     def __init__(self,
-                 filename='snapshot',
+                 filename='snapshot.png',
                  horizontal_resolution=640,
                  vertical_resolution=480,
                  rotation=0,
