@@ -22,7 +22,10 @@ def on_message(mqttc, obj, msg):
     local_filename = "{}.{}".format(args.source, IMAGE_FILE_EXT)
     remote_filename = "{}_{}.{}".format(datetime.datetime.now().strftime(DATE_FORMAT), args.source, IMAGE_FILE_EXT)
     logger.info("on_message snap {} {}".format(local_filename, remote_filename))
-    if camera.snap('/'.join((STORAGE_DIRECTORY, remote_filename))):
+    if camera.snap(
+        filename='/'.join((STORAGE_DIRECTORY, remote_filename)),
+        annotate=util.now_string()
+    ):
         Publisher(args.endpoint,
                   args.rootCA,
                   args.key,

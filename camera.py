@@ -20,9 +20,11 @@ class Camera:
         self.filename = filename
         self.annotation = annotation
 
-    def snap(self, new_filename=None):
-        if new_filename is not None:
-            self.filename = new_filename
+    def snap(self, filename=None, annotate=None):
+        if filename is not None:
+            self.filename = filename
+        if annotate is not None:
+            self.annotation = annotate
         try:
             if self.annotation is not None:
                 self.camera.annotate_text = self.annotation
