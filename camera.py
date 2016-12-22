@@ -12,8 +12,7 @@ class Camera:
                  horizontal_resolution=640,
                  vertical_resolution=480,
                  rotation=0,
-                 annotation=None,
-                 image_format='png'):
+                 annotation=None):
         self.camera = picamera.PiCamera()
         self.camera.resolution = (horizontal_resolution, vertical_resolution)
         self.camera.rotation = rotation

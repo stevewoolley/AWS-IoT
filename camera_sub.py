@@ -16,11 +16,11 @@ MQTT_KEEPALIVE = 60
 
 
 def on_message(mqttc, obj, msg):
-    logger.info("on_message {} {} {}".format(msg.topic, msg.qos, msg.payload))
+    logger.error("on_message {} {} {}".format(msg.topic, msg.qos, msg.payload))
     # payload = json.loads(msg.payload)
     local_filename = "{}.{}".format(args.source, IMAGE_FILE_EXT)
     remote_filename = "{}_{}.{}".format(datetime.datetime.now().strftime(DATE_FORMAT), args.source, IMAGE_FILE_EXT)
-    logger.info("on_message snap {} {}".format(local_filename, remote_filename))
+    logger.error("on_message snap {} {}".format(local_filename, remote_filename))
     if camera.snap(
         filename='/'.join((STORAGE_DIRECTORY, remote_filename)),
         annotate=util.now_string()
@@ -35,7 +35,7 @@ def on_message(mqttc, obj, msg):
 
 
 def on_connect(mqttc, obj, flags, rc):
-    logger.info("on_connect {}".format(rc))
+    logger.error("on_connect {}".format(rc))
 
 
 def on_subscribe(mqttc, obj, mid, granted_qos):
@@ -47,7 +47,7 @@ def on_publish(mqttc, obj, mid):
 
 
 def on_log(mqttc, obj, level, string):
-    logger.info("on_log {}".format(string))
+    logger.error("on_log {}".format(string))
 
 
 if __name__ == "__main__":
