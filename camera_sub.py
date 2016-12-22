@@ -3,7 +3,6 @@
 import argparse
 import util
 import datetime
-import os
 import ssl
 import logging
 import paho.mqtt.client as mqtt
@@ -20,17 +19,17 @@ MQTT_KEEPALIVE = 60
 def on_message(mqttc, obj, msg):
     logger.info("on_message {} {} {}".format(msg.topic, msg.qos, msg.payload))
     # payload = json.loads(msg.payload)
-    local_target = "{}.{}".format(args.source, IMAGE_FILE_EXT)
-    if camera.snap('/'.join((STORAGE_DIRECTORY, local_target))):
-        remote_target = "{}_{}.{}".format(datetime.datetime.now().strftime(DATE_FORMAT), args.source, IMAGE_FILE_EXT)
-        logger.info("on_message snap {} {}".format(local_target, remote_target))
+    local_filename = "{}.{}".format(args.source, IMAGE_FILE_EXT)
+    remote_filename = "{}_{}.{}".format(datetime.datetime.now().strftime(DATE_FORMAT), args.source, IMAGE_FILE_EXT)
+    logger.info("on_message snap {} {}".format(local_filename, remote_filename))
+    if camera.snap('/'.join((STORAGE_DIRECTORY, remote_filename))):
         Publisher(args.endpoint,
                   args.rootCA,
                   args.key,
                   args.cert,
                   clientID=args.clientID
-                  ).report(t, {'last_snapshot': remote_target})
-        util.copy_to_s3(camera.filename, args.bucket, remote_target)
+                  ).report(t, {'last_snapshot': remote_filename})
+        util.copy_to_s3('/'.join((STORAGE_DIRECTORY, remote_filename)), args.bucket, local_filename)
 
 
 def on_connect(mqttc, obj, flags, rc):
