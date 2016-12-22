@@ -1,6 +1,7 @@
 import json
 import boto3
 import ssl
+import logging
 import paho.mqtt.publish as publish
 
 
@@ -10,22 +11,42 @@ class Publisher:
     REPORTED = 'reported'
     DESIRED = 'desired'
 
-    def __init__(self, endpoint, root_ca, key, cert, port=8883, keepalive=60, client_id=None,
-                 tls_version=ssl.PROTOCOL_TLSv1_2):
+    def __init__(self,
+                 endpoint,
+                 root_ca,
+                 key,
+                 cert,
+                 port=8883,
+                 keepalive=60,
+                 clientID=None,
+                 tls_version=ssl.PROTOCOL_SSLv23
+                 ):
         self._endpoint = endpoint
         self._port = port
         self._keep_alive = keepalive
-        self._client_id = client_id
-        self._tls_dict = {'ca_certs': root_ca, 'certfile': cert, 'keyfile': key, 'tls_version': tls_version}
+        self._clientID = clientID
+        self._log = logging.getLogger(__name__)
+        self._tls_dict = {'ca_certs': root_ca,
+                          'certfile': cert,
+                          'keyfile': key,
+                          'tls_version': tls_version}
+        self._log.debug("publisher init")
 
-    def publish(self, topic, obj, qos=0):
-        publish.single(topic, payload=json.dumps(obj), qos=qos, retain=False, hostname=self._endpoint,
-                       port=self._port, client_id=self._client_id, keepalive=self._keep_alive,
-                       tls=self._tls_dict)
-        # time.sleep(3)
+    def publish(self, topic, payload, qos=0, retain=False):
+        self._log.debug("publish {} {}".format(topic, payload))
+        publish.single(topic,
+                       payload=json.dumps(payload),
+                       qos=qos,
+                       retain=retain,
+                       hostname=self._endpoint,
+                       port=self._port,
+                       client_id=self._clientID,
+                       keepalive=self._keep_alive,
+                       tls=self._tls_dict
+                       )
 
-    def report(self, topic, obj, state=REPORTED, qos=0):
-        self.publish(topic, {self.STATE: {state: obj}}, qos=qos)
+    def report(self, topic, payload, state=REPORTED, qos=0, retain=False):
+        self.publish(topic, {self.STATE: {state: payload}}, qos=qos, retain=retain)
 
 
 class Reporter:

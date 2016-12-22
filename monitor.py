@@ -8,6 +8,7 @@ import platform
 from cloud_tools import Publisher
 
 DT_FORMAT = '%Y/%m/%d %-I:%M %p %Z'
+TOPIC = "$aws/things/{}/shadow/update"
 
 
 def get_rpi_cpu_temperature():
@@ -66,11 +67,14 @@ if __name__ == "__main__":
     parser.add_argument("-c", "--cert", help="Certificate file path")
     parser.add_argument("-k", "--key", help="Private key file path")
     parser.add_argument("-i", "--clientID", help="Client ID", default='')
-    parser.add_argument("-t", "--topic", help="MQTT topic(s)", nargs='+', required=True)
+    parser.add_argument("-s", "--source", help="Source", required=True)
     parser.add_argument("-p", "--party", help="Monitor party", default=None)
     args = parser.parse_args()
 
-    props = get_properties(args.party)
-
-    for t in args.topic:
-        Publisher(args.endpoint, args.rootCA, args.key, args.cert, client_id=args.clientID).report(t, props)
+    Publisher(
+        args.endpoint,
+        args.rootCA,
+        args.key,
+        args.cert,
+        clientID=args.clientID
+    ).report(TOPIC.format(args.source), get_properties(args.party))
