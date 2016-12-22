@@ -8,7 +8,7 @@ import os
 import ssl
 import paho.mqtt.client as mqtt
 from cloud_tools import Publisher
-from camera import Camera
+#from camera import Camera
 
 STORAGE_DIRECTORY = '/tmp'
 SNAP_FILENAME = 'snapshot.png'
@@ -76,7 +76,7 @@ if __name__ == "__main__":
     client.on_log = on_log
 
     client.tls_set(args.rootCA, certfile=args.cert, keyfile=args.key, cert_reqs=ssl.CERT_REQUIRED,
-                   tls_version=ssl.PROTOCOL_TLSv1_2)
+                   tls_version=ssl.PROTOCOL_SSLv23)
     client.connect(args.endpoint, MQTT_PORT, MQTT_KEEPALIVE)
 
     for t in args.topic:
