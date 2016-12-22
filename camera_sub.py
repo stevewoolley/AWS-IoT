@@ -19,34 +19,35 @@ MQTT_KEEPALIVE = 60
 
 
 def on_message(mqttc, obj, msg):
-    logger.error("on_message {} {} {}".format(msg.topic, msg.qos, msg.payload))
-    payload = json.loads(msg.payload)
+    logger.info("on_message {} {} {}".format(msg.topic, msg.qos, msg.payload))
+    # payload = json.loads(msg.payload)
     if camera.snap('/'.join((STORAGE_DIRECTORY, SNAP_FILENAME))):
         filename, file_extension = os.path.splitext(SNAP_FILENAME)
         f = "{}_{}{}".format(datetime.datetime.now().strftime(DATE_FORMAT), args.source, file_extension)
+        logger.info("on_message filename {}".format(f))
         Publisher(args.endpoint,
                   args.rootCA,
                   args.key,
                   args.cert,
                   clientID=args.clientID
                   ).report(t, {'last_snapshot': f})
-        util.copy_to_s3(camera.filename, args.bucket, f)
+        util.copy_to_s3(camera.filename, args.bucket, "{}{}".format(args.source,file_extension))
 
 
-def on_connect(mqttc, obj, flags, rc):
-    logger.error("on_connect {}".format(rc))
-
-
-def on_subscribe(mqttc, obj, mid, granted_qos):
-    logger.error("on_subscribe {} {}".format(mid, granted_qos))
-
-
-def on_publish(mqttc, obj, mid):
-    logger.error("on_publish {}".format(mid))
-
-
-def on_log(mqttc, obj, level, string):
-    logger.error("on_log {}".format(string))
+# def on_connect(mqttc, obj, flags, rc):
+#     logger.info("on_connect {}".format(rc))
+#
+#
+# def on_subscribe(mqttc, obj, mid, granted_qos):
+#     logger.info("on_subscribe {} {}".format(mid, granted_qos))
+#
+#
+# def on_publish(mqttc, obj, mid):
+#     logger.info("on_publish {}".format(mid))
+#
+#
+# def on_log(mqttc, obj, level, string):
+#     logger.info("on_log {}".format(string))
 
 
 if __name__ == "__main__":
@@ -78,11 +79,11 @@ if __name__ == "__main__":
     client = mqtt.Client()
 
     # setup callbacks
-    client.on_connect = on_connect
     client.on_message = on_message
-    client.on_publish = on_publish
-    client.on_subscribe = on_subscribe
-    client.on_log = on_log
+    # client.on_connect = on_connect
+    # client.on_publish = on_publish
+    # client.on_subscribe = on_subscribe
+    # client.on_log = on_log
 
     client.tls_set(args.rootCA,
                    certfile=args.cert,
