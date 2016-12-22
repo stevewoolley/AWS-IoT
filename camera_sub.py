@@ -66,6 +66,7 @@ if __name__ == "__main__":
     parser.add_argument("-b", "--bucket", help="S3 snapshot bucket", default=None)
     args = parser.parse_args()
 
+    logging.basicConfig()
     logger = logging.getLogger(__name__)
 
     camera = Camera(rotation=args.rotation,
