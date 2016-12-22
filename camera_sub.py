@@ -19,7 +19,7 @@ MQTT_KEEPALIVE = 60
 
 
 def on_message(mqttc, obj, msg):
-    print(msg.topic + " " + str(msg.qos) + " " + str(msg.payload))
+    logger.error("on_message {} {} {}".format(msg.topic, msg.qos, msg.payload))
     payload = json.loads(msg.payload)
     if camera.snap('/'.join((STORAGE_DIRECTORY, SNAP_FILENAME))):
         filename, file_extension = os.path.splitext(SNAP_FILENAME)
@@ -34,15 +34,19 @@ def on_message(mqttc, obj, msg):
 
 
 def on_connect(mqttc, obj, flags, rc):
-    print "Connected to %s:%s" % (mqttc._host, mqttc._port)
+    logger.error("on_connect {}".format(rc))
 
 
 def on_subscribe(mqttc, obj, mid, granted_qos):
-    print("Subscribed: " + str(mid) + " " + str(granted_qos))
+    logger.error("on_subscribe {} {}".format(mid, granted_qos))
 
 
 def on_publish(mqttc, obj, mid):
-    print("mid: " + str(mid))
+    logger.error("on_publish {}".format(mid))
+
+
+def on_log(mqttc, obj, level, string):
+    logger.error("on_log {}".format(string))
 
 
 if __name__ == "__main__":
@@ -77,6 +81,7 @@ if __name__ == "__main__":
     client.on_message = on_message
     client.on_publish = on_publish
     client.on_subscribe = on_subscribe
+    client.on_log = on_log
 
     client.tls_set(args.rootCA,
                    certfile=args.cert,
