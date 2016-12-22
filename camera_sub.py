@@ -24,7 +24,7 @@ def on_message(mqttc, obj, msg):
     if camera.snap('/'.join((STORAGE_DIRECTORY, SNAP_FILENAME))):
         filename, file_extension = os.path.splitext(SNAP_FILENAME)
         f = "{}_{}{}".format(datetime.datetime.now().strftime(DATE_FORMAT), args.source, file_extension)
-        logger.info("on_message filename {}".format(f))
+        logger.info("on_message snap {}".format(f))
         Publisher(args.endpoint,
                   args.rootCA,
                   args.key,
