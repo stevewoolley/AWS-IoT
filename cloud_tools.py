@@ -19,29 +19,37 @@ class Publisher:
                  port=8883,
                  keepalive=60,
                  clientID=None,
-                 tls_version=ssl.PROTOCOL_SSLv23
+                 tls_version=ssl.PROTOCOL_SSLv23,
+                 log_level=logging.WARNING
                  ):
         self._endpoint = endpoint
         self._port = port
         self._keepalive = keepalive
         self._clientID = clientID
         self._tls_version = tls_version
-        self._log = logging.getLogger(__name__)
-        self._log.debug("publisher init")
+        logging.basicConfig(level=log_level)
+        self._logger = logging.getLogger(__name__)
+        self._logger.debug("init")
         self._client = mqtt.Client()
         self._client.tls_set(root_ca, certfile=cert, keyfile=key, cert_reqs=ssl.CERT_REQUIRED,
                              tls_version=self._tls_version, ciphers=None)
+        self._client.on_connect = self.on_connect
+        self._logger.debug("client init")
+        self._connect()
+
+    def on_connect(self, mqttc, obj, flags, rc):
+        self._logger.debug("on_connect {}".format(rc))
 
     def _connect(self):
-        self._log.debug("publisher connect")
         self._client.connect(self._endpoint, self._port, self._keepalive)
-        self._client.loop_start()
 
     def publish(self, topic, payload, qos=0, retain=False):
-        self._connect()
-        self._log.debug("publish {} {}".format(topic, payload))
-        response = self._client.publish(topic, payload=json.dumps(payload), qos=qos)
-        response.wait_for_publish()
+        self._client.loop_start()
+        self._logger.debug("publish {} {}".format(topic, payload))
+        (result, mid) = self._client.publish(topic, payload=json.dumps(payload), qos=qos)
+        self._logger.debug("publish {} {}".format(result, mid))
+        self._client.loop_stop()
+        self._client.disconnect()
 
     def report(self, topic, payload, state=REPORTED, qos=0, retain=False):
         self.publish(topic, {self.STATE: {state: payload}}, qos=qos, retain=retain)

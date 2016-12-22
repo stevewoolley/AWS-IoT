@@ -5,6 +5,7 @@ import util
 import psutil
 import datetime
 import platform
+import logging
 from cloud_tools import Publisher
 
 DT_FORMAT = '%Y/%m/%d %-I:%M %p %Z'
@@ -25,6 +26,7 @@ def get_ip(i):
                 return address
         return None
     except Exception as ex:
+        logging.warning(ex.message)
         return None
 
 
@@ -43,12 +45,11 @@ def get_properties(group):
     if group is None or group == 'seldom':
         if platform.system() == 'Darwin':  # mac
             properties["release"] = platform.mac_ver()[0]
-            properties["wlan0IpAddress"] = get_ip('wlan0')
-            properties["eth0IpAddress"] = get_ip('eth0')
         elif platform.machine().startswith('arm') and platform.system() == 'Linux':  # raspberry pi
             properties["distribution"] = "{} {}".format(platform.dist()[0], platform.dist()[1])
-            properties["en0IpAddress"] = get_ip('en0')
-            properties["en1IpAddress"] = get_ip('en1')
+        properties["en0IpAddress"] = get_ip('en0')
+        properties["en1IpAddress"] = get_ip('en1')
+        properties["en2IpAddress"] = get_ip('en2')
         properties["totalDiskSpaceRoot"] = int(disk.total / (1024 * 1024))
         properties["hostname"] = platform.node()
         properties["machine"] = platform.machine()
@@ -69,12 +70,18 @@ if __name__ == "__main__":
     parser.add_argument("-i", "--clientID", help="Client ID", default=None)
     parser.add_argument("-s", "--source", help="Source", default=platform.node().split('.')[0])
     parser.add_argument("-p", "--party", help="Monitor party", default=None)
+    parser.add_argument("-l", "--log_level", help="Log Level", default=logging.DEBUG)
     args = parser.parse_args()
+
+    logging.basicConfig(level=args.log_level)
+    logger = logging.getLogger(__name__)
+    logging.debug("monitor init")
 
     Publisher(
         args.endpoint,
         args.rootCA,
         args.key,
         args.cert,
-        clientID=args.clientID
+        clientID=args.clientID,
+        log_level=args.log_level
     ).report(TOPIC.format(args.source), get_properties(args.party))
