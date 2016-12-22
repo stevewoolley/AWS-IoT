@@ -2,7 +2,7 @@ import json
 import boto3
 import ssl
 import logging
-import paho.mqtt.publish as publish
+import paho.mqtt.client as mqtt
 
 
 class Publisher:
@@ -23,27 +23,25 @@ class Publisher:
                  ):
         self._endpoint = endpoint
         self._port = port
-        self._keep_alive = keepalive
+        self._keepalive = keepalive
         self._clientID = clientID
+        self._tls_version = tls_version
         self._log = logging.getLogger(__name__)
-        self._tls_dict = {'ca_certs': root_ca,
-                          'certfile': cert,
-                          'keyfile': key,
-                          'tls_version': tls_version}
         self._log.debug("publisher init")
+        self._client = mqtt.Client()
+        self._client.tls_set(root_ca, certfile=cert, keyfile=key, cert_reqs=ssl.CERT_REQUIRED,
+                             tls_version=self._tls_version, ciphers=None)
+
+    def _connect(self):
+        self._log.debug("publisher connect")
+        self._client.connect(self._endpoint, self._port, self._keepalive)
+        self._client.loop_start()
 
     def publish(self, topic, payload, qos=0, retain=False):
+        self._connect()
         self._log.debug("publish {} {}".format(topic, payload))
-        publish.single(topic,
-                       payload=json.dumps(payload),
-                       qos=qos,
-                       retain=retain,
-                       hostname=self._endpoint,
-                       port=self._port,
-                       client_id=self._clientID,
-                       keepalive=self._keep_alive,
-                       tls=self._tls_dict
-                       )
+        response = self._client.publish(topic, payload=json.dumps(payload), qos=qos)
+        response.wait_for_publish()
 
     def report(self, topic, payload, state=REPORTED, qos=0, retain=False):
         self.publish(topic, {self.STATE: {state: payload}}, qos=qos, retain=retain)
