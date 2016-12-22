@@ -6,7 +6,6 @@ import datetime
 import ssl
 import logging
 import paho.mqtt.client as mqtt
-from cloud_tools import Publisher
 from camera import Camera
 
 STORAGE_DIRECTORY = '/tmp'
@@ -26,12 +25,12 @@ def on_message(mqttc, obj, msg):
         filename='/'.join((STORAGE_DIRECTORY, remote_filename)),
         annotate=util.now_string()
     ):
-        Publisher(args.endpoint,
-                  args.rootCA,
-                  args.key,
-                  args.cert,
-                  clientID=args.clientID
-                  ).report(t, {'last_snapshot': remote_filename})
+        # Publisher(args.endpoint,
+        #           args.rootCA,
+        #           args.key,
+        #           args.cert,
+        #           clientID=args.clientID
+        #           ).report(t, {'last_snapshot': remote_filename})
         util.copy_to_s3('/'.join((STORAGE_DIRECTORY, remote_filename)), args.bucket, local_filename)
 
 
