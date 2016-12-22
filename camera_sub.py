@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import argparse
-import json
 import util
 import datetime
 import os
