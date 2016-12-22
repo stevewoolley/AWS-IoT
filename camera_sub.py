@@ -39,11 +39,11 @@ def on_connect(mqttc, obj, flags, rc):
 
 
 def on_subscribe(mqttc, obj, mid, granted_qos):
-    logger.info("on_subscribe {} {}".format(mid, granted_qos))
+    logger.error("on_subscribe {} {}".format(mid, granted_qos))
 
 
 def on_publish(mqttc, obj, mid):
-    logger.info("on_publish {}".format(mid))
+    logger.error("on_publish {}".format(mid))
 
 
 def on_log(mqttc, obj, level, string):
