@@ -19,14 +19,17 @@ def get_rpi_cpu_temperature():
 
 
 def get_ip(i):
-    try:
-        for k in psutil.net_if_addrs()[i]:
-            family, address, netmask, broadcast, ptp = k
-            if family == 2:
-                return address
-        return None
-    except Exception as ex:
-        logging.debug(ex.message)
+    if i in psutil.net_if_addrs():
+        try:
+            for k in psutil.net_if_addrs()[i]:
+                family, address, netmask, broadcast, ptp = k
+                if family == 2:
+                    return address
+            return None
+        except Exception as ex:
+            logging.debug(ex.message)
+            return None
+    else:
         return None
 
 
@@ -47,13 +50,8 @@ def get_properties(group):
             properties["release"] = platform.mac_ver()[0]
         elif platform.machine().startswith('arm') and platform.system() == 'Linux':  # raspberry pi
             properties["distribution"] = "{} {}".format(platform.dist()[0], platform.dist()[1])
-        properties["en0IpAddress"] = get_ip('en0')
-        properties["en1IpAddress"] = get_ip('en1')
-        properties["en2IpAddress"] = get_ip('en2')
-        properties["wlan0IpAddress"] = get_ip('wlan0')
-        properties["wlan1IpAddress"] = get_ip('wlan1')
-        properties["eth0IpAddress"] = get_ip('eth0')
-        properties["eth1IpAddress"] = get_ip('eth1')
+        for i in ['en0', 'en1', 'en2', 'en3', 'wlan0', 'wlan1', 'eth0', 'eth1']:
+            properties["{}IpAddress".format(i)] = get_ip(i)
         properties["totalDiskSpaceRoot"] = int(disk.total / (1024 * 1024))
         properties["hostname"] = platform.node()
         properties["machine"] = platform.machine()
