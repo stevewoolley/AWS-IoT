@@ -22,6 +22,7 @@ def get_ip(i):
     try:
         for k in psutil.net_if_addrs()[i]:
             family, address, netmask, broadcast, ptp = k
+            logging.debug(k)
             if family == 2:
                 return address
         return None
