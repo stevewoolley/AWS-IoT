@@ -74,7 +74,7 @@ if __name__ == "__main__":
     parser.add_argument("-i", "--clientID", help="Client ID", default=None)
     parser.add_argument("-s", "--source", help="Source", default=platform.node().split('.')[0])
     parser.add_argument("-p", "--party", help="Monitor party", default=None)
-    parser.add_argument("-l", "--log_level", help="Log Level", default=logging.DEBUG)
+    parser.add_argument("-l", "--log_level", help="Log Level", default=logging.WARNING)
     args = parser.parse_args()
 
     logging.basicConfig(level=args.log_level)
