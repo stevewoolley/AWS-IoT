@@ -20,15 +20,13 @@ def get_rpi_cpu_temperature():
 
 def get_ip(i):
     try:
-        logging.debug(psutil.net_if_addrs())
         for k in psutil.net_if_addrs()[i]:
             family, address, netmask, broadcast, ptp = k
-            logging.debug(k)
             if family == 2:
                 return address
         return None
     except Exception as ex:
-        logging.warning(ex.message)
+        logging.debug(ex.message)
         return None
 
 
@@ -52,6 +50,10 @@ def get_properties(group):
         properties["en0IpAddress"] = get_ip('en0')
         properties["en1IpAddress"] = get_ip('en1')
         properties["en2IpAddress"] = get_ip('en2')
+        properties["wlan0IpAddress"] = get_ip('wlan0')
+        properties["wlan1IpAddress"] = get_ip('wlan1')
+        properties["eth0IpAddress"] = get_ip('eth0')
+        properties["eth1IpAddress"] = get_ip('eth1')
         properties["totalDiskSpaceRoot"] = int(disk.total / (1024 * 1024))
         properties["hostname"] = platform.node()
         properties["machine"] = platform.machine()
