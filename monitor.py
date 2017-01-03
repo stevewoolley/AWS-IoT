@@ -20,6 +20,7 @@ def get_rpi_cpu_temperature():
 
 def get_ip(i):
     try:
+        logging.debug(psutil.net_if_addrs())
         for k in psutil.net_if_addrs()[i]:
             family, address, netmask, broadcast, ptp = k
             logging.debug(k)
