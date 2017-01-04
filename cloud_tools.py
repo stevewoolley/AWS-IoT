@@ -2,7 +2,7 @@ import json
 import boto3
 import ssl
 import logging
-import paho.mqtt.client as mqtt
+import paho.mqtt.publish as publish
 import threading
 import time
 from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
@@ -32,29 +32,13 @@ class Publisher:
         self._tls_version = tls_version
         logging.basicConfig(level=log_level)
         self._logger = logging.getLogger(__name__)
-        self._logger.debug("init")
-        self._client = mqtt.Client()
-        self._client.tls_set(root_ca, certfile=cert, keyfile=key, cert_reqs=ssl.CERT_REQUIRED,
-                             tls_version=self._tls_version, ciphers=None)
-        self._client.on_connect = self.on_connect
-        self._logger.debug("client init")
-        self._connect()
-
-    def on_connect(self, mqttc, obj, flags, rc):
-        self._logger.debug("on_connect {}".format(rc))
-
-    def _connect(self):
-        self._client.connect(self._endpoint, self._port, self._keepalive)
+        self._tls = {'ca_certs': root_ca, 'certfile': cert, 'keyfile': key, 'tls_version': tls_version, 'ciphers': None}
 
     def publish(self, topic, payload, qos=0, retain=False):
-        self._client.loop_start()
-        self._logger.debug("publish {} {}".format(topic, payload))
-        (result, mid) = self._client.publish(topic, payload=json.dumps(payload), qos=qos)
-        self._logger.debug("publish {} {}".format(result, mid))
-        self._client.loop_stop()
-        self._client.disconnect()
+        publish.single(topic, payload=json.dumps(payload), qos=qos, retain=False, hostname=self._endpoint, port=self._port,
+                       client_id=self._clientID, keepalive=self._keepalive, auth=None, tls=self._tls)
 
-    def report(self, topic, payload, state=REPORTED, qos=0, retain=False):
+    def state_report(self, topic, payload, state=REPORTED, qos=0, retain=False):
         self.publish(topic, {self.STATE: {state: payload}}, qos=qos, retain=retain)
 
     def topic_report(self, topic, payload, qos=0, retain=False):

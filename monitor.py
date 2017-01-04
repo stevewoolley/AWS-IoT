@@ -88,4 +88,4 @@ if __name__ == "__main__":
         args.cert,
         clientID=args.clientID,
         log_level=args.log_level
-    ).report(THING_SHADOW.format(args.source), get_properties(args.party))
+    ).state_report(THING_SHADOW.format(args.source), get_properties(args.party))

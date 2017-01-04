@@ -64,7 +64,7 @@ try:
                 args.cert,
                 clientID=args.clientID,
                 log_level=args.log_level
-            ).report(THING_SHADOW.format(args.name), {args.source: current_state})
+            ).state_report(THING_SHADOW.format(args.name), {args.source: current_state})
             # publish to any additional topics
             if args.topic is not None:
                 for t in args.topic:
