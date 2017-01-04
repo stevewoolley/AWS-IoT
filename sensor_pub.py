@@ -63,6 +63,9 @@ try:
             if args.topic is not None:
                 for t in args.topic:
                     logger.info("sensor_pub topic {} {} {}".format(t, args.source, status))
+                    count = 2
+                    if current_state == Sensor.LOW:
+                        count = 1
                     Publisher(
                         args.endpoint,
                         args.rootCA,
@@ -70,7 +73,7 @@ try:
                         args.cert,
                         clientID=args.clientID,
                         log_level=args.log_level
-                    ).topic_report(t, {args.source: status})
+                    ).topic_report(t, {args.source: status, 'alert_count': count})
         time.sleep(0.2)
 except (KeyboardInterrupt, SystemExit):
     sys.exit()
