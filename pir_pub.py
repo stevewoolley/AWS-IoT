@@ -8,7 +8,7 @@ import logging
 from cloud_tools import Publisher
 from pir import PIR
 
-TOPIC = "$aws/things/{}/shadow/update"
+THING_SHADOW = "$aws/things/{}/shadow/update"
 
 # parse arguments
 parser = argparse.ArgumentParser()
@@ -64,7 +64,7 @@ try:
                 args.cert,
                 clientID=args.clientID,
                 log_level=args.log_level
-            ).report(TOPIC.format(args.name), {args.source: current_state})
+            ).report(THING_SHADOW.format(args.name), {args.source: current_state})
             # publish to any additional topics
             if args.topic is not None:
                 for t in args.topic:
@@ -75,7 +75,7 @@ try:
                         args.cert,
                         clientID=args.clientID,
                         log_level=args.log_level
-                    ).report(t, {args.source: current_state})
+                    ).topic_report(t, {args.source: current_state})
         # let's rest
         time.sleep(sleep)
 except (KeyboardInterrupt, SystemExit):

@@ -12,7 +12,7 @@ DHT11 = 11
 DHT22 = 22
 AM2302 = 22
 SENSORS = [DHT11, DHT22, AM2302]
-TOPIC = "$aws/things/{}/shadow/update"
+THING_SHADOW = "$aws/things/{}/shadow/update"
 
 
 def read_retry(sensor, pin, retries=15, delay_seconds=2):
@@ -57,4 +57,4 @@ if __name__ == "__main__":
         args.cert,
         clientID=args.clientID,
         log_level=args.log_level
-    ).report(TOPIC.format(args.source), {"temperature": temperature, "humidity": humidity})
+    ).report(THING_SHADOW.format(args.source), {"temperature": temperature, "humidity": humidity})

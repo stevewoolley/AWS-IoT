@@ -9,7 +9,7 @@ import logging
 from cloud_tools import Publisher
 
 DT_FORMAT = '%Y/%m/%d %-I:%M %p %Z'
-TOPIC = "$aws/things/{}/shadow/update"
+THING_SHADOW = "$aws/things/{}/shadow/update"
 NET_INTERFACES = ['en0', 'en1', 'en2', 'en3', 'wlan0', 'wlan1', 'eth0', 'eth1']
 
 
@@ -88,4 +88,4 @@ if __name__ == "__main__":
         args.cert,
         clientID=args.clientID,
         log_level=args.log_level
-    ).report(TOPIC.format(args.source), get_properties(args.party))
+    ).report(THING_SHADOW.format(args.source), get_properties(args.party))

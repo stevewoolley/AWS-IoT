@@ -57,6 +57,9 @@ class Publisher:
     def report(self, topic, payload, state=REPORTED, qos=0, retain=False):
         self.publish(topic, {self.STATE: {state: payload}}, qos=qos, retain=retain)
 
+    def topic_report(self, topic, payload, qos=0, retain=False):
+        self.publish(topic, payload, qos=qos, retain=retain)
+
 
 class Subscriber(threading.Thread):
     """A threaded Subscriber object"""

@@ -8,7 +8,7 @@ import platform
 from cloud_tools import Publisher
 from sensor import Sensor
 
-TOPIC = "$aws/things/{}/shadow/update"
+THING_SHADOW = "$aws/things/{}/shadow/update"
 
 # parse arguments
 parser = argparse.ArgumentParser()
@@ -25,7 +25,6 @@ parser.add_argument("-t", "--topic", help="MQTT topic(s)", nargs='+', required=F
 parser.add_argument("-p", "--pin", help="gpio pin (BCM)", type=int, required=True)
 parser.add_argument("-y", "--high_value", help="high value", default=Sensor.HIGH)
 parser.add_argument("-z", "--low_value", help="low value", default=Sensor.LOW)
-parser.add_argument("-x", "--alert_count", help="number of alerts", type=int, default=2)
 
 parser.add_argument("-l", "--log_level", help="Log Level", default=logging.WARNING)
 
@@ -59,7 +58,7 @@ try:
                 args.cert,
                 clientID=args.clientID,
                 log_level=args.log_level
-            ).report(TOPIC.format(args.name), {args.source: status})
+            ).report(THING_SHADOW.format(args.name), {args.source: status})
             # publish to any additional topics
             if args.topic is not None:
                 for t in args.topic:
@@ -71,7 +70,7 @@ try:
                         args.cert,
                         clientID=args.clientID,
                         log_level=args.log_level
-                    ).report(t, {args.source: status})
+                    ).topic_report(t, {args.source: status})
         time.sleep(0.2)
 except (KeyboardInterrupt, SystemExit):
     sys.exit()
