@@ -3,6 +3,9 @@ import boto3
 import ssl
 import logging
 import paho.mqtt.client as mqtt
+import threading
+import time
+from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
 
 
 class Publisher:
@@ -53,6 +56,40 @@ class Publisher:
 
     def report(self, topic, payload, state=REPORTED, qos=0, retain=False):
         self.publish(topic, {self.STATE: {state: payload}}, qos=qos, retain=retain)
+
+
+class Subscriber(threading.Thread):
+    """A threaded Subscriber object"""
+
+    def __init__(self, endpoint, root_ca, key, cert, client_id=''):
+        threading.Thread.__init__(self)
+        self.endpoint = endpoint
+        self.client_id = client_id
+        self.root_ca = root_ca
+        self.key = key
+        self.cert = cert
+        self._client = None
+        self.finish = False
+        self.daemon = True
+        self.connected = False
+
+    def connect(self):
+        self._client = AWSIoTMQTTClient(self.client_id)
+        self._client.configureEndpoint(self.endpoint, 8883)
+        self._client.configureCredentials(self.root_ca, self.key, self.cert)
+        self._client.configureOfflinePublishQueueing(-1)  # Infinite offline Publish queueing
+        self._client.configureConnectDisconnectTimeout(10)  # 10 sec
+        self._client.configureMQTTOperationTimeout(5)  # 5 sec
+        self.connected = self._client.connect()
+
+    def subscribe(self, topic, callback, qos=1):
+        if not self.connected:
+            self.connect()
+        self._client.subscribe(topic, qos, callback)
+
+    def run(self):
+        while not self.finish:
+            time.sleep(0.001)
 
 
 class Reporter:

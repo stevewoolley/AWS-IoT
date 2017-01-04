@@ -10,6 +10,7 @@ from cloud_tools import Publisher
 
 DT_FORMAT = '%Y/%m/%d %-I:%M %p %Z'
 TOPIC = "$aws/things/{}/shadow/update"
+NET_INTERFACES = ['en0', 'en1', 'en2', 'en3', 'wlan0', 'wlan1', 'eth0', 'eth1']
 
 
 def get_rpi_cpu_temperature():
@@ -50,7 +51,7 @@ def get_properties(group):
             properties["release"] = platform.mac_ver()[0]
         elif platform.machine().startswith('arm') and platform.system() == 'Linux':  # raspberry pi
             properties["distribution"] = "{} {}".format(platform.dist()[0], platform.dist()[1])
-        for i in ['en0', 'en1', 'en2', 'en3', 'wlan0', 'wlan1', 'eth0', 'eth1']:
+        for i in NET_INTERFACES:
             properties["{}IpAddress".format(i)] = get_ip(i)
         properties["totalDiskSpaceRoot"] = int(disk.total / (1024 * 1024))
         properties["hostname"] = platform.node()
@@ -70,14 +71,15 @@ if __name__ == "__main__":
     parser.add_argument("-c", "--cert", help="Certificate file path", required=True)
     parser.add_argument("-k", "--key", help="Private key file path", required=True)
     parser.add_argument("-i", "--clientID", help="Client ID", default=None)
+
     parser.add_argument("-s", "--source", help="Source", default=platform.node().split('.')[0])
     parser.add_argument("-p", "--party", help="Monitor party", default=None)
+
     parser.add_argument("-l", "--log_level", help="Log Level", default=logging.WARNING)
     args = parser.parse_args()
 
     logging.basicConfig(level=args.log_level)
     logger = logging.getLogger(__name__)
-    logging.debug("monitor init")
 
     Publisher(
         args.endpoint,

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import argparse
-import util
+import logging
 from gpiozero import LED
 import sys
 import time
@@ -9,8 +9,8 @@ import yaml
 from cloud_tools import Subscriber
 
 
-def my_callback(client, userdata, message):
-    logger.info('led_sub {} {}'.format(message.topic, message.payload))
+def my_callback(client, userdata, msg):
+    logger.debug("led_sub {} {} {}".format(msg.topic, msg.qos, msg.payload))
     led.flash(2)
 
 
@@ -23,13 +23,15 @@ if __name__ == "__main__":
     parser.add_argument("-r", "--rootCA", help="Root CA file path", required=True)
     parser.add_argument("-c", "--cert", help="Certificate file path")
     parser.add_argument("-k", "--key", help="Private key file path")
-    parser.add_argument("-t", "--topic", help="MQTT topic(s)", nargs='+', required=False)
+
     parser.add_argument("-p", "--pin", help="gpio pin (using BCM numbering)", type=int, required=True)
+
+    parser.add_argument("-t", "--topic", help="MQTT topic(s)", nargs='+', required=False)
     parser.add_argument("-f", "--input_file", help="input file (yaml format)", default=None)
     args = parser.parse_args()
 
-    # logging setup
-    logger = util.set_logger(level=args.log_level)
+    logging.basicConfig(level=args.log_level)
+    logger = logging.getLogger(__name__)
 
     led = LED(args.pin)
     led.start()
@@ -41,11 +43,12 @@ if __name__ == "__main__":
         f = open(args.input_file)
         topics = yaml.safe_load(f)
         for t in topics[args.endpoint]:
-            print("Subscribing to {}".format(t))
+            logger.info("Subscribing to {}".format(t))
             subscriber.subscribe(t, my_callback)
             time.sleep(2)  # pause between subscribes (maybe not needed?)
 
     for t in args.topic:
+        logger.info("Subscribing to {}".format(t))
         subscriber.subscribe(t, my_callback)
         time.sleep(2)  # pause
 

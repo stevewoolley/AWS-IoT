@@ -6,10 +6,12 @@ import sys
 from cloud_tools import Subscriber
 import yaml
 import json
+import logging
 from pync import Notifier
 
 
 def my_callback(client, userdata, message):
+    logger.debug("relay_sub {} {} {}".format(message.topic, message.qos, message.payload))
     msg = json.loads(message.payload)
     if 'source' in msg:
         Notifier.notify(msg['message'], title=msg['source'])
@@ -26,9 +28,16 @@ if __name__ == "__main__":
     parser.add_argument("-r", "--rootCA", help="Root CA file path", required=True)
     parser.add_argument("-c", "--cert", help="Certificate file path")
     parser.add_argument("-k", "--key", help="Private key file path")
+
     parser.add_argument("-t", "--topic", help="MQTT topic(s)", nargs='+', required=False)
     parser.add_argument("-f", "--input_file", help="input file (yaml format)", default=None)
+
+    parser.add_argument("-l", "--log_level", help="Log Level", default=logging.WARNING)
+
     args = parser.parse_args()
+
+    logging.basicConfig(level=args.log_level)
+    logger = logging.getLogger(__name__)
 
     subscriber = Subscriber(args.endpoint, args.rootCA, args.key, args.cert, args.clientID)
 
@@ -37,13 +46,13 @@ if __name__ == "__main__":
         f = open(args.input_file)
         topics = yaml.safe_load(f)
         for t in topics[args.endpoint]:
-            print("Subscribing to {}".format(t))
+            logger.info("Subscribing to {}".format(t))
             subscriber.subscribe(t, my_callback)
             time.sleep(2)  # pause between subscribes (maybe not needed?)
 
     if args.topic is not None:
         for t in args.topic:
-            print("Subscribing to {}".format(t))
+            logger.info("Subscribing to {}".format(t))
             subscriber.subscribe(t, my_callback)
             time.sleep(2)  # pause between subscribes (maybe not needed?)
 

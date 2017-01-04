@@ -1,16 +1,15 @@
 #!/usr/bin/env python
 import argparse
-import util
 import time
 import sys
-import json
 import yaml
+import logging
 from cloud_tools import Subscriber
 from relay import Relay
 
 
-def my_callback(client, userdata, message):
-    msg = json.loads(message.payload)
+def my_callback(client, userdata, msg):
+    logger.debug("relay_sub {} {} {}".format(msg.topic, msg.qos, msg.payload))
     relay.pulse()
 
 
@@ -23,10 +22,18 @@ if __name__ == "__main__":
     parser.add_argument("-r", "--rootCA", help="Root CA file path", required=True)
     parser.add_argument("-c", "--cert", help="Certificate file path")
     parser.add_argument("-k", "--key", help="Private key file path")
-    parser.add_argument("-t", "--topic", help="MQTT topic(s)", nargs='+', required=True)
+
     parser.add_argument("-p", "--pin", help="gpio pin (using BCM numbering)", type=int, required=True)
+
+    parser.add_argument("-t", "--topic", help="MQTT topic(s)", nargs='+', required=True)
     parser.add_argument("-f", "--input_file", help="input file (yaml format)", default=None)
+
+    parser.add_argument("-l", "--log_level", help="Log Level", default=logging.WARNING)
+
     args = parser.parse_args()
+
+    logging.basicConfig(level=args.log_level)
+    logger = logging.getLogger(__name__)
 
     relay = Relay(args.pin)
     relay.start()
@@ -38,12 +45,12 @@ if __name__ == "__main__":
         f = open(args.input_file)
         topics = yaml.safe_load(f)
         for t in topics[args.endpoint]:
-            print("Subscribing to {}".format(t))
+            logger.info("Subscribing to {}".format(t))
             subscriber.subscribe(t, my_callback)
             time.sleep(2)  # pause between subscribes (maybe not needed?)
 
     for t in args.topic:
-        print("Subscribing to {}".format(t))
+        logger.info("Subscribing to {}".format(t))
         subscriber.subscribe(t, my_callback)
         time.sleep(2)  # pause
 

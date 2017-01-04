@@ -3,51 +3,25 @@
 import argparse
 import util
 import datetime
-import ssl
+import yaml
 import logging
-import paho.mqtt.client as mqtt
+import time
+import sys
+from cloud_tools import Subscriber
 from camera import Camera
 
 STORAGE_DIRECTORY = '/tmp'
 IMAGE_FILE_EXT = 'png'
 DATE_FORMAT = '%Y_%m_%d_%H_%M_%S'
-MQTT_PORT = 8883
-MQTT_KEEPALIVE = 60
 
 
-def on_message(mqttc, obj, msg):
-    logger.error("on_message {} {} {}".format(msg.topic, msg.qos, msg.payload))
-    # payload = json.loads(msg.payload)
+def my_callback(mqttc, obj, msg):
+    logger.debug("camera_sub {} {} {}".format(msg.topic, msg.qos, msg.payload))
     local_filename = "{}.{}".format(args.source, IMAGE_FILE_EXT)
     remote_filename = "{}_{}.{}".format(datetime.datetime.now().strftime(DATE_FORMAT), args.source, IMAGE_FILE_EXT)
-    logger.error("on_message snap {} {}".format(local_filename, remote_filename))
-    if camera.snap(
-        filename='/'.join((STORAGE_DIRECTORY, remote_filename)),
-        annotate=util.now_string()
-    ):
-        # Publisher(args.endpoint,
-        #           args.rootCA,
-        #           args.key,
-        #           args.cert,
-        #           clientID=args.clientID
-        #           ).report(t, {'last_snapshot': remote_filename})
+    logger.debug("camera_sub snap {} {}".format(local_filename, remote_filename))
+    if camera.snap(filename='/'.join((STORAGE_DIRECTORY, remote_filename)), annotate=util.now_string()):
         util.copy_to_s3('/'.join((STORAGE_DIRECTORY, remote_filename)), args.bucket, local_filename)
-
-
-def on_connect(mqttc, obj, flags, rc):
-    logger.error("on_connect {}".format(rc))
-
-
-def on_subscribe(mqttc, obj, mid, granted_qos):
-    logger.error("on_subscribe {} {}".format(mid, granted_qos))
-
-
-def on_publish(mqttc, obj, mid):
-    logger.error("on_publish {}".format(mid))
-
-
-def on_log(mqttc, obj, level, string):
-    logger.error("on_log {}".format(string))
 
 
 if __name__ == "__main__":
@@ -59,15 +33,22 @@ if __name__ == "__main__":
     parser.add_argument("-c", "--cert", help="Certificate file path")
     parser.add_argument("-k", "--key", help="Private key file path")
     parser.add_argument("-i", "--clientID", help="Client ID", default='')
-    parser.add_argument("-t", "--topic", help="MQTT topic(s)", nargs='+', required=True)
+
     parser.add_argument("-x", "--horizontal_resolution", help="horizontal_resolution", type=int, default=640)
     parser.add_argument("-y", "--vertical_resolution", help="vertical resolution", type=int, default=480)
     parser.add_argument("-z", "--rotation", help="image rotation", type=int, default=0)
+
     parser.add_argument("-s", "--source", help="Source", required=True)
     parser.add_argument("-b", "--bucket", help="S3 snapshot bucket", default=None)
+
+    parser.add_argument("-t", "--topic", help="MQTT topic(s)", nargs='+', required=True)
+    parser.add_argument("-f", "--input_file", help="input file (yaml format)", default=None)
+
+    parser.add_argument("-l", "--log_level", help="Log Level", default=logging.WARNING)
+
     args = parser.parse_args()
 
-    logging.basicConfig()
+    logging.basicConfig(level=args.log_level)
     logger = logging.getLogger(__name__)
 
     camera = Camera(rotation=args.rotation,
@@ -75,27 +56,26 @@ if __name__ == "__main__":
                     vertical_resolution=args.vertical_resolution
                     )
 
-    # client connect
-    client = mqtt.Client()
+    subscriber = Subscriber(args.endpoint, args.rootCA, args.key, args.cert, args.clientID)
 
-    # setup callbacks
-    client.on_message = on_message
-    client.on_connect = on_connect
-    client.on_publish = on_publish
-    client.on_subscribe = on_subscribe
-    client.on_log = on_log
-
-    client.tls_set(args.rootCA,
-                   certfile=args.cert,
-                   keyfile=args.key,
-                   cert_reqs=ssl.CERT_REQUIRED,
-                   tls_version=ssl.PROTOCOL_SSLv23
-                   )
-
-    client.connect(args.endpoint, MQTT_PORT, MQTT_KEEPALIVE)
+    # Load configuration file
+    if args.input_file is not None:
+        f = open(args.input_file)
+        topics = yaml.safe_load(f)
+        for t in topics[args.endpoint]:
+            logger.info("Subscribing to {}".format(t))
+            subscriber.subscribe(t, my_callback)
+            time.sleep(2)  # pause between subscribes (maybe not needed?)
 
     for t in args.topic:
-        client.subscribe(t, 0)
+        logger.info("Subscribing to {}".format(t))
+        subscriber.subscribe(t, my_callback)
+        time.sleep(2)  # pause
 
-    # loop forever
-    client.loop_forever()
+    # Loop forever
+    try:
+        while True:
+            time.sleep(0.2)  # sleep needed because CPU race
+            pass
+    except (KeyboardInterrupt, SystemExit):
+        sys.exit()
