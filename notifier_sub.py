@@ -16,8 +16,7 @@ MESSAGE = 'message'
 
 def my_callback(client, userdata, message):
     msg = json.loads(message.payload)
-    logger.error("notifier_sub {} {} {} {}".format(message.topic, message.qos, message.payload, msg))
-    logger.error("{}".format(config[TOPICS][message.topic]))
+    logger.debug("notifier_sub {} {} {} {}".format(message.topic, message.qos, message.payload, msg))
     title = message.topic
     if TITLE in config[TOPICS][message.topic]:
         title = config[TOPICS][message.topic][TITLE]
