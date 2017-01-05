@@ -8,19 +8,10 @@ import logging
 from cloud_tools import Publisher
 from pir import PIR
 
-THING_SHADOW = "$aws/things/{}/shadow/update"
 
-
-def my_callback(v=None):
-    Publisher(
-        args.endpoint,
-        args.rootCA,
-        args.key,
-        args.cert,
-        clientID=args.clientID,
-        log_level=args.log_level
-    ).state_report(THING_SHADOW.format(args.name), {args.source: v})
-    # publish to any additional topics
+def publicize(article):
+    logger.info("publicize {} {}".format(args.name, article))
+    # publish to any topics
     if args.topic is not None:
         for t in args.topic:
             Publisher(
@@ -30,7 +21,16 @@ def my_callback(v=None):
                 args.cert,
                 clientID=args.clientID,
                 log_level=args.log_level
-            ).topic_report(t, {args.source: v})
+            ).report(t, article)
+    # publish to thing and any topics required
+    Publisher(
+        args.endpoint,
+        args.rootCA,
+        args.key,
+        args.cert,
+        clientID=args.clientID,
+        log_level=args.log_level
+    ).report(Publisher.THING_SHADOW.format(args.name), {Publisher.STATE: {Publisher.REPORTED: article}})
 
 
 if __name__ == "__main__":
@@ -61,8 +61,6 @@ if __name__ == "__main__":
     pir = PIR(args.pin)
     pir.start()
 
-    # initialize
-
     current_state = 0
     try:
         while True:
@@ -70,14 +68,12 @@ if __name__ == "__main__":
             if pir.movement():
                 if current_state == 0:
                     current_state = 1
-                    logger.info("pir_pub {} {}".format(args.name, current_state))
-                my_callback(current_state)
+                    publicize({args.source: current_state})
                 sleep = args.active_sleep
             else:
                 if current_state == 1:
                     current_state = 0
-                    logger.info("pir_pub {} {}".format(args.name, current_state))
-                    my_callback(current_state)
+                    publicize({args.source: current_state})
                 sleep = args.passive_sleep
             # let's rest
             time.sleep(sleep)

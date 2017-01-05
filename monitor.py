@@ -8,8 +8,6 @@ import platform
 import logging
 from cloud_tools import Publisher
 
-DT_FORMAT = '%Y/%m/%d %-I:%M %p %Z'
-THING_SHADOW = "$aws/things/{}/shadow/update"
 NET_INTERFACES = ['en0', 'en1', 'en2', 'en3', 'wlan0', 'wlan1', 'eth0', 'eth1']
 
 
@@ -28,7 +26,7 @@ def get_ip(i):
                     return address
             return None
         except Exception as ex:
-            logging.debug(ex.message)
+            logging.info("get_ip {} {}".format(i, ex.message))
             return None
     else:
         return None
@@ -43,7 +41,7 @@ def get_properties(group):
             properties["cpuTemp"] = get_rpi_cpu_temperature()
         properties["ramAvailable"] = int(mem.available / (1024 * 1024))
         properties["usedDiskSpaceRoot"] = int(disk.used / (1024 * 1024))
-        properties["bootTime"] = datetime.datetime.fromtimestamp(psutil.boot_time()).strftime(DT_FORMAT)
+        properties["bootTime"] = datetime.datetime.fromtimestamp(psutil.boot_time()).strftime(Publisher.DATE_FORMAT)
         properties["cpuLoad"] = psutil.cpu_percent(interval=3)
 
     if group is None or group == 'seldom':
@@ -88,4 +86,5 @@ if __name__ == "__main__":
         args.cert,
         clientID=args.clientID,
         log_level=args.log_level
-    ).state_report(THING_SHADOW.format(args.source), get_properties(args.party))
+    ).report(Publisher.THING_SHADOW.format(args.source),
+             {Publisher.STATE: {Publisher.REPORTED: get_properties(args.party)}})

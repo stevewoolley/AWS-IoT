@@ -13,6 +13,8 @@ class Publisher:
     STATE = 'state'
     REPORTED = 'reported'
     DESIRED = 'desired'
+    THING_SHADOW = "$aws/things/{}/shadow/update"
+    DATE_FORMAT = '%Y/%m/%d %-I:%M %p %Z'
 
     def __init__(self,
                  endpoint,
@@ -34,15 +36,10 @@ class Publisher:
         self._logger = logging.getLogger(__name__)
         self._tls = {'ca_certs': root_ca, 'certfile': cert, 'keyfile': key, 'tls_version': tls_version, 'ciphers': None}
 
-    def publish(self, topic, payload, qos=0, retain=False):
-        publish.single(topic, payload=json.dumps(payload), qos=qos, retain=False, hostname=self._endpoint, port=self._port,
+    def report(self, topic, payload, qos=0, retain=False):
+        publish.single(topic, payload=json.dumps(payload), qos=qos, retain=False, hostname=self._endpoint,
+                       port=self._port,
                        client_id=self._clientID, keepalive=self._keepalive, auth=None, tls=self._tls)
-
-    def state_report(self, topic, payload, state=REPORTED, qos=0, retain=False):
-        self.publish(topic, {self.STATE: {state: payload}}, qos=qos, retain=retain)
-
-    def topic_report(self, topic, payload, qos=0, retain=False):
-        self.publish(topic, payload, qos=qos, retain=retain)
 
 
 class Subscriber(threading.Thread):

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
+
 import argparse
-import util
 import time
 import sys
 import json

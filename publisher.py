@@ -15,4 +15,5 @@ parser.add_argument("-v", "--value", help="value", default='Foo')
 args = parser.parse_args()
 
 for t in args.topic:
-    Publisher(args.endpoint, args.rootCA, args.key, args.cert, clientID=args.clientID).publish(t, {args.source: args.value})
+    Publisher(args.endpoint, args.rootCA, args.key, args.cert, clientID=args.clientID).report(t,
+                                                                                              {args.source: args.value})
