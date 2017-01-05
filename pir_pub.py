@@ -43,7 +43,7 @@ if __name__ == "__main__":
     parser.add_argument("-k", "--key", help="Private key file path")
     parser.add_argument("-i", "--clientID", help="Client ID", default='')
 
-    parser.add_argument("-s", "--source", help="Source", default="PIR")
+    parser.add_argument("-s", "--source", help="Source", default="pir")
     parser.add_argument("-n", "--name", help="Thing name", default=platform.node().split('.')[0])
     parser.add_argument("-t", "--topic", help="MQTT topic(s)", nargs='+', required=False)
 
