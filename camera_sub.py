@@ -12,13 +12,13 @@ from camera import Camera
 
 STORAGE_DIRECTORY = '/tmp'
 IMAGE_FILE_EXT = 'png'
-DATE_FORMAT = '%Y_%m_%d_%H_%M_%S'
+DATE_FORMAT = '%Y-%m-%d-%H-%M-%S'
 
 
 def my_callback(mqttc, obj, msg):
     logger.debug("camera_sub {} {} {}".format(msg.topic, msg.qos, msg.payload))
     local_filename = "{}.{}".format(args.source, IMAGE_FILE_EXT)
-    remote_filename = "{}_{}.{}".format(datetime.datetime.now().strftime(DATE_FORMAT), args.source, IMAGE_FILE_EXT)
+    remote_filename = "{}_{}.{}".format(args.source, datetime.datetime.now().strftime(DATE_FORMAT), IMAGE_FILE_EXT)
     logger.debug("camera_sub snap {} {}".format(local_filename, remote_filename))
     if camera.snap(filename='/'.join((STORAGE_DIRECTORY, remote_filename)), annotate=util.now_string()):
         util.copy_to_s3('/'.join((STORAGE_DIRECTORY, remote_filename)), args.bucket, local_filename)
