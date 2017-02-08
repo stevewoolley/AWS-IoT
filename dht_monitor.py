@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import argparse
-import time
 import Adafruit_DHT
 import logging
 import platform
@@ -12,18 +11,6 @@ DHT11 = 11
 DHT22 = 22
 AM2302 = 22
 SENSORS = [DHT11, DHT22, AM2302]
-
-
-def read_retry(sensor, pin, retries=15, delay_seconds=2):
-    if sensor not in SENSORS:
-        logging.error('Expected DHT11, DHT22, or AM2302 sensor value.')
-    else:
-        for i in range(retries):
-            h, t = Adafruit_DHT.read(sensor, pin)
-            if h is not None and t is not None:
-                return h, t
-            time.sleep(delay_seconds)
-        return None, None
 
 
 if __name__ == "__main__":
@@ -38,7 +25,7 @@ if __name__ == "__main__":
 
     parser.add_argument("-s", "--source", help="Source", default=platform.node().split('.')[0])
     parser.add_argument("-p", "--pin", help="gpio pin (using BCM numbering)", type=int, required=True)
-    parser.add_argument("-y", "--dht_type", help="DHT sensor type %s" % SENSORS, type=int, default=DHT22)
+    parser.add_argument("-y", "--dht_type", help="DHT sensor type %s" % SENSORS, type=int, default=Adafruit_DHT.DHT22)
 
     parser.add_argument("-l", "--log_level", help="Log Level", default=logging.WARNING)
 
@@ -47,15 +34,16 @@ if __name__ == "__main__":
     logging.basicConfig(level=args.log_level)
     logger = logging.getLogger(__name__)
 
-    humidity, temperature = read_retry(args.dht_type, args.pin)
+    humidity, temperature = Adafruit_DHT.read_retry(args.dht_type, args.pin)
     logger.info("dht_monitor {} humidity {} temperature {}".format(args.source, humidity, temperature))
 
-    Publisher(
-        args.endpoint,
-        args.rootCA,
-        args.key,
-        args.cert,
-        clientID=args.clientID,
-        log_level=args.log_level
-    ).report(Publisher.THING_SHADOW.format(args.source),
-             {Publisher.STATE: {Publisher.REPORTED: {"temperature": temperature, "humidity": humidity}}})
+    if humidity is not None and temperature is not None:
+        Publisher(
+            args.endpoint,
+            args.rootCA,
+            args.key,
+            args.cert,
+            clientID=args.clientID,
+            log_level=args.log_level
+        ).report(Publisher.THING_SHADOW.format(args.source),
+                 {Publisher.STATE: {Publisher.REPORTED: {"temperature": temperature, "humidity": humidity}}})
