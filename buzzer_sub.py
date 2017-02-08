@@ -1,23 +1,26 @@
 #!/usr/bin/env python
 
 import argparse
+from gpiozero import Buzzer
 import time
 import sys
 import json
 import yaml
 import logging
 from cloud_tools import Subscriber
-from buzzer import Buzzer
 
 
 def my_callback(client, userdata, message):
     logger.debug("buzzer_sub {} {} {}".format(message.topic, message.qos, message.payload))
     msg = json.loads(message.payload)
-    c = args.beep_count
+    c = args.beeps
     if 'alert_count' in msg:
         c = msg['alert_count']
-    buzzer.beep(beep_duration=args.beep_duration, quiet_duration=args.quiet_duration, count=c)
-    logger.info("buzzer_sub beep {}".format(c))
+    if args.mode == 1:
+        buzzer.beep(args.on_time, args.off_time, c)
+    else:
+        buzzer.toggle()
+
 
 if __name__ == "__main__":
 
@@ -29,10 +32,11 @@ if __name__ == "__main__":
     parser.add_argument("-c", "--cert", help="Certificate file path")
     parser.add_argument("-k", "--key", help="Private key file path")
 
-    parser.add_argument("-d", "--beep_duration", help="time in seconds for a beep duration", type=float, default=0.06)
-    parser.add_argument("-q", "--quiet_duration", help="time in seconds between beeps", type=float, default=0.1)
-    parser.add_argument("-n", "--beep_count", help="number of beeps", type=int, default=2)
     parser.add_argument("-p", "--pin", help="gpio pin (using BCM numbering)", type=int, required=True)
+    parser.add_argument("-n", "--beeps", help="Number of times to beep", type=int, default=1)
+    parser.add_argument("-x", "--on_time", help="Number of seconds on", type=int, default=1)
+    parser.add_argument("-y", "--off_time", help="Number of seconds off", type=int, default=1)
+    parser.add_argument("-m", "--mode", help="Mode: 1=flash 2=toggle ", type=int, default=1)
 
     parser.add_argument("-t", "--topic", help="MQTT topic(s)", nargs='+', required=False)
     parser.add_argument("-f", "--input_file", help="input file (yaml format)", default=None)
@@ -45,7 +49,6 @@ if __name__ == "__main__":
     logger = logging.getLogger(__name__)
 
     buzzer = Buzzer(args.pin)
-    buzzer.start()
 
     subscriber = Subscriber(args.endpoint, args.rootCA, args.key, args.cert, args.clientID)
 
