@@ -18,9 +18,9 @@ def my_callback(client, userdata, msg):
         led.on()
     elif 'cancel' in msg:
         led.off()
-    elif 'warning' in msg and not led.is_active:
+    elif 'warning' in msg and not led.is_lit:
         led.blink(1, 1)
-    elif 'alert_count' in msg and not led.is_active:
+    elif 'alert_count' in msg and not led.is_lit:
         led.blink(args.on_time, args.off_time, msg['alert_count'])
     else:
         led.blink(args.on_time, args.off_time, args.blinks)
