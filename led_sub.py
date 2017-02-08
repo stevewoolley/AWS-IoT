@@ -4,6 +4,7 @@ import argparse
 import logging
 from gpiozero import LED
 import sys
+import json
 import time
 import yaml
 from cloud_tools import Subscriber
@@ -11,7 +12,14 @@ from cloud_tools import Subscriber
 
 def my_callback(client, userdata, msg):
     logger.debug("led_sub {} {} {}".format(msg.topic, msg.qos, msg.payload))
-    led.flash(2)
+    msg = json.loads(msg.payload)
+    c = args.blinks
+    if 'alert_count' in msg:
+        c = msg['alert_count']
+    if args.mode == 1:
+        led.blink(args.on_time, args.off_time, c)
+    else:
+        led.toggle()
 
 
 if __name__ == "__main__":
@@ -25,6 +33,10 @@ if __name__ == "__main__":
     parser.add_argument("-k", "--key", help="Private key file path")
 
     parser.add_argument("-p", "--pin", help="gpio pin (using BCM numbering)", type=int, required=True)
+    parser.add_argument("-n", "--blinks", help="Number of times to blink", type=int, default=1)
+    parser.add_argument("-x", "--on_time", help="Number of seconds on", type=int, default=1)
+    parser.add_argument("-y", "--off_time", help="Number of seconds off", type=int, default=1)
+    parser.add_argument("-m", "--mode", help="Mode: 1=flash 2=toggle ", type=int, default=1)
 
     parser.add_argument("-t", "--topic", help="MQTT topic(s)", nargs='+', required=False)
     parser.add_argument("-f", "--input_file", help="input file (yaml format)", default=None)
@@ -34,7 +46,6 @@ if __name__ == "__main__":
     logger = logging.getLogger(__name__)
 
     led = LED(args.pin)
-    led.start()
 
     subscriber = Subscriber(args.endpoint, args.rootCA, args.key, args.cert, args.clientID)
 
