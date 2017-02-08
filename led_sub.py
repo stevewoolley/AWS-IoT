@@ -34,8 +34,8 @@ if __name__ == "__main__":
 
     parser.add_argument("-p", "--pin", help="gpio pin (using BCM numbering)", type=int, required=True)
     parser.add_argument("-n", "--blinks", help="Number of times to blink", type=int, default=1)
-    parser.add_argument("-x", "--on_time", help="Number of seconds on", type=int, default=1)
-    parser.add_argument("-y", "--off_time", help="Number of seconds off", type=int, default=1)
+    parser.add_argument("-x", "--on_time", help="Number of seconds on", type=float, default=1)
+    parser.add_argument("-y", "--off_time", help="Number of seconds off", type=float, default=1)
     parser.add_argument("-m", "--mode", help="Mode: 1=flash 2=toggle ", type=int, default=1)
 
     parser.add_argument("-t", "--topic", help="MQTT topic(s)", nargs='+', required=False)
