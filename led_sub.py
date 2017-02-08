@@ -13,13 +13,17 @@ from cloud_tools import Subscriber
 def my_callback(client, userdata, msg):
     logger.debug("led_sub {} {} {}".format(msg.topic, msg.qos, msg.payload))
     msg = json.loads(msg.payload)
-    c = args.blinks
-    if 'alert_count' in msg:
-        c = msg['alert_count']
-    if args.mode == 1:
-        led.blink(args.on_time, args.off_time, c)
+    # handle based on message
+    if 'panic' in msg:
+        led.on()
+    elif 'cancel' in msg:
+        led.off()
+    elif 'warning' in msg and not led.is_active:
+        led.blink(1, 1)
+    elif 'alert_count' in msg and not led.is_active:
+        led.blink(args.on_time, args.off_time, msg['alert_count'])
     else:
-        led.toggle()
+        led.blink(args.on_time, args.off_time, args.blinks)
 
 
 if __name__ == "__main__":

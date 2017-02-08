@@ -13,13 +13,17 @@ from cloud_tools import Subscriber
 def my_callback(client, userdata, message):
     logger.debug("buzzer_sub {} {} {}".format(message.topic, message.qos, message.payload))
     msg = json.loads(message.payload)
-    c = args.beeps
-    if 'alert_count' in msg:
-        c = msg['alert_count']
-    if args.mode == 1:
-        buzzer.beep(args.on_time, args.off_time, c)
+    # handle based on message
+    if 'panic' in msg:
+        buzzer.on()
+    elif 'cancel' in msg:
+        buzzer.off()
+    elif 'warning' in msg and not buzzer.is_active:
+        buzzer.beep(1, 1)
+    elif 'alert_count' in msg and not buzzer.is_active:
+        buzzer.beep(args.on_time, args.off_time, msg['alert_count'])
     else:
-        buzzer.toggle()
+        buzzer.beep(args.on_time, args.off_time, args.beeps)
 
 
 if __name__ == "__main__":
@@ -33,10 +37,10 @@ if __name__ == "__main__":
     parser.add_argument("-k", "--key", help="Private key file path")
 
     parser.add_argument("-p", "--pin", help="gpio pin (using BCM numbering)", type=int, required=True)
-    parser.add_argument("-n", "--beeps", help="Number of times to beep", type=int, default=2)
-    parser.add_argument("-x", "--on_time", help="Number of seconds on", type=float, default=0.06)
-    parser.add_argument("-y", "--off_time", help="Number of seconds off", type=float, default=0.1)
-    parser.add_argument("-m", "--mode", help="Mode: 1=flash 2=toggle ", type=int, default=1)
+    parser.add_argument("-n", "--beeps", help="Default number of times to beep", type=int, default=2)
+    parser.add_argument("-x", "--on_time", help="Default number of seconds on", type=float, default=0.06)
+    parser.add_argument("-y", "--off_time", help="Default number of seconds off", type=float, default=0.1)
+    parser.add_argument("-m", "--mode", help="Default mode: 1=flash 2=toggle ", type=int, default=1)
 
     parser.add_argument("-t", "--topic", help="MQTT topic(s)", nargs='+', required=False)
     parser.add_argument("-f", "--input_file", help="input file (yaml format)", default=None)
