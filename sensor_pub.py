@@ -14,7 +14,7 @@ ALERT_COUNT = 'alert_count'
 
 
 def publicize(article):
-    logger.info("publicize {} {}".format(args.name, article))
+    logger.info("sensor_pub {} {}".format(args.name, article))
     # publish to any topics
     if args.topic is not None:
         for t in args.topic:
@@ -26,7 +26,7 @@ def publicize(article):
                 clientID=args.clientID,
                 log_level=args.log_level
             ).report(t, article)
-    # publish to thing and any topics required
+    # publish to thing
     doc = {args.source: article[MESSAGE]}
     Publisher(
         args.endpoint,
@@ -56,7 +56,7 @@ if __name__ == "__main__":
     parser.add_argument("-y", "--high_value", help="high value", default=Sensor.HIGH)
     parser.add_argument("-z", "--low_value", help="low value", default=Sensor.LOW)
 
-    parser.add_argument("-l", "--log_level", help="Log Level", default=logging.WARNING)
+    parser.add_argument("-l", "--log_level", help="Log Level", default=logging.INFO)
 
     args = parser.parse_args()
 

@@ -15,7 +15,7 @@ OFF = 'off'
 
 
 def my_callback(client, userdata, msg):
-    logger.debug("led_sub {} {} {}".format(msg.topic, msg.qos, msg.payload))
+    logger.info("led_sub {} {} {}".format(msg.topic, msg.qos, msg.payload))
     msg = json.loads(msg.payload)
     # handle based on message
     if LEVEL in msg:
@@ -53,7 +53,7 @@ if __name__ == "__main__":
 
     parser.add_argument("-t", "--topic", help="MQTT topic(s)", nargs='+', required=False)
     parser.add_argument("-f", "--input_file", help="input file (yaml format)", default=None)
-    parser.add_argument("-l", "--log_level", help="Log Level", default=logging.WARNING)
+    parser.add_argument("-l", "--log_level", help="Log Level", default=logging.INFO)
     args = parser.parse_args()
 
     logging.basicConfig(level=args.log_level)
