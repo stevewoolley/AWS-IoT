@@ -24,8 +24,6 @@ def my_callback(client, userdata, msg):
             led.on()
         elif msg[LEVEL] == logging.ERROR:
             led.blink(1, 1)
-        elif msg[LEVEL] == logging.INFO:  # default
-            led.blink(args.on_time, args.off_time, args.blinks)
         elif msg[LEVEL] == logging.NOTSET:
             led.off()
         else:

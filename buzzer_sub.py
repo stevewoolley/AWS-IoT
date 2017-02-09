@@ -24,8 +24,6 @@ def my_callback(client, userdata, message):
             buzzer.on()
         elif msg[LEVEL] == logging.ERROR:
             buzzer.beep(1, 1)
-        elif msg[LEVEL] == logging.INFO:  # default
-            buzzer.beep(args.on_time, args.off_time, args.beeps)
         elif msg[LEVEL] == logging.NOTSET:
             buzzer.off()
         else:
