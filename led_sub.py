@@ -12,7 +12,7 @@ from cloud_tools import Subscriber
 LEVEL = 'level'
 ALERT_COUNT = 'alert_count'
 OFF = 'off'
-LOG_FILE = 'iot.log'
+LOG_FILE = '/var/log/iot.log'
 
 
 def my_callback(client, userdata, msg):
@@ -34,6 +34,8 @@ def my_callback(client, userdata, msg):
         led.blink(args.on_time, args.off_time, msg[ALERT_COUNT])
     elif OFF in msg:
         led.off()
+    else:
+        led.blink(args.on_time, args.off_time, args.blinks)
 
 
 if __name__ == "__main__":

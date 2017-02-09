@@ -12,8 +12,7 @@ from cloud_tools import Subscriber
 LEVEL = 'level'
 ALERT_COUNT = 'alert_count'
 OFF = 'off'
-LOG_FILE = 'iot.log'
-
+LOG_FILE = '/var/log/iot.log'
 
 def my_callback(client, userdata, message):
     logging.info("buzzer_sub {} {} {}".format(message.topic, message.qos, message.payload))
@@ -34,6 +33,8 @@ def my_callback(client, userdata, message):
         buzzer.beep(args.on_time, args.off_time, msg[ALERT_COUNT])
     elif OFF in msg:
         buzzer.off()
+    else:
+        buzzer.beep(args.on_time, args.off_time, args.beeps)
 
 
 if __name__ == "__main__":
