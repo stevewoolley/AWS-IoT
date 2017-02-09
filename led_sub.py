@@ -12,10 +12,11 @@ from cloud_tools import Subscriber
 LEVEL = 'level'
 ALERT_COUNT = 'alert_count'
 OFF = 'off'
+LOG_FILE = 'iot.log'
 
 
 def my_callback(client, userdata, msg):
-    logger.info("led_sub {} {} {}".format(msg.topic, msg.qos, msg.payload))
+    logging.info("led_sub {} {} {}".format(msg.topic, msg.qos, msg.payload))
     msg = json.loads(msg.payload)
     # handle based on message
     if LEVEL in msg:
@@ -56,8 +57,7 @@ if __name__ == "__main__":
     parser.add_argument("-l", "--log_level", help="Log Level", default=logging.INFO)
     args = parser.parse_args()
 
-    logging.basicConfig(level=args.log_level)
-    logger = logging.getLogger(__name__)
+    logging.basicConfig(filename=LOG_FILE, level=args.log_level)
 
     led = LED(args.pin)
 
@@ -68,12 +68,12 @@ if __name__ == "__main__":
         f = open(args.input_file)
         topics = yaml.safe_load(f)
         for t in topics[args.endpoint]:
-            logger.info("Subscribing to {}".format(t))
+            logging.info("Subscribing to {}".format(t))
             subscriber.subscribe(t, my_callback)
             time.sleep(2)  # pause between subscribes (maybe not needed?)
 
     for t in args.topic:
-        logger.info("Subscribing to {}".format(t))
+        logging.info("Subscribing to {}".format(t))
         subscriber.subscribe(t, my_callback)
         time.sleep(2)  # pause
 
