@@ -11,10 +11,11 @@ from pync import Notifier
 
 MESSAGE = 'message'
 SOURCE = 'source'
+LOG_FILE = '/var/log/iot.log'
 
 
 def my_callback(client, userdata, msg):
-    logger.debug("notifier_sub {} {} {}".format(msg.topic, msg.qos, msg.payload))
+    logging.info("notifier_sub {} {} {}".format(msg.topic, msg.qos, msg.payload))
     msg = json.loads(msg.payload)
     #
     Notifier.notify(msg[MESSAGE], title=msg[SOURCE])
@@ -36,8 +37,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    logging.basicConfig(level=args.log_level)
-    logger = logging.getLogger(__name__)
+    logging.basicConfig(filename=LOG_FILE, level=args.log_level)
 
     subscriber = Subscriber(args.endpoint, args.rootCA, args.key, args.cert, args.clientID)
 
@@ -46,12 +46,12 @@ if __name__ == "__main__":
         f = open(args.input_file)
         topics = yaml.safe_load(f)
         for t in topics[args.endpoint]:
-            logger.info("Subscribing to {}".format(t))
+            logging.info("Subscribing to {}".format(t))
             subscriber.subscribe(t, my_callback)
             time.sleep(2)  # pause between subscribes (maybe not needed?)
 
     for t in args.topic:
-        logger.info("Subscribing to {}".format(t))
+        logging.info("Subscribing to {}".format(t))
         subscriber.subscribe(t, my_callback)
         time.sleep(2)  # pause
 

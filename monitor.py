@@ -9,6 +9,7 @@ import logging
 from cloud_tools import Publisher
 
 NET_INTERFACES = ['en0', 'en1', 'en2', 'en3', 'wlan0', 'wlan1', 'eth0', 'eth1']
+LOG_FILE = '/var/log/iot.log'
 
 
 def get_rpi_cpu_temperature():
@@ -76,8 +77,7 @@ if __name__ == "__main__":
     parser.add_argument("-l", "--log_level", help="Log Level", default=logging.WARNING)
     args = parser.parse_args()
 
-    logging.basicConfig(level=args.log_level)
-    logger = logging.getLogger(__name__)
+    logging.basicConfig(filename=LOG_FILE, level=args.log_level)
 
     Publisher(
         args.endpoint,

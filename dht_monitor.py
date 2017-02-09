@@ -11,6 +11,7 @@ DHT11 = 11
 DHT22 = 22
 AM2302 = 22
 SENSORS = [DHT11, DHT22, AM2302]
+LOG_FILE = '/var/log/iot.log'
 
 
 if __name__ == "__main__":
@@ -31,11 +32,10 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    logging.basicConfig(level=args.log_level)
-    logger = logging.getLogger(__name__)
+    logging.basicConfig(filename=LOG_FILE, level=args.log_level)
 
     humidity, temperature = Adafruit_DHT.read_retry(args.dht_type, args.pin)
-    logger.info("dht_monitor {} humidity {} temperature {}".format(args.source, humidity, temperature))
+    logging.info("dht_monitor {} humidity {} temperature {}".format(args.source, humidity, temperature))
 
     if humidity is not None and temperature is not None:
         Publisher(

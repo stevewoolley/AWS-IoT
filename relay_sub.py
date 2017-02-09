@@ -7,9 +7,11 @@ import logging
 from cloud_tools import Subscriber
 from relay import Relay
 
+LOG_FILE = '/var/log/iot.log'
+
 
 def my_callback(client, userdata, msg):
-    logger.debug("relay_sub {} {} {}".format(msg.topic, msg.qos, msg.payload))
+    logging.info("relay_sub {} {} {}".format(msg.topic, msg.qos, msg.payload))
     relay.pulse()
 
 
@@ -32,8 +34,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    logging.basicConfig(level=args.log_level)
-    logger = logging.getLogger(__name__)
+    logging.basicConfig(filename=LOG_FILE, level=args.log_level)
 
     relay = Relay(args.pin)
     relay.start()
@@ -45,12 +46,12 @@ if __name__ == "__main__":
         f = open(args.input_file)
         topics = yaml.safe_load(f)
         for t in topics[args.endpoint]:
-            logger.info("Subscribing to {}".format(t))
+            logging.info("Subscribing to {}".format(t))
             subscriber.subscribe(t, my_callback)
             time.sleep(2)  # pause between subscribes (maybe not needed?)
 
     for t in args.topic:
-        logger.info("Subscribing to {}".format(t))
+        logging.info("Subscribing to {}".format(t))
         subscriber.subscribe(t, my_callback)
         time.sleep(2)  # pause
 

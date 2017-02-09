@@ -13,13 +13,13 @@ from camera import Camera
 STORAGE_DIRECTORY = '/tmp'
 IMAGE_FILE_EXT = 'png'
 DATE_FORMAT = '%Y-%m-%d-%H-%M-%S'
+LOG_FILE = '/var/log/iot.log'
 
 
 def my_callback(mqttc, obj, msg):
-    logger.debug("camera_sub {} {} {}".format(msg.topic, msg.qos, msg.payload))
+    logging.info("camera_sub {} {} {}".format(msg.topic, msg.qos, msg.payload))
     local_filename = "{}.{}".format(args.source, IMAGE_FILE_EXT)
     remote_filename = "{}_{}.{}".format(args.source, datetime.datetime.now().strftime(DATE_FORMAT), IMAGE_FILE_EXT)
-    logger.debug("camera_sub snap {} {}".format(local_filename, remote_filename))
     if camera.snap(filename='/'.join((STORAGE_DIRECTORY, remote_filename)), annotate=util.now_string()):
         util.copy_to_s3('/'.join((STORAGE_DIRECTORY, remote_filename)), args.bucket, local_filename)
 
@@ -48,8 +48,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    logging.basicConfig(level=args.log_level)
-    logger = logging.getLogger(__name__)
+    logging.basicConfig(filename=LOG_FILE, level=args.log_level)
 
     camera = Camera(rotation=args.rotation,
                     horizontal_resolution=args.horizontal_resolution,
@@ -63,12 +62,12 @@ if __name__ == "__main__":
         f = open(args.input_file)
         topics = yaml.safe_load(f)
         for t in topics[args.endpoint]:
-            logger.info("Subscribing to {}".format(t))
+            logging.info("Subscribing to {}".format(t))
             subscriber.subscribe(t, my_callback)
             time.sleep(2)  # pause between subscribes (maybe not needed?)
 
     for t in args.topic:
-        logger.info("Subscribing to {}".format(t))
+        logging.info("Subscribing to {}".format(t))
         subscriber.subscribe(t, my_callback)
         time.sleep(2)  # pause
 

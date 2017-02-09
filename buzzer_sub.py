@@ -14,6 +14,7 @@ ALERT_COUNT = 'alert_count'
 OFF = 'off'
 LOG_FILE = '/var/log/iot.log'
 
+
 def my_callback(client, userdata, message):
     logging.info("buzzer_sub {} {} {}".format(message.topic, message.qos, message.payload))
     msg = json.loads(message.payload)

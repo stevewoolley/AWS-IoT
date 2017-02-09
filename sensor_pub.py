@@ -11,10 +11,11 @@ from sensor import Sensor
 MESSAGE = 'message'
 SOURCE = 'source'
 ALERT_COUNT = 'alert_count'
+LOG_FILE = '/var/log/iot.log'
 
 
 def publicize(article):
-    logger.info("sensor_pub {} {}".format(args.name, article))
+    logging.info("sensor_pub {} {}".format(args.name, article))
     # publish to any topics
     if args.topic is not None:
         for t in args.topic:
@@ -60,8 +61,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    logging.basicConfig(level=args.log_level)
-    logger = logging.getLogger(__name__)
+    logging.basicConfig(filename=LOG_FILE, level=args.log_level)
 
     sensor = Sensor(args.pin)
     sensor.start()

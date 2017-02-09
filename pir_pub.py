@@ -8,9 +8,11 @@ import logging
 from cloud_tools import Publisher
 from pir import PIR
 
+LOG_FILE = '/var/log/iot.log'
+
 
 def publicize(article):
-    logger.info("publicize {} {}".format(args.name, article))
+    logging.info("publicize {} {}".format(args.name, article))
     # publish to any topics
     if args.topic is not None:
         for t in args.topic:
@@ -55,8 +57,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    logging.basicConfig(level=args.log_level)
-    logger = logging.getLogger(__name__)
+    logging.basicConfig(filename=LOG_FILE, level=args.log_level)
 
     pir = PIR(args.pin)
     pir.start()
