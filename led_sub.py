@@ -29,7 +29,10 @@ def my_callback(client, userdata, msg):
         elif msg[LEVEL] == logging.NOTSET:
             led.off()
         else:
-            led.blink(args.on_time, args.off_time, msg[ALERT_COUNT])
+            if ALERT_COUNT in msg:
+                led.blink(args.on_time, args.off_time, msg[ALERT_COUNT])
+            else:
+                led.blink(args.on_time, args.off_time, args.blinks)
     elif ALERT_COUNT in msg:
         led.blink(args.on_time, args.off_time, msg[ALERT_COUNT])
     elif OFF in msg:

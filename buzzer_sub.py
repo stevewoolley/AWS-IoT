@@ -29,7 +29,10 @@ def my_callback(client, userdata, message):
         elif msg[LEVEL] == logging.NOTSET:
             buzzer.off()
         else:
-            buzzer.beep(args.on_time, args.off_time, msg[ALERT_COUNT])
+            if ALERT_COUNT in msg:
+                buzzer.beep(args.on_time, args.off_time, msg[ALERT_COUNT])
+            else:
+                buzzer.beep(args.on_time, args.off_time, args.beeps)
     elif ALERT_COUNT in msg:
         buzzer.beep(args.on_time, args.off_time, msg[ALERT_COUNT])
     elif OFF in msg:
