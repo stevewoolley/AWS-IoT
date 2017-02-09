@@ -9,21 +9,30 @@ import time
 import yaml
 from cloud_tools import Subscriber
 
+LEVEL = 'level'
+ALERT_COUNT = 'alert_count'
+OFF = 'off'
+
 
 def my_callback(client, userdata, msg):
     logger.debug("led_sub {} {} {}".format(msg.topic, msg.qos, msg.payload))
     msg = json.loads(msg.payload)
     # handle based on message
-    if 'panic' in msg:
-        led.on()
-    elif 'cancel' in msg:
+    if LEVEL in msg:
+        if msg[LEVEL] == logging.CRITICAL:
+            led.on()
+        elif msg[LEVEL] == logging.ERROR:
+            led.blink(1, 1)
+        elif msg[LEVEL] == logging.INFO:  # default
+            led.blink(args.on_time, args.off_time, args.blinks)
+        elif msg[LEVEL] == logging.NOTSET:
+            led.off()
+        else:
+            led.blink(args.on_time, args.off_time, msg[ALERT_COUNT])
+    elif ALERT_COUNT in msg:
+        led.blink(args.on_time, args.off_time, msg[ALERT_COUNT])
+    elif OFF in msg:
         led.off()
-    elif 'warning' in msg and not led.is_lit:
-        led.blink(1, 1)
-    elif 'alert_count' in msg and not led.is_lit:
-        led.blink(args.on_time, args.off_time, msg['alert_count'])
-    else:
-        led.blink(args.on_time, args.off_time, args.blinks)
 
 
 if __name__ == "__main__":

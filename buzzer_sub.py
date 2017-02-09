@@ -9,21 +9,30 @@ import yaml
 import logging
 from cloud_tools import Subscriber
 
+LEVEL = 'level'
+ALERT_COUNT = 'alert_count'
+OFF = 'off'
+
 
 def my_callback(client, userdata, message):
     logger.debug("buzzer_sub {} {} {}".format(message.topic, message.qos, message.payload))
     msg = json.loads(message.payload)
     # handle based on message
-    if 'panic' in msg:
-        buzzer.on()
-    elif 'cancel' in msg:
+    if LEVEL in msg:
+        if msg[LEVEL] == logging.CRITICAL:
+            buzzer.on()
+        elif msg[LEVEL] == logging.ERROR:
+            buzzer.beep(1, 1)
+        elif msg[LEVEL] == logging.INFO:  # default
+            buzzer.beep(args.on_time, args.off_time, args.beeps)
+        elif msg[LEVEL] == logging.NOTSET:
+            buzzer.off()
+        else:
+            buzzer.beep(args.on_time, args.off_time, msg[ALERT_COUNT])
+    elif ALERT_COUNT in msg:
+        buzzer.beep(args.on_time, args.off_time, msg[ALERT_COUNT])
+    elif OFF in msg:
         buzzer.off()
-    elif 'warning' in msg and not buzzer.is_active:
-        buzzer.beep(1, 1)
-    elif 'alert_count' in msg and not buzzer.is_active:
-        buzzer.beep(args.on_time, args.off_time, msg['alert_count'])
-    else:
-        buzzer.beep(args.on_time, args.off_time, args.beeps)
 
 
 if __name__ == "__main__":

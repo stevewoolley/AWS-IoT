@@ -8,6 +8,10 @@ import platform
 from cloud_tools import Publisher
 from sensor import Sensor
 
+MESSAGE = 'message'
+SOURCE = 'source'
+ALERT_COUNT = 'alert_count'
+
 
 def publicize(article):
     logger.info("publicize {} {}".format(args.name, article))
@@ -23,6 +27,7 @@ def publicize(article):
                 log_level=args.log_level
             ).report(t, article)
     # publish to thing and any topics required
+    doc = {args.source: article[MESSAGE]}
     Publisher(
         args.endpoint,
         args.rootCA,
@@ -30,7 +35,7 @@ def publicize(article):
         args.cert,
         clientID=args.clientID,
         log_level=args.log_level
-    ).report(Publisher.THING_SHADOW.format(args.name), {Publisher.STATE: {Publisher.REPORTED: article}})
+    ).report(Publisher.THING_SHADOW.format(args.name), {Publisher.STATE: {Publisher.REPORTED: doc}})
 
 
 if __name__ == "__main__":
@@ -62,6 +67,7 @@ if __name__ == "__main__":
     sensor.start()
 
     last_state = None
+    current_state = None
     try:
         while True:
             status = None
@@ -75,7 +81,9 @@ if __name__ == "__main__":
                 else:
                     status = args.high_value
                 # publish change to thing
-                publicize({args.source: status, 'alert_count': alert_count})
+                publicize({SOURCE: args.source,
+                           MESSAGE: status,
+                           ALERT_COUNT: alert_count})
             time.sleep(0.2)
     except (KeyboardInterrupt, SystemExit):
         sys.exit()

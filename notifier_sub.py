@@ -9,20 +9,15 @@ import json
 import logging
 from pync import Notifier
 
-TOPICS = 'topics'
-TITLE = 'title'
 MESSAGE = 'message'
+SOURCE = 'source'
 
 
-def my_callback(client, userdata, message):
-    msg = json.loads(message.payload)
-    logger.debug("notifier_sub {} {} {} {}".format(message.topic, message.qos, message.payload, msg))
-    title = message.topic
-    if TITLE in config[TOPICS][message.topic]:
-        title = config[TOPICS][message.topic][TITLE]
-    if MESSAGE in config[TOPICS][message.topic]:
-        msg = config[TOPICS][message.topic][MESSAGE]
-    Notifier.notify(msg, title=title)
+def my_callback(client, userdata, msg):
+    logger.debug("notifier_sub {} {} {}".format(msg.topic, msg.qos, msg.payload))
+    msg = json.loads(msg.payload)
+    #
+    Notifier.notify(msg[MESSAGE], title=msg[SOURCE])
 
 
 if __name__ == "__main__":
@@ -46,17 +41,19 @@ if __name__ == "__main__":
 
     subscriber = Subscriber(args.endpoint, args.rootCA, args.key, args.cert, args.clientID)
 
-    # instantiate
-    config = None
-
     # Load configuration file
     if args.input_file is not None:
         f = open(args.input_file)
-        config = yaml.safe_load(f)
-        for t in config[TOPICS]:
+        topics = yaml.safe_load(f)
+        for t in topics[args.endpoint]:
             logger.info("Subscribing to {}".format(t))
             subscriber.subscribe(t, my_callback)
             time.sleep(2)  # pause between subscribes (maybe not needed?)
+
+    for t in args.topic:
+        logger.info("Subscribing to {}".format(t))
+        subscriber.subscribe(t, my_callback)
+        time.sleep(2)  # pause
 
     # Loop forever
     try:
