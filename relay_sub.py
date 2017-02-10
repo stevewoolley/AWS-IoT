@@ -5,14 +5,21 @@ import sys
 import yaml
 import logging
 from cloud_tools import Subscriber
-from relay import Relay
+import wiringpi as relay
 
 LOG_FILE = '/var/log/iot.log'
 
 
+def pulse(pin, pulse_length=1):
+    relay.pinMode(pin, 1)
+    relay.digitalWrite(pin, 1)
+    time.sleep(pulse_length)
+    relay.digitalWrite(pin, 0)
+
+
 def my_callback(client, userdata, msg):
     logging.info("relay_sub {} {} {}".format(msg.topic, msg.qos, msg.payload))
-    relay.pulse()
+    pulse(args.pin)
 
 
 if __name__ == "__main__":
@@ -36,10 +43,9 @@ if __name__ == "__main__":
 
     logging.basicConfig(filename=LOG_FILE, level=args.log_level)
 
-    relay = Relay(args.pin)
-    relay.start()
-
     subscriber = Subscriber(args.endpoint, args.rootCA, args.key, args.cert, args.clientID)
+
+    relay.wiringPiSetup()
 
     # Load configuration file
     if args.input_file is not None:
