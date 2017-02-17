@@ -8,7 +8,7 @@ class Camera:
     """A camera object"""
 
     def __init__(self,
-                 filename='snapshot.png',
+                 filename='snapshot.jpg',
                  horizontal_resolution=640,
                  vertical_resolution=480,
                  rotation=0,
@@ -39,7 +39,7 @@ if __name__ == "__main__":
     parser.add_argument("-x", "--horizontal_resolution", help="horizontal_resolution", type=int, default=640)
     parser.add_argument("-y", "--vertical_resolution", help="vertical resolution", type=int, default=480)
     parser.add_argument("-z", "--rotation", help="image rotation", type=int, default=0)
-    parser.add_argument("-o", "--filename", help="Output Filename", default='snapshot.png')
+    parser.add_argument("-o", "--filename", help="Output Filename", default='snapshot.jpg')
     args = parser.parse_args()
 
     Camera(rotation=args.rotation, horizontal_resolution=args.horizontal_resolution, vertical_resolution=args.vertical_resolution).snap(args.filename)

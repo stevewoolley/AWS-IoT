@@ -12,7 +12,7 @@ from cloud_tools import Subscriber
 from camera import Camera
 
 STORAGE_DIRECTORY = '/tmp'
-IMAGE_FILE_EXT = 'png'
+IMAGE_FILE_EXT = 'jpg'
 DATE_FORMAT = '%Y-%m-%d-%H-%M-%S'
 LOG_FILE = '/var/log/iot.log'
 
