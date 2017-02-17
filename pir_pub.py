@@ -58,7 +58,7 @@ if __name__ == "__main__":
     pir = MotionSensor(args.pin)
 
     try:
-        motion = pir.motion_detected
+        motion = False
         while True:
             if motion is False and pir.motion_detected:
                 motion = True
@@ -66,5 +66,6 @@ if __name__ == "__main__":
             elif motion is True and not pir.motion_detected:
                 motion = False
                 publicize({args.source: motion})
+            time.sleep(0.2)
     except (KeyboardInterrupt, SystemExit):
         sys.exit()
