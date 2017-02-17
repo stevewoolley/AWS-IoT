@@ -66,6 +66,5 @@ if __name__ == "__main__":
             elif motion is True and not pir.motion_detected:
                 motion = False
                 publicize({args.source: motion})
-                time.sleep(args.active_sleep)
     except (KeyboardInterrupt, SystemExit):
         sys.exit()
