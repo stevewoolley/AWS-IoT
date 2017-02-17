@@ -2,3 +2,5 @@ PyYAML
 argparse
 psutil
 paho-mqtt
+boto3
+AWSIoTPythonSDK
