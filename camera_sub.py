@@ -7,6 +7,7 @@ import yaml
 import logging
 import time
 import sys
+import json
 from cloud_tools import Subscriber
 from camera import Camera
 
@@ -17,7 +18,9 @@ LOG_FILE = '/var/log/iot.log'
 
 
 def my_callback(mqttc, obj, msg):
-    logging.info("camera_sub {} {} {}".format(msg.topic, msg.qos, msg.payload))
+    logging.error("camera_sub {} {} {}".format(msg.topic, msg.qos, msg.payload))
+    msg = json.loads(msg.payload)
+    logging.error("json msg payload {}".format(msg))
     local_filename = "{}.{}".format(args.source, IMAGE_FILE_EXT)
     remote_filename = "{}_{}.{}".format(args.source, datetime.datetime.now().strftime(DATE_FORMAT), IMAGE_FILE_EXT)
     if camera.snap(filename='/'.join((STORAGE_DIRECTORY, remote_filename)), annotate=util.now_string()):
