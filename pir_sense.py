@@ -2,6 +2,7 @@
 
 import argparse
 import time
+from datetime import datetime
 import sys
 from gpiozero import MotionSensor
 
@@ -19,10 +20,10 @@ if __name__ == "__main__":
         while True:
             if motion is False and pir.motion_detected:
                 motion = True
-                print("MOTION DETECTED")
+                print("MOTION DETECTED {}".format(datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
             elif motion is True and not pir.motion_detected:
                 motion = False
-                print("STILL")
+                print("STILL {}".format(datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
             time.sleep(0.1)
     except (KeyboardInterrupt, SystemExit):
         sys.exit()
