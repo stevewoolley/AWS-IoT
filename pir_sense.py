@@ -18,7 +18,7 @@ if __name__ == "__main__":
                         help="The number of values to read from the device (and append to the internal queue) per second",
                         type=float, default=100)
     parser.add_argument("-t", "--threshold",
-                        help="When the mean of all values in the internal queue rises above this value, the sensor will be considered “active” by the is_active property, and all appropriate events will be fired",
+                        help="When the mean of all values in the internal queue rises above this value, the sensor will be considered active by the is_active property, and all appropriate events will be fired",
                         type=float, default=0.5)
     args = parser.parse_args()
 
