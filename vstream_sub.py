@@ -22,8 +22,8 @@ RASPIVID_CMD = ['/usr/bin/raspivid',
                 '-t', '0',
                 '-vf',
                 '-hf',
-                '-rot', '{}'
-                        '-fps', '{}',
+                '-rot', '{}',
+                '-fps', '{}',
                 '-b', '{}']
 FFMPEG_CMD = [
     '/usr/local/bin/ffmpeg',
@@ -66,8 +66,7 @@ def my_callback(client, userdata, message):
             if KEY in msg:
                 streamer = subprocess.Popen(
                     ' '.join(RASPIVID_CMD).format(args.rotation, args.fps, args.bitrate) + ' | ' + ' '.join(
-                        FFMPEG_CMD).format(
-                        msg[KEY]),
+                        FFMPEG_CMD).format(msg[KEY]),
                     shell=True)
         elif msg[RECORD] == STOP:
             kill_all(streamer.pid)
