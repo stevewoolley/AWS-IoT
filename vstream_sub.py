@@ -22,7 +22,8 @@ RASPIVID_CMD = ['/usr/bin/raspivid',
                 '-t', '0',
                 '-vf',
                 '-hf',
-                '-fps', '{}',
+                '-rot', '{}'
+                        '-fps', '{}',
                 '-b', '{}']
 FFMPEG_CMD = [
     '/usr/local/bin/ffmpeg',
@@ -64,7 +65,8 @@ def my_callback(client, userdata, message):
         if msg[RECORD] == START:
             if KEY in msg:
                 streamer = subprocess.Popen(
-                    ' '.join(RASPIVID_CMD).format(args.fps, args.bitrate) + ' | ' + ' '.join(FFMPEG_CMD).format(
+                    ' '.join(RASPIVID_CMD).format(args.rotation, args.fps, args.bitrate) + ' | ' + ' '.join(
+                        FFMPEG_CMD).format(
                         msg[KEY]),
                     shell=True)
         elif msg[RECORD] == STOP:
@@ -83,9 +85,9 @@ if __name__ == "__main__":
 
     parser.add_argument("-f", "--fps", help="Frames per second to record", type=int, default=30)
     parser.add_argument("-b", "--bitrate", help="Capture bitrate. Use bits per second", type=int, default=6000000)
+    parser.add_argument("-z", "--rotation", help="image rotation", type=int, default=0)
 
     parser.add_argument("-t", "--topic", help="MQTT topic(s)", nargs='+', required=False)
-    parser.add_argument("-f", "--input_file", help="input file (yaml format)", default=None)
 
     parser.add_argument("-l", "--log_level", help="Log Level", default=logging.INFO)
 
@@ -94,15 +96,6 @@ if __name__ == "__main__":
     logging.basicConfig(filename=LOG_FILE, level=args.log_level)
 
     subscriber = Subscriber(args.endpoint, args.rootCA, args.key, args.cert, args.clientID)
-
-    # Load configuration file
-    if args.input_file is not None:
-        f = open(args.input_file)
-        topics = yaml.safe_load(f)
-        for t in topics[args.endpoint]:
-            logging.info("Subscribing to {}".format(t))
-            subscriber.subscribe(t, my_callback)
-            time.sleep(2)  # pause between subscribes (maybe not needed?)
 
     for t in args.topic:
         logging.info("Subscribing to {}".format(t))
