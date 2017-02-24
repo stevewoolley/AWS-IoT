@@ -26,7 +26,6 @@ RASPIVID_CMD = ['/usr/bin/raspivid',
                 '-b', '{}']
 FFMPEG_CMD = [
     '/usr/local/bin/ffmpeg',
-    '-thread_queue_size', '1024',
     '-re',
     '-ar', '44100',
     '-ac', '2',
