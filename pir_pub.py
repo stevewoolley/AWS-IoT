@@ -10,6 +10,8 @@ from gpiozero import MotionSensor
 
 LOG_FILE = '/var/log/iot.log'
 THING = 'thing'
+VALUE = 'value'
+SOURCE = 'source'
 
 
 def publicize(article):
@@ -77,10 +79,10 @@ if __name__ == "__main__":
         while True:
             if motion is False and pir.motion_detected:
                 motion = True
-                publicize({args.source: motion, THING: args.name})
+                publicize({SOURCE: args.source, VALUE: motion, THING: args.name})
             elif motion is True and not pir.motion_detected:
                 motion = False
-                publicize({args.source: motion, THING: args.name})
+                publicize({SOURCE: args.source, VALUE: motion, THING: args.name})
             time.sleep(0.2)
     except (KeyboardInterrupt, SystemExit):
         sys.exit()
