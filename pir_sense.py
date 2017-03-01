@@ -14,10 +14,10 @@ if __name__ == "__main__":
     parser.add_argument("-q", "--queue_len",
                         help="The length of the queue used to store values read from the sensor. (1 = disabled)",
                         type=int, default=1)
-    parser.add_argument("-s", "--sample_rate",
+    parser.add_argument("-x", "--sample_rate",
                         help="The number of values to read from the device (and append to the internal queue) per second",
                         type=float, default=100)
-    parser.add_argument("-t", "--threshold",
+    parser.add_argument("-y", "--threshold",
                         help="When the mean of all values in the internal queue rises above this value, the sensor will be considered active by the is_active property, and all appropriate events will be fired",
                         type=float, default=0.5)
     args = parser.parse_args()

@@ -9,6 +9,7 @@ from cloud_tools import Publisher
 from gpiozero import MotionSensor
 
 LOG_FILE = '/var/log/iot.log'
+THING = 'thing'
 
 
 def publicize(article):
@@ -24,7 +25,7 @@ def publicize(article):
                 clientID=args.clientID,
                 log_level=args.log_level
             ).report(t, article)
-    # publish to thing and any topics required
+    # publish to thing
     Publisher(
         args.endpoint,
         args.rootCA,
@@ -50,22 +51,36 @@ if __name__ == "__main__":
     parser.add_argument("-t", "--topic", help="MQTT topic(s)", nargs='+', required=False)
 
     parser.add_argument("-p", "--pin", help="gpio pin (using BCM numbering)", type=int, required=True)
+    parser.add_argument("-q", "--queue_len",
+                        help="The length of the queue used to store values read from the sensor. (1 = disabled)",
+                        type=int, default=1)
+    parser.add_argument("-x", "--sample_rate",
+                        help="The number of values to read from the device (and append to the internal queue) per second",
+                        type=float, default=100)
+    parser.add_argument("-y", "--threshold",
+                        help="When the mean of all values in the internal queue rises above this value, the sensor will be considered active by the is_active property, and all appropriate events will be fired",
+                        type=float, default=0.5)
     parser.add_argument("-l", "--log_level", help="Log Level", default=logging.INFO)
     args = parser.parse_args()
 
     logging.basicConfig(filename=LOG_FILE, level=args.log_level)
 
-    pir = MotionSensor(args.pin)
+    pir = MotionSensor(
+        args.pin,
+        queue_len=args.queue_len,
+        sample_rate=args.sample_rate,
+        threshold=args.threshold
+    )
 
     try:
         motion = False
         while True:
             if motion is False and pir.motion_detected:
                 motion = True
-                publicize({args.source: motion})
+                publicize({args.source: motion, THING: args.name})
             elif motion is True and not pir.motion_detected:
                 motion = False
-                publicize({args.source: motion})
+                publicize({args.source: motion, THING: args.name})
             time.sleep(0.2)
     except (KeyboardInterrupt, SystemExit):
         sys.exit()
