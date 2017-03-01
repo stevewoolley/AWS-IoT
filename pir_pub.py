@@ -9,7 +9,7 @@ from cloud_tools import Publisher
 from gpiozero import MotionSensor
 
 LOG_FILE = '/var/log/iot.log'
-THING = 'thing'
+THING = 'hostname'
 VALUE = 'value'
 SOURCE = 'source'
 
@@ -35,7 +35,8 @@ def publicize(article):
         args.cert,
         clientID=args.clientID,
         log_level=args.log_level
-    ).report(Publisher.THING_SHADOW.format(args.name), {Publisher.STATE: {Publisher.REPORTED: article}})
+    ).report(Publisher.THING_SHADOW.format(args.name),
+             {Publisher.STATE: {Publisher.REPORTED: {article[SOURCE]: article[VALUE]}}})
 
 
 if __name__ == "__main__":
