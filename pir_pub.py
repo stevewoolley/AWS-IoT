@@ -9,7 +9,6 @@ from cloud_tools import Publisher
 from gpiozero import MotionSensor
 
 LOG_FILE = '/var/log/iot.log'
-THING = 'hostname'
 VALUE = 'value'
 SOURCE = 'source'
 
@@ -80,10 +79,10 @@ if __name__ == "__main__":
         while True:
             if motion is False and pir.motion_detected:
                 motion = True
-                publicize({SOURCE: args.source, VALUE: motion, THING: args.name})
+                publicize({SOURCE: args.source, VALUE: motion})
             elif motion is True and not pir.motion_detected:
                 motion = False
-                publicize({SOURCE: args.source, VALUE: motion, THING: args.name})
+                publicize({SOURCE: args.source, VALUE: motion})
             time.sleep(0.2)
     except (KeyboardInterrupt, SystemExit):
         sys.exit()
