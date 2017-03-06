@@ -7,13 +7,20 @@ import yaml
 import logging
 import time
 import sys
+import subprocess
 from cloud_tools import Subscriber
-import picamera
 
 STORAGE_DIRECTORY = '/tmp'
 IMAGE_FILE_EXT = 'jpg'
 DATE_FORMAT = '%Y-%m-%d-%H-%M-%S'
 LOG_FILE = '/var/log/iot.log'
+RASPISTILL_CMD = ['/usr/bin/raspistill',
+                  '-w', '{}',
+                  '-h', '{}',
+                  '-rot', '{}',
+                  '-a', '{}',
+                  '-o', '{}'
+                  ]
 
 
 def my_callback(mqttc, obj, msg):
@@ -21,12 +28,10 @@ def my_callback(mqttc, obj, msg):
     try:
         local_filename = "{}.{}".format(args.source, IMAGE_FILE_EXT)
         remote_filename = "{}_{}.{}".format(args.source, datetime.datetime.now().strftime(DATE_FORMAT), IMAGE_FILE_EXT)
-        camera = picamera.PiCamera()
-        camera.resolution = (args.horizontal_resolution, args.vertical_resolution)
-        camera.rotation = args.rotation
-        camera.annotate_text = util.now_string()
         filename = '/'.join((STORAGE_DIRECTORY, remote_filename))
-        camera.capture(filename, use_video_port=False)
+        subprocess.check_call(
+            ' '.join(RASPISTILL_CMD).format(args.horizontal_resolution, args.vertical_resolution, args.rotation,
+                                            util.now_string(), filename), shell=False)
         util.copy_to_s3(filename, args.bucket, local_filename)
     except:
         logging.error("camera_sub {}".format(sys.exc_info()[0]))
