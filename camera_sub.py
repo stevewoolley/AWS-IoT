@@ -7,9 +7,8 @@ import yaml
 import logging
 import time
 import sys
-import json
 from cloud_tools import Subscriber
-from camera import Camera
+import picamera
 
 STORAGE_DIRECTORY = '/tmp'
 IMAGE_FILE_EXT = 'jpg'
@@ -18,13 +17,19 @@ LOG_FILE = '/var/log/iot.log'
 
 
 def my_callback(mqttc, obj, msg):
-    logging.error("camera_sub {} {} {}".format(msg.topic, msg.qos, msg.payload))
-    msg = json.loads(msg.payload)
-    logging.error("json msg payload {}".format(msg))
-    local_filename = "{}.{}".format(args.source, IMAGE_FILE_EXT)
-    remote_filename = "{}_{}.{}".format(args.source, datetime.datetime.now().strftime(DATE_FORMAT), IMAGE_FILE_EXT)
-    if camera.snap(filename='/'.join((STORAGE_DIRECTORY, remote_filename)), annotate=util.now_string()):
-        util.copy_to_s3('/'.join((STORAGE_DIRECTORY, remote_filename)), args.bucket, local_filename)
+    logging.info("camera_sub {} {} {}".format(msg.topic, msg.qos, msg.payload))
+    try:
+        local_filename = "{}.{}".format(args.source, IMAGE_FILE_EXT)
+        remote_filename = "{}_{}.{}".format(args.source, datetime.datetime.now().strftime(DATE_FORMAT), IMAGE_FILE_EXT)
+        camera = picamera.PiCamera()
+        camera.resolution = (args.horizontal_resolution, args.vertical_resolution)
+        camera.rotation = args.rotation
+        camera.annotate_text = util.now_string()
+        filename = '/'.join((STORAGE_DIRECTORY, remote_filename))
+        camera.capture(filename, use_video_port=False)
+        util.copy_to_s3(filename, args.bucket, local_filename)
+    except:
+        logging.error("camera_sub {}".format(sys.exc_info()[0]))
 
 
 if __name__ == "__main__":
@@ -52,11 +57,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     logging.basicConfig(filename=LOG_FILE, level=args.log_level)
-
-    camera = Camera(rotation=args.rotation,
-                    horizontal_resolution=args.horizontal_resolution,
-                    vertical_resolution=args.vertical_resolution
-                    )
 
     subscriber = Subscriber(args.endpoint, args.rootCA, args.key, args.cert, args.clientID)
 
