@@ -61,14 +61,17 @@ def my_callback(client, userdata, message):
     msg = json.loads(message.payload)
     # handle based on message
     if RECORD in msg:
-        if msg[RECORD] == START:
+        if msg[RECORD] == START and streamer is None:
             if KEY in msg:
                 streamer = subprocess.Popen(
                     ' '.join(RASPIVID_CMD).format(args.rotation, args.fps, args.bitrate) + ' | ' + ' '.join(
                         FFMPEG_CMD).format(msg[KEY]),
                     shell=True)
-        elif msg[RECORD] == STOP:
+        elif msg[RECORD] == STOP and streamer is not None:
             kill_all(streamer.pid)
+            streamer = None
+        else:
+            logging.info("vstream_sub ignoring {}".format(msg[RECORD]))
 
 
 if __name__ == "__main__":
