@@ -45,8 +45,8 @@ if __name__ == "__main__":
     parser.add_argument("-k", "--key", help="Private key file path")
     parser.add_argument("-i", "--clientID", help="Client ID", default='')
 
-    parser.add_argument("-x", "--horizontal_resolution", help="horizontal_resolution", type=int, default=640)
-    parser.add_argument("-y", "--vertical_resolution", help="vertical resolution", type=int, default=480)
+    parser.add_argument("-x", "--horizontal_resolution", help="horizontal_resolution", type=int, default=1280)
+    parser.add_argument("-y", "--vertical_resolution", help="vertical resolution", type=int, default=720)
     parser.add_argument("-z", "--rotation", help="image rotation", type=int, default=0)
 
     parser.add_argument("-s", "--source", help="Source", required=True)
