@@ -23,6 +23,7 @@ def my_callback(mqttc, obj, msg):
         remote_filename = "{}_{}.{}".format(args.source, datetime.datetime.now().strftime(DATE_FORMAT), IMAGE_FILE_EXT)
         filename = '/'.join((STORAGE_DIRECTORY, remote_filename))
         raspistill = ['/usr/bin/raspistill',
+                      '-n',
                       '-w', str(args.horizontal_resolution),
                       '-h', str(args.vertical_resolution),
                       '-rot', str(args.rotation),

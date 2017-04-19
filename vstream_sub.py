@@ -21,6 +21,7 @@ RASPIVID_CMD = ['/usr/bin/raspivid',
                 '-t', '0',
                 '-vf',
                 '-hf',
+                '-n',
                 '-rot', '{}',
                 '-fps', '{}',
                 '-b', '{}']
