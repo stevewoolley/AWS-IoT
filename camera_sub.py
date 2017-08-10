@@ -1,13 +1,11 @@
 #!/usr/bin/env python
 
 import argparse
-import util
-import datetime
 import yaml
 import logging
 import time
 import sys
-import subprocess
+import requests
 from cloud_tools import Subscriber
 
 STORAGE_DIRECTORY = '/tmp'
@@ -19,19 +17,9 @@ LOG_FILE = '/var/log/iot.log'
 def my_callback(mqttc, obj, msg):
     logging.info("camera_sub {} {} {}".format(msg.topic, msg.qos, msg.payload))
     try:
-        local_filename = "{}.{}".format(args.source, IMAGE_FILE_EXT)
-        remote_filename = "{}_{}.{}".format(args.source, datetime.datetime.now().strftime(DATE_FORMAT), IMAGE_FILE_EXT)
-        filename = '/'.join((STORAGE_DIRECTORY, remote_filename))
-        raspistill = ['/usr/bin/raspistill',
-                      '-n',
-                      '-w', str(args.horizontal_resolution),
-                      '-h', str(args.vertical_resolution),
-                      '-rot', str(args.rotation),
-                      '-a', util.now_string(),
-                      '-o', filename
-                      ]
-        subprocess.check_call(raspistill)
-        util.copy_to_s3(filename, args.bucket, local_filename)
+        r = requests.get('http://localhost:8080/0/action/snapshot')
+        if r.status_code != 200:
+            logging.error("camera_sub {} {}".format(r.status_code, r.text))
     except:
         logging.error("camera_sub {}".format(sys.exc_info()[0]))
 
@@ -45,13 +33,6 @@ if __name__ == "__main__":
     parser.add_argument("-c", "--cert", help="Certificate file path")
     parser.add_argument("-k", "--key", help="Private key file path")
     parser.add_argument("-i", "--clientID", help="Client ID", default='')
-
-    parser.add_argument("-x", "--horizontal_resolution", help="horizontal_resolution", type=int, default=1280)
-    parser.add_argument("-y", "--vertical_resolution", help="vertical resolution", type=int, default=720)
-    parser.add_argument("-z", "--rotation", help="image rotation", type=int, default=0)
-
-    parser.add_argument("-s", "--source", help="Source", required=True)
-    parser.add_argument("-b", "--bucket", help="S3 snapshot bucket", default=None)
 
     parser.add_argument("-t", "--topic", help="MQTT topic(s)", nargs='+', required=True)
     parser.add_argument("-f", "--input_file", help="input file (yaml format)", default=None)
