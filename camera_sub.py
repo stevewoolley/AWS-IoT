@@ -8,9 +8,6 @@ import sys
 import requests
 from cloud_tools import Subscriber
 
-STORAGE_DIRECTORY = '/tmp'
-IMAGE_FILE_EXT = 'jpg'
-DATE_FORMAT = '%Y-%m-%d-%H-%M-%S'
 LOG_FILE = '/var/log/iot.log'
 
 
@@ -37,7 +34,7 @@ if __name__ == "__main__":
     parser.add_argument("-t", "--topic", help="MQTT topic(s)", nargs='+', required=True)
     parser.add_argument("-f", "--input_file", help="input file (yaml format)", default=None)
 
-    parser.add_argument("-l", "--log_level", help="Log Level", default=logging.WARNING)
+    parser.add_argument("-l", "--log_level", help="Log Level", default=logging.INFO)
 
     args = parser.parse_args()
 
