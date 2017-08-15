@@ -33,6 +33,7 @@ if __name__ == "__main__":
     parser.add_argument("-k", "--key", help="Private key file path")
 
     parser.add_argument("-s", "--source", help="source", default="source")
+    parser.add_argument("-t", "--topic", help="MQTT topic(s)", nargs='+', required=False)
     parser.add_argument("-v", "--value", help="value", default=platform.node().split('.')[0])
 
     parser.add_argument("-l", "--log_level", help="Log Level", default=logging.INFO)
