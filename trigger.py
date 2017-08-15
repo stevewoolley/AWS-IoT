@@ -9,10 +9,10 @@ LOG_FILE = '/var/log/iot.log'
 
 
 def trigger(article):
-    logging.info("trigger {}".format(article))
     # publish to any topics
     if args.topic is not None:
         for t in args.topic:
+            logging.info("trigger {} {}".format(t, article))
             Publisher(
                 args.endpoint,
                 args.rootCA,
