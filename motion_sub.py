@@ -18,9 +18,8 @@ def my_callback(mqttc, obj, msg):
         if x.endswith('#'):
             cmd = x[:-1]
         cmd = msg.topic.replace(cmd, "")
-        logging.info("motion_sub cmd".format(cmd))
         try:
-            logging.info("motion_sub cmd".format(cmd))
+            logging.info("motion_sub {}".format(cmd))
         except:
             logging.error("motion_sub {}".format(sys.exc_info()[0]))
 
