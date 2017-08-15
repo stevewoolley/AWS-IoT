@@ -8,7 +8,7 @@ LOG_FILE = '/var/log/iot.log'
 
 
 def publicize(article):
-    logging.info("publisher {} {}".format(args.name, article))
+    logging.info("publisher {}".format(article))
     # publish to thing
     Publisher(
         args.endpoint,
