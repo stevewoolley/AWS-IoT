@@ -32,6 +32,8 @@ if __name__ == "__main__":
 
     parser.add_argument("-s", "--source", help="source", default='message')
     parser.add_argument("-v", "--value", help="value", default='Foo')
+
+    parser.add_argument("-l", "--log_level", help="Log Level", default=logging.INFO)
     args = parser.parse_args()
 
     logging.basicConfig(filename=LOG_FILE, level=args.log_level)
