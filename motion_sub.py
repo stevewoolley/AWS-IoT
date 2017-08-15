@@ -19,7 +19,10 @@ def my_callback(mqttc, obj, msg):
             cmd = x[:-1]
         cmd = msg.topic.replace(cmd, "")
         try:
-            logging.info("motion_sub {}".format(cmd))
+            r = requests.get('http://localhost:8080/0/{}'.format(cmd))
+            if r.status_code != 200:
+                logging.error("motion_sub {} {}".format(r.status_code, r.text))
+
         except:
             logging.error("motion_sub {}".format(sys.exc_info()[0]))
 
