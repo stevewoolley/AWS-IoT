@@ -13,10 +13,10 @@ LOG_FILE = '/var/log/iot.log'
 
 def my_callback(mqttc, obj, msg):
     logging.info("motion_sub {} {}".format(msg.topic, msg.payload))
-    for t in args.topic:
-        cmd = t
-        if t.endswith('#'):
-            cmd = t[:-1]
+    for x in args.topic:
+        cmd = x
+        if x.endswith('#'):
+            cmd = x[:-1]
         cmd = msg.topic.replace(args.topic, "")
         logging.info("motion_sub cmd".format(cmd))
         try:
