@@ -13,14 +13,16 @@ LOG_FILE = '/var/log/iot.log'
 
 def my_callback(mqttc, obj, msg):
     logging.info("motion_sub {} {}".format(msg.topic, msg.payload))
-    if args.topic.endswith('#'):
-        args.topic = args.topic[:-1]
-    cmd = msg.topic.replace(args.topic, "")
-    logging.info("motion_sub cmd".format(cmd))
-    try:
+    for t in args.topic:
+        cmd = t
+        if t.endswith('#'):
+            cmd = t[:-1]
+        cmd = msg.topic.replace(args.topic, "")
         logging.info("motion_sub cmd".format(cmd))
-    except:
-        logging.error("motion_sub {}".format(sys.exc_info()[0]))
+        try:
+            logging.info("motion_sub cmd".format(cmd))
+        except:
+            logging.error("motion_sub {}".format(sys.exc_info()[0]))
 
 
 if __name__ == "__main__":
