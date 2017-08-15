@@ -17,7 +17,7 @@ def my_callback(mqttc, obj, msg):
         cmd = x
         if x.endswith('#'):
             cmd = x[:-1]
-        cmd = msg.topic.replace(args.topic, "")
+        cmd = msg.topic.replace(cmd, "")
         logging.info("motion_sub cmd".format(cmd))
         try:
             logging.info("motion_sub cmd".format(cmd))
