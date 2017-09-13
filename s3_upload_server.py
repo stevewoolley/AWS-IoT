@@ -18,16 +18,15 @@ def upload(myfile):
     try:
         transfer.upload_file(myfile, args.bucket, os.path.basename(myfile))
     except (OSError, IOError):
-        print("Error: Wrong source file or source file path")
+        logging.error("Error: Wrong source file or source file path: {}", myfile)
     except boto3.exceptions.S3UploadFailedError:
-        print("Error: Failed to upload file to S3")
+        logging.error("Error: Failed to upload file to S3: {}", myfile)
 
 
 # each worker does this
 def pull_from_queue():
     while True:
         item = Q.get()
-        print "Found %s in queue" % item
         upload(item)
 
 
@@ -64,7 +63,7 @@ if __name__ == "__main__":
         while True:
             conn, addr = serversocket.accept()
             data = conn.recv(args.max_received_bytes)
-            print("Received from client: {}".format(data))
+            logging.info("Received from client: {}".format(data))
             Q.put(data)
             conn.send('SUCCESS')
             conn.close()
