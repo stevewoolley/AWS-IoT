@@ -7,8 +7,7 @@ if __name__ == "__main__":
     # parse arguments
     parser = argparse.ArgumentParser()
     parser.add_argument("-p", "--port", help="Network port", type=int, default=9999)
-    parser.add_argument("-x", "--max_received_bytes", help="Receive no more than this number of bytes", type=int,
-                        default=1024)
+    parser.add_argument("-x", "--max_received_bytes", help="Max number of bytes", type=int, default=1024)
     parser.add_argument("-s", "--host", help="Host", default='')
     parser.add_argument("-d", "--data", help="Data to send server", default='PING')
 
