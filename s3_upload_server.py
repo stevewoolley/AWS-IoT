@@ -21,6 +21,11 @@ def upload(myfile):
         logging.error("Error: Wrong source file or source file path: {}", myfile)
     except boto3.exceptions.S3UploadFailedError:
         logging.error("Error: Failed to upload file to S3: {}", myfile)
+    if args.delete:
+        try:
+            os.remove(myfile)
+        except (OSError, IOError):
+            logging.error("Error: Unable to delete: {}", myfile)
 
 
 # each worker does this
@@ -38,7 +43,8 @@ if __name__ == "__main__":
     parser.add_argument("-w", "--workers", help="Number of workers", type=int, default=1)
     parser.add_argument("-n", "--max_connections", help="Max number connections", type=int, default=5)
     parser.add_argument("-s", "--host", help="Host", default='127.0.0.1')
-    parser.add_argument("-x", "--max_received_bytes", help="Max number of bytes", type=int, default=1024)
+    parser.add_argument("-m", "--max_received_bytes", help="Max number of bytes", type=int, default=1024)
+    parser.add_argument("-x", "--delete", help="delete file when complete", action='store_true')
     parser.add_argument("-l", "--log_level", help="Log Level", default=logging.WARNING)
     args = parser.parse_args()
 

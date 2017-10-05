@@ -28,7 +28,7 @@ if __name__ == "__main__":
     parser.add_argument("-p", "--pin", help="gpio pin (using BCM numbering)", type=int, required=True)
     parser.add_argument("-y", "--dht_type", help="DHT sensor type %s" % SENSORS, type=int, default=Adafruit_DHT.DHT22)
 
-    parser.add_argument("-l", "--log_level", help="Log Level", default=logging.WARNING)
+    parser.add_argument("-l", "--log_level", help="Log Level", default=logging.INFO)
 
     args = parser.parse_args()
 
