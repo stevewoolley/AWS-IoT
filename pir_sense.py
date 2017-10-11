@@ -30,14 +30,10 @@ if __name__ == "__main__":
     )
 
     try:
-        motion = False
         while True:
-            if motion is False and pir.motion_detected:
-                motion = True
-                print("MOTION DETECTED {}".format(datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
-            elif motion is True and not pir.motion_detected:
-                motion = False
-                print("STILL {}".format(datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
-            time.sleep(0.1)
+            pir.wait_for_motion()
+            print("MOTION DETECTED {}".format(datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+            pir.wait_for_no_motion()
+            print("STILL {}".format(datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
     except (KeyboardInterrupt, SystemExit):
         sys.exit()
