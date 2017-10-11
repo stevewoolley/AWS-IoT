@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import argparse
-import time
 from datetime import datetime
 import sys
 from gpiozero import MotionSensor

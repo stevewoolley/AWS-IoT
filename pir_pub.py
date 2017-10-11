@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import argparse
-import time
 import sys
 import logging
 import platform
@@ -75,14 +74,10 @@ if __name__ == "__main__":
     )
 
     try:
-        motion = False
         while True:
-            if motion is False and pir.motion_detected:
-                motion = True
-                publicize({SOURCE: args.source, VALUE: motion})
-            elif motion is True and not pir.motion_detected:
-                motion = False
-                publicize({SOURCE: args.source, VALUE: motion})
-            time.sleep(0.2)
+            pir.wait_for_motion()
+            publicize({SOURCE: args.source, VALUE: True})
+            pir.wait_for_no_motion()
+            publicize({SOURCE: args.source, VALUE: False})
     except (KeyboardInterrupt, SystemExit):
         sys.exit()
