@@ -17,7 +17,7 @@ LOG_FILE = '/var/log/iot.log'
 def high():
     if args.cushion > 0.0:
         time.sleep(args.cushion)
-        if sensor.active_time is not None:
+        if sensor.active_time >= args.cushion:
             publicize({SOURCE: args.source,
                        MESSAGE: args.high_value,
                        ALERT_COUNT: args.high_alert})
