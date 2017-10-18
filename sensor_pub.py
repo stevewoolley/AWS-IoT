@@ -22,14 +22,10 @@ def high():
             time.sleep(args.cushion)
             if sensor.is_pressed:
                 is_high = True
-                publicize({SOURCE: args.source,
-                           MESSAGE: args.high_value,
-                           ALERT_COUNT: args.high_alert})
+                publicize({SOURCE: args.source, MESSAGE: args.high_value, ALERT_COUNT: args.high_alert})
     else:
         is_high = True
-        publicize({SOURCE: args.source,
-                   MESSAGE: args.high_value,
-                   ALERT_COUNT: args.high_alert})
+        publicize({SOURCE: args.source, MESSAGE: args.high_value, ALERT_COUNT: args.high_alert})
 
 
 def low():
@@ -39,14 +35,10 @@ def low():
             time.sleep(args.cushion)
             if not sensor.is_pressed:
                 is_high = False
-                publicize({SOURCE: args.source,
-                           MESSAGE: args.low_value,
-                           ALERT_COUNT: args.low_alert})
+                publicize({SOURCE: args.source, MESSAGE: args.low_value, ALERT_COUNT: args.low_alert})
     else:
         is_high = False
-        publicize({SOURCE: args.source,
-                   MESSAGE: args.low_value,
-                   ALERT_COUNT: args.low_alert})
+        publicize({SOURCE: args.source, MESSAGE: args.low_value, ALERT_COUNT: args.low_alert})
 
 
 def publicize(article):
@@ -101,7 +93,6 @@ if __name__ == "__main__":
     logging.basicConfig(filename=LOG_FILE, level=args.log_level)
 
     sensor = Button(args.pin)
-
     sensor.when_pressed = high
     sensor.when_released = low
 
