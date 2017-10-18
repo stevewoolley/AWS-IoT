@@ -16,14 +16,8 @@ LOG_FILE = '/var/log/iot.log'
 
 def high():
     if args.cushion > 0.0:
-        logging.info("sensor_pub high cushion sleep start")
         time.sleep(args.cushion)
-        logging.info("sensor_pub high cushion sleep stop")
-        logging.info("held time: {} ".format(sensor.held_time))
-        logging.info("active time: {} ".format(sensor.active_time))
-
-        if sensor.held_time is not None:
-            logging.info("sensor_pub high cushioned fire")
+        if sensor.active_time is not None:
             publicize({SOURCE: args.source,
                        MESSAGE: args.high_value,
                        ALERT_COUNT: args.high_alert})
@@ -35,13 +29,8 @@ def high():
 
 def low():
     if args.cushion > 0.0:
-        logging.info("sensor_pub low cushion sleep start")
         time.sleep(args.cushion)
-        logging.info("sensor_pub low cushion sleep stop")
-        logging.info("held time: {} ".format(sensor.held_time))
-        logging.info("active time: {} ".format(sensor.active_time))
-        if sensor.held_time is None:
-            logging.info("sensor_pub low cushioned fire")
+        if sensor.active_time is None:
             publicize({SOURCE: args.source,
                        MESSAGE: args.low_value,
                        ALERT_COUNT: args.low_alert})
