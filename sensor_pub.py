@@ -15,9 +15,12 @@ LOG_FILE = '/var/log/iot.log'
 
 
 def high():
-    if args.cushion > 0:
+    if args.cushion > 0.0:
+        logging.info("sensor_pub high cushion sleep start")
         time.sleep(args.cushion)
+        logging.info("sensor_pub high cushion sleep stop")
         if sensor.held_time is not None:
+            logging.info("sensor_pub high cushioned fire")
             publicize({SOURCE: args.source,
                        MESSAGE: args.high_value,
                        ALERT_COUNT: args.high_alert})
@@ -28,9 +31,12 @@ def high():
 
 
 def low():
-    if args.cushion > 0:
+    if args.cushion > 0.0:
+        logging.info("sensor_pub low cushion sleep start")
         time.sleep(args.cushion)
+        logging.info("sensor_pub low cushion sleep stop")
         if sensor.held_time is None:
+            logging.info("sensor_pub low cushioned fire")
             publicize({SOURCE: args.source,
                        MESSAGE: args.low_value,
                        ALERT_COUNT: args.low_alert})
@@ -84,7 +90,7 @@ if __name__ == "__main__":
     parser.add_argument("-z", "--low_value", help="low value", default="low")
     parser.add_argument("-a", "--high_alert", help="high alert", type=int, default=2)
     parser.add_argument("-b", "--low_alert", help="low alert", type=int, default=1)
-    parser.add_argument("-w", "--cushion", help="seconds of cushion for twitchy sensor", type=float, default=0)
+    parser.add_argument("-w", "--cushion", help="seconds of cushion for twitchy sensor", type=float, default=0.0)
 
     parser.add_argument("-l", "--log_level", help="Log Level", default=logging.INFO)
 
