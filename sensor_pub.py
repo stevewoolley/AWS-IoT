@@ -20,6 +20,7 @@ def high():
         time.sleep(args.cushion)
         logging.info("sensor_pub high cushion sleep stop")
         logging.info("held time: {} ".format(sensor.held_time))
+        logging.info("active time: {} ".format(sensor.active_time))
 
         if sensor.held_time is not None:
             logging.info("sensor_pub high cushioned fire")
@@ -37,6 +38,8 @@ def low():
         logging.info("sensor_pub low cushion sleep start")
         time.sleep(args.cushion)
         logging.info("sensor_pub low cushion sleep stop")
+        logging.info("held time: {} ".format(sensor.held_time))
+        logging.info("active time: {} ".format(sensor.active_time))
         if sensor.held_time is None:
             logging.info("sensor_pub low cushioned fire")
             publicize({SOURCE: args.source,
