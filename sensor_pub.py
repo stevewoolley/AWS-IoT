@@ -17,7 +17,6 @@ LOG_FILE = '/var/log/iot.log'
 def high():
     if args.cushion > 0:
         time.sleep(args.cushion)
-        print(sensor.HIGH)
         if sensor.held_time is not None:
             publicize({SOURCE: args.source,
                        MESSAGE: args.high_value,
