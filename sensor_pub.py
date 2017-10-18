@@ -1,17 +1,28 @@
 #!/usr/bin/env python
 
 import argparse
-import time
-import sys
 import logging
 import platform
 from cloud_tools import Publisher
-from sensor import Sensor
+from gpiozero import Button
+from signal import pause
 
 MESSAGE = 'message'
 SOURCE = 'source'
 ALERT_COUNT = 'alert_count'
 LOG_FILE = '/var/log/iot.log'
+
+
+def high():
+    publicize({SOURCE: args.source,
+               MESSAGE: args.high_value,
+               ALERT_COUNT: args.high_alert})
+
+
+def low():
+    publicize({SOURCE: args.source,
+               MESSAGE: args.low_value,
+               ALERT_COUNT: args.low_alert})
 
 
 def publicize(article):
@@ -54,8 +65,10 @@ if __name__ == "__main__":
     parser.add_argument("-t", "--topic", help="MQTT topic(s)", nargs='+', required=False)
 
     parser.add_argument("-p", "--pin", help="gpio pin (BCM)", type=int, required=True)
-    parser.add_argument("-y", "--high_value", help="high value", default=Sensor.HIGH)
-    parser.add_argument("-z", "--low_value", help="low value", default=Sensor.LOW)
+    parser.add_argument("-y", "--high_value", help="high value", default="high")
+    parser.add_argument("-z", "--low_value", help="low value", default="low")
+    parser.add_argument("-a", "--high_alert", help="high alert", default=2)
+    parser.add_argument("-b", "--low_alert", help="low alert", default=1)
 
     parser.add_argument("-l", "--log_level", help="Log Level", default=logging.INFO)
 
@@ -63,27 +76,9 @@ if __name__ == "__main__":
 
     logging.basicConfig(filename=LOG_FILE, level=args.log_level)
 
-    sensor = Sensor(args.pin)
-    sensor.start()
+    sensor = Button(args.pin)
 
-    last_state = None
-    current_state = None
-    try:
-        while True:
-            status = None
-            current_state = sensor.reading()
-            if current_state != last_state:
-                alert_count = 2
-                last_state = current_state  # reset state value
-                if current_state == Sensor.LOW:
-                    alert_count = 1
-                    status = args.low_value
-                else:
-                    status = args.high_value
-                # publish change to thing
-                publicize({SOURCE: args.source,
-                           MESSAGE: status,
-                           ALERT_COUNT: alert_count})
-            time.sleep(0.2)
-    except (KeyboardInterrupt, SystemExit):
-        sys.exit()
+    sensor.when_pressed = high
+    sensor.when_released = low
+
+    pause()
