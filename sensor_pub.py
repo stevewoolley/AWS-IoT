@@ -17,13 +17,14 @@ is_high = False
 
 def high():
     global is_high
-    if args.cushion > 0.0 and not is_high:
-        time.sleep(args.cushion)
-        if sensor.is_pressed:
-            is_high = True
-            publicize({SOURCE: args.source,
-                       MESSAGE: args.high_value,
-                       ALERT_COUNT: args.high_alert})
+    if args.cushion > 0.0:
+        if not is_high:
+            time.sleep(args.cushion)
+            if sensor.is_pressed:
+                is_high = True
+                publicize({SOURCE: args.source,
+                           MESSAGE: args.high_value,
+                           ALERT_COUNT: args.high_alert})
     else:
         is_high = True
         publicize({SOURCE: args.source,
@@ -33,13 +34,14 @@ def high():
 
 def low():
     global is_high
-    if args.cushion > 0.0 and is_high:
-        time.sleep(args.cushion)
-        if not sensor.is_pressed:
-            is_high = False
-            publicize({SOURCE: args.source,
-                       MESSAGE: args.low_value,
-                       ALERT_COUNT: args.low_alert})
+    if args.cushion > 0.0:
+        if is_high:
+            time.sleep(args.cushion)
+            if not sensor.is_pressed:
+                is_high = False
+                publicize({SOURCE: args.source,
+                           MESSAGE: args.low_value,
+                           ALERT_COUNT: args.low_alert})
     else:
         is_high = False
         publicize({SOURCE: args.source,
