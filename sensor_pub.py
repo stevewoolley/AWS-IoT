@@ -12,29 +12,36 @@ MESSAGE = 'message'
 SOURCE = 'source'
 ALERT_COUNT = 'alert_count'
 LOG_FILE = '/var/log/iot.log'
+is_high = False
 
 
 def high():
-    if args.cushion > 0.0:
+    global is_high
+    if args.cushion > 0.0 and not is_high:
         time.sleep(args.cushion)
         if sensor.is_pressed:
+            is_high = True
             publicize({SOURCE: args.source,
                        MESSAGE: args.high_value,
                        ALERT_COUNT: args.high_alert})
     else:
+        is_high = True
         publicize({SOURCE: args.source,
                    MESSAGE: args.high_value,
                    ALERT_COUNT: args.high_alert})
 
 
 def low():
-    if args.cushion > 0.0:
+    global is_high
+    if args.cushion > 0.0 and is_high:
         time.sleep(args.cushion)
         if not sensor.is_pressed:
+            is_high = False
             publicize({SOURCE: args.source,
                        MESSAGE: args.low_value,
                        ALERT_COUNT: args.low_alert})
     else:
+        is_high = False
         publicize({SOURCE: args.source,
                    MESSAGE: args.low_value,
                    ALERT_COUNT: args.low_alert})
@@ -66,7 +73,6 @@ def publicize(article):
 
 
 if __name__ == "__main__":
-
     # parse arguments
     parser = argparse.ArgumentParser()
     parser.add_argument("-e", "--endpoint", help="AWS IoT endpoint")
