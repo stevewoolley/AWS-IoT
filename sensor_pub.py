@@ -3,6 +3,7 @@
 import argparse
 import logging
 import platform
+import time
 from cloud_tools import Publisher
 from gpiozero import Button
 from signal import pause
@@ -14,15 +15,29 @@ LOG_FILE = '/var/log/iot.log'
 
 
 def high():
-    publicize({SOURCE: args.source,
-               MESSAGE: args.high_value,
-               ALERT_COUNT: args.high_alert})
+    if args.cushion > 0:
+        time.sleep(args.cushion)
+        if sensor.held_time >= args.cushion:
+            publicize({SOURCE: args.source,
+                       MESSAGE: args.high_value,
+                       ALERT_COUNT: args.high_alert})
+    else:
+        publicize({SOURCE: args.source,
+                   MESSAGE: args.high_value,
+                   ALERT_COUNT: args.high_alert})
 
 
 def low():
-    publicize({SOURCE: args.source,
-               MESSAGE: args.low_value,
-               ALERT_COUNT: args.low_alert})
+    if args.cushion > 0:
+        time.sleep(args.cushion)
+        if sensor.held_time is None:
+            publicize({SOURCE: args.source,
+                       MESSAGE: args.low_value,
+                       ALERT_COUNT: args.low_alert})
+    else:
+        publicize({SOURCE: args.source,
+                   MESSAGE: args.low_value,
+                   ALERT_COUNT: args.low_alert})
 
 
 def publicize(article):
@@ -67,8 +82,9 @@ if __name__ == "__main__":
     parser.add_argument("-p", "--pin", help="gpio pin (BCM)", type=int, required=True)
     parser.add_argument("-y", "--high_value", help="high value", default="high")
     parser.add_argument("-z", "--low_value", help="low value", default="low")
-    parser.add_argument("-a", "--high_alert", help="high alert", default=2)
-    parser.add_argument("-b", "--low_alert", help="low alert", default=1)
+    parser.add_argument("-a", "--high_alert", help="high alert", type=int, default=2)
+    parser.add_argument("-b", "--low_alert", help="low alert", type=int, default=1)
+    parser.add_argument("-w", "--cushion", help="low alert", type=float, default=0)
 
     parser.add_argument("-l", "--log_level", help="Log Level", default=logging.INFO)
 
