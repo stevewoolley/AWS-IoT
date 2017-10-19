@@ -23,7 +23,7 @@ def my_callback(client, userdata, message):
         logging.info("supervisor_sub {} {}".format(CMD, msg[CMD]))
     try:
         server = xmlrpclib.Server('http://localhost:9001/RPC2')
-        logging.error("supervisor_sub {}".format(server.system.getProcessInfo(msg[PROCESS])))
+        logging.error("supervisor_sub {}".format(server.supervisor.getProcessInfo(msg[PROCESS])))
     except:
         logging.error("supervisor_sub {}".format(sys.exc_info()[0]))
 
