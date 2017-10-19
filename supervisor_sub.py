@@ -15,7 +15,7 @@ SOURCE = 'source'
 LOG_FILE = '/var/log/iot.log'
 PROCESS = 'process'
 CMD = 'command'
-
+SUPERVISOR_KEYS = ['name', 'statename', 'description']
 
 def publicize(article):
     logging.info("sensor_pub {} {}".format(args.name, article))
@@ -51,6 +51,10 @@ def my_callback(client, userdata, message):
         else:
             info = server.supervisor.getAllProcessInfo()
             logging.info("supervisor_sub {}".format(info))
+            for i in info:
+                diff = set(i.keys()) - set(SUPERVISOR_KEYS)
+                for j in diff:
+                    i.pop(j)
             publicize({SOURCE: args.source, MESSAGE: info})
     except:
         logging.error("supervisor_sub {}".format(sys.exc_info()[0]))
