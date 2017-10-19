@@ -2,15 +2,33 @@
 
 import argparse
 import time
+import platform
 import sys
 import json
 import xmlrpclib
 import logging
 from cloud_tools import Subscriber
+from cloud_tools import Publisher
 
+MESSAGE = 'message'
+SOURCE = 'source'
 LOG_FILE = '/var/log/iot.log'
 PROCESS = 'process'
 CMD = 'command'
+
+
+def publicize(article):
+    logging.info("sensor_pub {} {}".format(args.name, article))
+    # publish to thing
+    doc = {args.source: article[MESSAGE]}
+    Publisher(
+        args.endpoint,
+        args.rootCA,
+        args.key,
+        args.cert,
+        clientID=args.clientID,
+        log_level=args.log_level
+    ).report(Publisher.THING_SHADOW.format(args.name), {Publisher.STATE: {Publisher.REPORTED: doc}})
 
 
 def my_callback(client, userdata, message):
@@ -31,7 +49,9 @@ def my_callback(client, userdata, message):
             else:
                 logging.info("supervisor_sub {}".format(server.supervisor.getProcessInfo(msg[PROCESS])))
         else:
-            logging.info("supervisor_sub {}".format(server.supervisor.getAllProcessInfo()))
+            info = server.supervisor.getAllProcessInfo()
+            logging.info("supervisor_sub {}".format(info))
+            publicize({SOURCE: args.source, MESSAGE: info})
     except:
         logging.error("supervisor_sub {}".format(sys.exc_info()[0]))
 
@@ -47,6 +67,8 @@ if __name__ == "__main__":
     parser.add_argument("-k", "--key", help="Private key file path")
 
     parser.add_argument("-t", "--topic", help="MQTT topic(s)", nargs='+', required=False)
+    parser.add_argument("-n", "--name", help="Thing name", default=platform.node().split('.')[0])
+    parser.add_argument("-s", "--source", help="Source", default="supervisor")
 
     parser.add_argument("-l", "--log_level", help="Log Level", default=logging.INFO)
 
