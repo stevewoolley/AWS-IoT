@@ -18,15 +18,16 @@ def my_callback(client, userdata, message):
     msg = json.loads(message.payload)
     try:
         server = xmlrpclib.Server('http://localhost:9001/RPC2')
-        if msg[CMD] == 'stop' and PROCESS in msg:
-            server.supervisor.stopProcess(msg[PROCESS])
-        elif msg[CMD] == 'start' and PROCESS in msg:
-            server.supervisor.startProcess(msg[PROCESS])
-        else:
-            if PROCESS in msg:
-                logging.info("supervisor_sub {}".format(server.supervisor.getProcessInfo(msg[PROCESS])))
+        if PROCESS in msg:
+            if CMD in msg:
+                if msg[CMD] == 'stop':
+                    server.supervisor.stopProcess(msg[PROCESS])
+                elif msg[CMD] == 'start':
+                    server.supervisor.startProcess(msg[PROCESS])
             else:
-                logging.info("supervisor_sub {}".format(server.supervisor.getAllProcessInfo()))
+                logging.info("supervisor_sub {}".format(server.supervisor.getProcessInfo(msg[PROCESS])))
+        else:
+            logging.info("supervisor_sub {}".format(server.supervisor.getAllProcessInfo()))
     except:
         logging.error("supervisor_sub {}".format(sys.exc_info()[0]))
 
