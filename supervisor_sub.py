@@ -24,6 +24,10 @@ def my_callback(client, userdata, message):
                     server.supervisor.stopProcess(msg[PROCESS])
                 elif msg[CMD] == 'start':
                     server.supervisor.startProcess(msg[PROCESS])
+                elif msg[CMD] == 'restart':
+                    server.supervisor.stopProcess(msg[PROCESS])
+                    time.sleep(1)
+                    server.supervisor.startProcess(msg[PROCESS])
             else:
                 logging.info("supervisor_sub {}".format(server.supervisor.getProcessInfo(msg[PROCESS])))
         else:
