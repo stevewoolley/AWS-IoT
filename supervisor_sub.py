@@ -10,20 +10,21 @@ import logging
 from cloud_tools import Subscriber
 
 LOG_FILE = '/var/log/iot.log'
+PROCESS = 'process'
+CMD = 'command'
 
 
 def my_callback(client, userdata, message):
     logging.info("supervisor_sub {} {} {}".format(message.topic, message.qos, message.payload))
-    for x in args.topic:
-        cmd = x
-        if x.endswith('#'):
-            cmd = x[:-1]
-        cmd = message.topic.replace(cmd, "")
-        try:
-            logging.info("supervisor_sub command {}".format(cmd))
-            server = xmlrpclib.Server('http://localhost:9001/RPC2')
-        except:
-            logging.error("supervisor_sub {}".format(sys.exc_info()[0]))
+    msg = json.loads(message.payload)
+    if PROCESS in msg:
+        logging.info("supervisor_sub {} {}".format(PROCESS, msg[PROCESS]))
+    if CMD in msg:
+        logging.info("supervisor_sub {} {}".format(CMD, msg[CMD]))
+    try:
+        server = xmlrpclib.Server('http://localhost:9001/RPC2')
+    except:
+        logging.error("supervisor_sub {}".format(sys.exc_info()[0]))
 
 
 if __name__ == "__main__":
