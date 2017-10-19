@@ -23,12 +23,12 @@ def my_callback(client, userdata, message):
         logging.info("supervisor_sub {} {}".format(CMD, msg[CMD]))
     try:
         server = xmlrpclib.Server('http://localhost:9001/RPC2')
-        if CMD == 'stop':
+        if msg[CMD] == 'stop':
             server.supervisor.stopProcess(msg[PROCESS])
-        elif CMD == 'start':
+        elif msg[CMD] == 'start':
             server.supervisor.startProcess(msg[PROCESS])
         else:
-            logging.error("supervisor_sub {}".format(server.supervisor.getProcessInfo(msg[PROCESS])))
+            logging.info("supervisor_sub {}".format(server.supervisor.getProcessInfo(msg[PROCESS])))
     except:
         logging.error("supervisor_sub {}".format(sys.exc_info()[0]))
 
